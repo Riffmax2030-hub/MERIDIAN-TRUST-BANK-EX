@@ -19,35 +19,45 @@
   <!-- Modal Overlay -->
   <div id="modal-overlay" class="modal-overlay"></div>
 
-  <!-- Alert Bar -->
-  <div class="site-alert">
-    Meridian Trust Bank — Licensed Offshore Digital Institution &nbsp;|&nbsp; FDIC Member Equivalent &nbsp;|&nbsp; AES-256 Encrypted Sessions &nbsp;|&nbsp; 100% Full-Reserve Custody
-  </div>
-
   <!-- Header -->
   <header class="main-header">
-    <div class="header-container">
-      <div class="logo-area" onclick="navigateTo('#')">
-        <svg class="bank-logo-icon" viewBox="0 0 28 28" width="32" height="32" fill="none">
-          <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.5" opacity="0.25"/>
-          <path d="M14 2 C14 26 M2 14 H26" stroke="currentColor" stroke-width="0.8" opacity="0.2"/>
-          <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-        <div class="logo-wordmark">
-          <span class="logo-main">Meridian Trust</span>
-          <span class="logo-sub">International Private Banking</span>
+    <!-- Row 1: Logo & Secondary Links -->
+    <div class="header-top-row">
+      <div class="header-top-left">
+        <div class="logo-area" onclick="nav('#/')">
+          <div class="citi-style-logo">
+            <span class="logo-text-blue">meridian</span>
+            <span class="logo-text-arc"></span>
+          </div>
+        </div>
+        <div class="header-fdic-divider"></div>
+        <div class="header-fdic-text">
+          <strong>FDIC</strong> <span class="fdic-insured-label">FDIC-insured – Backed by the full faith and credit of the U.S. Government</span>
+          <span class="fdic-subtext">Meridian Trust, N.A.</span>
         </div>
       </div>
-
-      <nav class="nav-menu" id="nav-links"></nav>
-
-      <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none">
-          <line x1="3" y1="8" x2="21" y2="8"></line>
-          <line x1="3" y1="16" x2="21" y2="16"></line>
-        </svg>
-      </button>
+      <div class="header-top-right">
+        <a class="header-top-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg> ATM / BRANCH</a>
+        <a class="header-top-link"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ESPAÑOL</a>
+      </div>
+    </div>
+    
+    <!-- Row 2: Navigation Links -->
+    <div class="header-bottom-row">
+      <div class="header-container-bottom">
+        <nav class="nav-menu">
+          <a class="nav-link" onclick="nav('#/')">Credit Cards</a>
+          <a class="nav-link" onclick="nav('#/')">Banking</a>
+          <a class="nav-link" onclick="nav('#/')">Lending</a>
+          <a class="nav-link" onclick="nav('#/')">Investing</a>
+          <a class="nav-link" onclick="nav('#/')">Wealth Management</a>
+          <a class="nav-link" onclick="nav('#/register')" style="color:#0066CC;font-weight:700;">Open an Account &gt;</a>
+        </nav>
+        <div class="header-search">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>How can we help?</span>
+        </div>
+      </div>
     </div>
   </header>
 

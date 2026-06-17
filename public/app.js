@@ -144,47 +144,107 @@ const icons = {
 // Landing Page
 function renderLanding() {
   setRoot(`
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <div class="hero-tag">Full-Reserve Offshore Banking</div>
-          <h1 class="hero-title">International Banking Built for Global Commerce</h1>
-          <p class="hero-desc">Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.</p>
-          <div class="hero-actions">
-            <button class="btn-hero-primary" onclick="nav('#/register')">Open an Account</button>
-            <button class="btn-hero-outline" onclick="nav('#/login')">Client Portal Login</button>
+    <!-- Hero Section: Citibank Style -->
+    <section class="hero-citi">
+      <div class="hero-citi-inner">
+        <!-- Hero Left Content -->
+        <div class="hero-citi-left">
+          <div class="hero-citi-label">MERIDIAN PLATINUM®</div>
+          <h1 class="hero-citi-title">Great for Global Capital</h1>
+          <p class="hero-citi-desc">Enjoy multi-currency balances, zero international transaction fees, and instant corporate credit lines.</p>
+          <div style="display:flex;align-items:center;gap:18px;margin-top:24px;">
+            <button class="btn-citi-primary" onclick="nav('#/register')">Apply Now</button>
+            <a onclick="nav('#/register')" class="citi-link-pricing">*Pricing and Information</a>
           </div>
         </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-card-stack">
-            <div class="hero-debit-card card-back"></div>
-            <div class="hero-debit-card card-front">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div class="card-chip"></div>
-                <span style="font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.06em;">DEBIT</span>
+
+        <!-- Hero Card Graphic in 180 degrees -->
+        <div class="hero-citi-card-container">
+          <div class="meridian-platinum-card">
+            <div class="card-inner-top">
+              <span class="card-chip-citi"></span>
+              <span class="card-contactless-citi">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 8a6 6 0 0 1 0 8M8 6a9 9 0 0 1 0 12M11 4a12 12 0 0 1 0 16"/></svg>
+              </span>
+            </div>
+            <div class="card-inner-mid">
+              <div class="card-logo-citi">
+                <span style="font-weight:850;font-size:16px;">meridian</span>
+                <span class="logo-text-arc-mini"></span>
               </div>
-              <div>
-                <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;4821</div>
-              </div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-                <div><div class="card-label">Cardholder</div><div class="card-value">MERIDIAN CLIENT</div></div>
-                <div style="text-align:right;"><div class="card-label">Expires</div><div class="card-value">12/31</div></div>
-              </div>
+              <div class="card-name-platinum">PLATINUM</div>
+            </div>
+            <div class="card-inner-bottom">
+              <span class="card-holder-name">LINDA WALKER</span>
+              <span class="card-brand-circles">
+                <span class="brand-circle-red"></span>
+                <span class="brand-circle-yellow"></span>
+              </span>
             </div>
           </div>
         </div>
-      </div>
-      <div class="trust-bar">
-        <div class="trust-bar-inner">
-          <div class="trust-item">${icons.shield} AES-256 Encryption</div>
-          <div class="trust-item">${icons.lock} Two-Factor Authentication</div>
-          <div class="trust-item">${icons.globe} SWIFT & SEPA Compatible</div>
-          <div class="trust-item">${icons.card} Instant Card Issuance</div>
-          <div class="trust-item">${icons.check} Full-Reserve Custody</div>
+
+        <!-- Hero Right Login Box -->
+        <div class="hero-citi-login-box">
+          <form onsubmit="handleLogin(event)">
+            <div style="display:flex;gap:12px;">
+              <div class="form-group-citi" style="flex:1;">
+                <label class="label-citi">User ID</label>
+                <input type="text" id="f-uid" class="input-citi" required>
+              </div>
+              <div class="form-group-citi" style="flex:1; position:relative;">
+                <label class="label-citi">Password</label>
+                <input type="password" id="f-pwd" class="input-citi" required>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;width:100%;margin-top:14px;">
+              <input type="checkbox" id="remember-uid" class="checkbox-citi">
+              <label for="remember-uid" class="checkbox-label-citi">Remember User ID</label>
+            </div>
+            <button type="submit" class="btn-citi-login-submit">Sign On</button>
+            <div class="login-box-footer-links">
+              <a onclick="nav('#/register')">Register / Activate</a>
+              <span style="color:#d0d7e2;">|</span>
+              <a onclick="nav('#/login')">Forgot User ID or Password</a>
+            </div>
+            <div class="passwordless-signon-btn" onclick="nav('#/login')">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right:6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Passwordless Sign On
+            </div>
+          </form>
         </div>
       </div>
     </section>
+
+    <!-- Citibank-style bottom navigation strip -->
+    <div class="citi-nav-strip">
+      <div class="citi-nav-strip-inner">
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <span style="font-weight:600;">Credit Cards</span>
+        </div>
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg></div>
+          <span style="font-weight:600;">Checking Accounts</span>
+        </div>
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <span style="font-weight:600;">Mortgage</span>
+        </div>
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <span style="font-weight:600;">Personal Loans</span>
+        </div>
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <span style="font-weight:600;">Investing Options</span>
+        </div>
+        <div class="citi-nav-item" onclick="nav('#/')">
+          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+          <span style="font-weight:600;">Small Business</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Features -->
     <section class="landing-section">

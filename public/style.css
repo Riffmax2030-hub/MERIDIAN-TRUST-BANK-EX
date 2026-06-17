@@ -1278,3 +1278,384 @@ a:hover { text-decoration: underline; }
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── Citibank Desktop Realism Overhaul ── */
+.header-top-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-top-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.header-fdic-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #cbd5e1;
+}
+.header-fdic-text {
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.35;
+}
+.fdic-insured-label {
+  font-style: italic;
+  font-weight: 400;
+  color: #64748b;
+}
+.fdic-subtext {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+}
+.header-top-right {
+  display: flex;
+  gap: 24px;
+}
+.header-top-link {
+  font-size: 11px;
+  color: #475569;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+.header-top-link:hover {
+  color: #0066CC;
+}
+
+.header-bottom-row {
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.header-container-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #0F172A;
+  font-weight: 600;
+  cursor: pointer;
+}
+.header-search svg {
+  color: #0066cc;
+}
+
+.citi-style-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 850;
+  font-size: 32px;
+  color: #002c77;
+  letter-spacing: -1.5px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+.logo-text-blue {
+  color: #002c77;
+}
+.logo-text-arc {
+  position: absolute;
+  top: 1px;
+  left: 6%;
+  right: 6%;
+  height: 8px;
+  border-radius: 50% 50% 0 0;
+  border-top: 3.5px solid #d0021b;
+}
+
+/* Hero Section split */
+.hero-citi {
+  background: #f1f5f9 url('bank_hero_bg.png') no-repeat center center;
+  background-size: cover;
+  padding: 56px 0;
+  position: relative;
+  border-bottom: 1px solid #cbd5e1;
+}
+.hero-citi-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.hero-citi-left {
+  color: #0f172a;
+}
+.hero-citi-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.hero-citi-title {
+  font-size: 44px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.hero-citi-desc {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.6;
+  max-width: 380px;
+}
+.btn-citi-primary {
+  background-color: #0066cc;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 28px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-citi-primary:hover {
+  background-color: #004da6;
+}
+.citi-link-pricing {
+  font-size: 13px;
+  color: #0066cc;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Meridian Platinum flat card graphic (180 deg) */
+.hero-citi-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.meridian-platinum-card {
+  width: 280px;
+  height: 176px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  position: relative;
+  font-family: monospace;
+}
+.card-chip-citi {
+  width: 36px;
+  height: 28px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 4px;
+  display: inline-block;
+}
+.card-contactless-citi {
+  float: right;
+  color: rgba(255,255,255,0.4);
+}
+.card-logo-citi {
+  position: relative;
+  display: inline-block;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+}
+.logo-text-arc-mini {
+  position: absolute;
+  top: -2px;
+  left: 5%;
+  right: 5%;
+  height: 4px;
+  border-radius: 50% 50% 0 0;
+  border-top: 1.8px solid #d0021b;
+}
+.card-name-platinum {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.card-holder-name {
+  font-size: 11px;
+  color: #cbd5e1;
+  letter-spacing: 1px;
+}
+.card-brand-circles {
+  float: right;
+  display: flex;
+}
+.brand-circle-red {
+  width: 22px;
+  height: 22px;
+  background-color: #d0021b;
+  border-radius: 50%;
+  margin-right: -10px;
+}
+.brand-circle-yellow {
+  width: 22px;
+  height: 22px;
+  background-color: #ff9900;
+  border-radius: 50%;
+  opacity: 0.95;
+}
+
+/* Right side login box card */
+.hero-citi-login-box {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 24px;
+  width: 320px;
+  justify-self: end;
+}
+.form-group-citi {
+  display: flex;
+  flex-direction: column;
+}
+.label-citi {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+}
+.input-citi {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  font-size: 14px;
+}
+.input-citi:focus {
+  border-color: #0066cc;
+}
+.checkbox-citi {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.checkbox-label-citi {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-citi-login-submit {
+  width: 100%;
+  background-color: #0066cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+.btn-citi-login-submit:hover {
+  background-color: #004da6;
+}
+.login-box-footer-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.login-box-footer-links a {
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.passwordless-signon-btn {
+  width: 100%;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0066cc;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.passwordless-signon-btn:hover {
+  background-color: #e2e8f0;
+}
+
+/* Citi Bottom Navigation Strip */
+.citi-nav-strip {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.citi-nav-strip-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.citi-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #0066cc;
+  transition: all 0.2s ease;
+}
+.citi-nav-item:hover {
+  color: #004da6;
+}
+.citi-nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f0f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0066cc;
+}
+.citi-nav-item:hover .citi-nav-icon {
+  background-color: #e2e8f0;
+}
+
+/* Adjust standard body layout */
+.main-header {
+  border-bottom: none !important;
+}
