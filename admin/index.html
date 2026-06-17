@@ -73,6 +73,39 @@
     </div>
   </div>
 
+  <!-- Wire Transfer Control Modal -->
+  <div id="wire-modal" class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Configure Wire Transfers</h3>
+      <button class="modal-close-btn" onclick="closeWireModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:#666;margin-bottom:16px;line-height:1.5;">
+        Configure whether this user is allowed to send outbound global wire transfers and define the block message display.
+      </p>
+      <input type="hidden" id="wire-uid">
+      <div class="form-group">
+        <label class="form-label">Outbound Wire Status</label>
+        <select id="wire-status-select" class="form-select" onchange="toggleWirePresetSelector()">
+          <option value="ENABLED">ENABLED — Allow all wire transfers</option>
+          <option value="DISABLED">DISABLED — Block wire transfers</option>
+        </select>
+      </div>
+      <div class="form-group" id="wire-message-group" style="display:none;">
+        <label class="form-label">Block Error Message Template</label>
+        <select id="wire-preset-message" class="form-select" style="margin-bottom: 8px;" onchange="applyWirePresetMessage()">
+          <option value="downtime">System Downtime Message</option>
+          <option value="upgrade">System Upgrade Message</option>
+          <option value="issue">Account Issue (Visit Branch) Message</option>
+          <option value="custom">Custom Error Message...</option>
+        </select>
+        <label class="form-label">Display Error Message</label>
+        <textarea id="wire-block-message" class="form-input" style="height:80px;resize:none;" placeholder="Define the error message shown to user..."></textarea>
+      </div>
+      <button onclick="submitWireStatus()" class="btn btn-primary btn-full" style="margin-top:12px;">Save Wire Configuration</button>
+    </div>
+  </div>
+
   <!-- Admin Header -->
   <header class="admin-header">
     <div class="header-container">

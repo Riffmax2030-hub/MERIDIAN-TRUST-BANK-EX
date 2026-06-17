@@ -61,8 +61,18 @@ async function dbInit() {
         account_type VARCHAR(30) NOT NULL,
         kyc_status VARCHAR(30) NOT NULL,
         must_change_password BOOLEAN DEFAULT TRUE,
+        wire_status VARCHAR(30) NOT NULL DEFAULT 'ENABLED',
+        wire_block_message VARCHAR(250) NOT NULL DEFAULT '',
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Schema alterations for pre-existing PostgreSQL databases
+    await queryPG(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS wire_status VARCHAR(30) NOT NULL DEFAULT 'ENABLED';
+    `);
+    await queryPG(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS wire_block_message VARCHAR(250) NOT NULL DEFAULT '';
     `);
 
     await queryPG(`
@@ -547,6 +557,7 @@ async function dbGetAdminUsers() {
         id: u.id, name: u.name, email: u.email, phone: u.phone,
         address: u.address, state: u.state, zip: u.zip, ssn: u.ssn,
         kycStatus: u.kyc_status, createdAt: u.created_at,
+        wireStatus: u.wire_status || 'ENABLED', wireBlockMessage: u.wire_block_message || '',
         accounts: accounts.filter(a => a.user_id === u.id).map(a => ({
           id: a.id, userId: a.user_id, type: a.type, currency: a.currency,
           balance: parseFloat(a.balance), accountNumber: a.account_number, routingNumber: a.routing_number
@@ -562,6 +573,8 @@ async function dbGetAdminUsers() {
     return db.users.map(u => {
       return {
         ...u,
+        wireStatus: u.wireStatus || 'ENABLED',
+        wireBlockMessage: u.wireBlockMessage || '',
         accounts: db.accounts.filter(a => a.userId === u.id),
         cards: db.cards.filter(c => c.userId === u.id)
       };
@@ -883,6 +896,29 @@ app.post('/api/transactions/send', async (req, res) => {
   if (isNaN(num) || num <= 0) return res.status(400).json({ error: 'Amount must be positive.' });
 
   try {
+    // Check wire transfer block restriction status
+    let wireStatus = 'ENABLED';
+    let wireBlockMessage = '';
+    
+    if (usePostgres) {
+      const uRes = await queryPG('SELECT wire_status, wire_block_message FROM users WHERE id = $1', [userId]);
+      if (uRes.rows.length > 0) {
+        wireStatus = uRes.rows[0].wire_status;
+        wireBlockMessage = uRes.rows[0].wire_block_message;
+      }
+    } else {
+      const db = readJSONDB();
+      const user = db.users.find(u => u.id === userId);
+      if (user) {
+        wireStatus = user.wireStatus || 'ENABLED';
+        wireBlockMessage = user.wireBlockMessage || '';
+      }
+    }
+
+    if (wireStatus !== 'ENABLED') {
+      return res.status(400).json({ error: wireBlockMessage || 'Wire transfers are currently restricted for this account.' });
+    }
+
     const accounts = await dbGetAccounts(userId);
     const acc = accounts.find(a => a.id === accountId);
     if (!acc) return res.status(404).json({ error: 'Account not found.' });
@@ -1149,6 +1185,28 @@ app.post('/api/admin/user/adjust-balance', async (req, res) => {
     const acc = await dbAdjustBalance(accountId, amount);
     if (!acc) return res.status(404).json({ error: 'Account not found.' });
     res.json(acc);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Toggle Wires Status (Admin Control)
+app.post('/api/admin/user/toggle-wires', async (req, res) => {
+  const { userId, status, message } = req.body;
+  if (!userId || !status) return res.status(400).json({ error: 'User ID and status are required.' });
+
+  try {
+    if (usePostgres) {
+      await queryPG('UPDATE users SET wire_status = $1, wire_block_message = $2 WHERE id = $3', [status, message || '', userId]);
+    } else {
+      const db = readJSONDB();
+      const user = db.users.find(u => u.id === userId);
+      if (!user) return res.status(404).json({ error: 'User not found.' });
+      user.wireStatus = status;
+      user.wireBlockMessage = message || '';
+      writeJSONDB(db);
+    }
+    res.json({ message: 'Wire transfer status updated successfully.', userId, status });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
