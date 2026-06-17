@@ -1071,12 +1071,22 @@ app.post('/api/transactions/send', async (req, res) => {
       amount: num,
       currency,
       date: new Date().toISOString(),
-      status: 'COMPLETED',
+      status: 'PENDING',
       counterparty: recipientName,
       swiftDetails: { recipientAddress, recipientBank, swiftCode, routingNumber, accountNumber }
     };
 
-    await dbSendOutboundWire(tx, { amount: num, accountId, userId });
+    // Record pending transaction without debiting balance immediately
+    if (usePostgres) {
+      await queryPG(`
+        INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty, swift_details)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `, [tx.id, tx.accountId, tx.userId, tx.type, tx.description, tx.amount, tx.currency, tx.date, tx.status, tx.counterparty, JSON.stringify(tx.swiftDetails)]);
+    } else {
+      const db = readJSONDB();
+      db.transactions.push(tx);
+      writeJSONDB(db);
+    }
 
     // Clear transaction code on success
     if (usePostgres) {
@@ -1090,7 +1100,7 @@ app.post('/api/transactions/send', async (req, res) => {
       }
     }
 
-    res.json({ message: 'SWIFT wire transfer processed successfully.', transaction: tx });
+    res.json({ message: 'SWIFT wire transfer submitted and is pending review.', transaction: tx });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -1569,6 +1579,100 @@ app.post('/api/admin/user/toggle-wires', async (req, res) => {
       writeJSONDB(db);
     }
     res.json({ message: 'Wire transfer status updated successfully.', userId, status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Fetch all pending outbound wires
+app.get('/api/admin/pending-wires', async (req, res) => {
+  try {
+    if (usePostgres) {
+      const pRes = await queryPG("SELECT * FROM transactions WHERE status = 'PENDING' AND type = 'TRANSFER_OUT' ORDER BY date DESC");
+      res.json(pRes.rows.map(r => ({
+        id: r.id, accountId: r.account_id, userId: r.user_id, type: r.type,
+        description: r.description, amount: parseFloat(r.amount), currency: r.currency,
+        date: r.date, status: r.status, counterparty: r.counterparty, swiftDetails: r.swift_details
+      })));
+    } else {
+      const db = readJSONDB();
+      const p = (db.transactions || []).filter(t => t.status === 'PENDING' && t.type === 'TRANSFER_OUT');
+      p.sort((a,b) => new Date(b.date) - new Date(a.date));
+      res.json(p);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Approve Pending Outbound Wire (Deduct balance, change to COMPLETED)
+app.post('/api/admin/wires/approve', async (req, res) => {
+  const { transactionId } = req.body;
+  if (!transactionId) return res.status(400).json({ error: 'Transaction ID is required.' });
+
+  try {
+    if (usePostgres) {
+      const client = await pgPool.connect();
+      try {
+        await client.query('BEGIN');
+        const txRes = await client.query("SELECT * FROM transactions WHERE id = $1 AND status = 'PENDING'", [transactionId]);
+        if (txRes.rows.length === 0) {
+          throw new Error('Pending transaction not found.');
+        }
+        const tx = txRes.rows[0];
+
+        // Deduct account balance
+        await client.query(`
+          UPDATE accounts 
+          SET balance = balance - $1 
+          WHERE id = $2 AND user_id = $3
+        `, [parseFloat(tx.amount), tx.account_id, tx.user_id]);
+
+        // Mark as completed
+        await client.query("UPDATE transactions SET status = 'COMPLETED' WHERE id = $1", [transactionId]);
+
+        await client.query('COMMIT');
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    } else {
+      const db = readJSONDB();
+      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
+      if (!tx) return res.status(404).json({ error: 'Pending transaction not found.' });
+
+      const acc = db.accounts.find(a => a.id === tx.accountId && a.userId === tx.userId);
+      if (!acc) return res.status(404).json({ error: 'Account not found.' });
+      
+      acc.balance = parseFloat((acc.balance - tx.amount).toFixed(2));
+      tx.status = 'COMPLETED';
+      writeJSONDB(db);
+    }
+    res.json({ message: 'SWIFT wire transfer approved and finalized.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Decline Pending Outbound Wire (No balance subtraction, change to DECLINED)
+app.post('/api/admin/wires/decline', async (req, res) => {
+  const { transactionId } = req.body;
+  if (!transactionId) return res.status(400).json({ error: 'Transaction ID is required.' });
+
+  try {
+    if (usePostgres) {
+      const resUpdate = await queryPG("UPDATE transactions SET status = 'DECLINED' WHERE id = $1 AND status = 'PENDING'", [transactionId]);
+      if (resUpdate.rowCount === 0) return res.status(404).json({ error: 'Pending transaction not found.' });
+    } else {
+      const db = readJSONDB();
+      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
+      if (!tx) return res.status(404).json({ error: 'Pending transaction not found.' });
+      tx.status = 'DECLINED';
+      writeJSONDB(db);
+    }
+    res.json({ message: 'SWIFT wire transfer declined.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

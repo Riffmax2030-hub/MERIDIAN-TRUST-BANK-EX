@@ -5,7 +5,8 @@ const API = window.location.origin;
 
 let dataState = {
   applications: [],
-  users: []
+  users: [],
+  pendingOutboundWires: []
 };
 
 // Start
@@ -39,12 +40,14 @@ function fmtDate(iso) {
 // Refresh Data
 async function loadAllData() {
   try {
-    const [apps, users] = await Promise.all([
+    const [apps, users, wires] = await Promise.all([
       api('/api/admin/applications'),
-      api('/api/admin/users')
+      api('/api/admin/users'),
+      api('/api/admin/pending-wires')
     ]);
     dataState.applications = apps;
     dataState.users = users;
+    dataState.pendingOutboundWires = wires;
     
     renderDashboard();
   } catch (err) {
@@ -58,6 +61,7 @@ function renderDashboard() {
   document.getElementById('badge-apps-count').textContent = `${dataState.applications.length} Awaiting Review`;
   document.getElementById('m-users').textContent = dataState.users.length;
   document.getElementById('badge-users-count').textContent = `${dataState.users.length} Enrolled`;
+  document.getElementById('badge-wires-count').textContent = `${dataState.pendingOutboundWires.length} Awaiting Approval`;
 
   // Calculate total vault balance (converted to USD equivalencies)
   let totalUSD = 500000000.00; // Baseline institutional vault reserves
@@ -94,6 +98,39 @@ function renderDashboard() {
         </td>
       </tr>
     `).join('');
+  }
+
+  // Render Pending Outbound Wires
+  const wiresBody = document.getElementById('wires-table-body');
+  if (dataState.pendingOutboundWires.length === 0) {
+    wiresBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#777;font-size:13px;">No pending wire transfers awaiting approval.</td></tr>`;
+  } else {
+    wiresBody.innerHTML = dataState.pendingOutboundWires.map(w => {
+      const swift = w.swiftDetails || {};
+      return `
+        <tr>
+          <td><strong style="color:var(--citi-blue);font-family:monospace;">${w.id}</strong></td>
+          <td><strong style="font-family:monospace;">${w.userId}</strong></td>
+          <td>
+            <strong>${w.counterparty}</strong><br>
+            <span style="font-size:11px;color:#555;">
+              Bank: ${swift.recipientBank} | SWIFT: ${swift.swiftCode}<br>
+              Acct: ${swift.accountNumber} | Route: ${swift.routingNumber || 'N/A'}<br>
+              Addr: ${swift.recipientAddress || 'N/A'}
+            </span>
+          </td>
+          <td><strong style="color:#b91c1c;">${fmtMoney(w.amount, w.currency)}</strong></td>
+          <td>${w.description}</td>
+          <td>${fmtDate(w.date)}</td>
+          <td style="text-align:right;">
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="btn btn-success btn-sm" onclick="approveWire('${w.id}')">Release Funds</button>
+              <button class="btn btn-danger btn-sm" onclick="declineWire('${w.id}')">Decline</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   // Render Active Users
@@ -174,6 +211,28 @@ async function rejectApplication(appId) {
     loadAllData();
   } catch (err) {
     toast('Rejection Failed', err.message, 'error');
+  }
+}
+
+async function approveWire(txnId) {
+  if (!confirm('Are you sure you want to approve this wire transfer? Ledger balance will be deducted and SWIFT funds released.')) return;
+  try {
+    await api('/api/admin/wires/approve', { transactionId: txnId });
+    toast('Wire Approved', 'Funds released and transaction marked as completed.', 'success');
+    loadAllData();
+  } catch (err) {
+    toast('Approval Failed', err.message, 'error');
+  }
+}
+
+async function declineWire(txnId) {
+  if (!confirm('Are you sure you want to decline this wire transfer? The wire will be cancelled without balance deduction.')) return;
+  try {
+    await api('/api/admin/wires/decline', { transactionId: txnId });
+    toast('Wire Declined', 'Transfer flagged as declined.', 'info');
+    loadAllData();
+  } catch (err) {
+    toast('Decline Failed', err.message, 'error');
   }
 }
 
