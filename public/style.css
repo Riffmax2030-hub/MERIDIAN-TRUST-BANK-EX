@@ -1,7 +1,7 @@
 /* ── Meridian Trust Bank — Corporate Design System ───────────────────────── */
 /* Inspired by Citi Bank clean, structured, institutional aesthetic            */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap');
 
 :root {
   /* Brand Palette */
@@ -51,13 +51,14 @@
 html { font-size: 15px; -webkit-font-smoothing: antialiased; }
 
 body {
-  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'DM Sans', 'Inter', 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg-body);
   color: var(--text-primary);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   line-height: 1.55;
+  font-size: 15px;
 }
 
 h1, h2, h3, h4, h5 {
@@ -246,15 +247,15 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: 15px;
   font-weight: 600;
   border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
-  transition: var(--transition);
-  padding: 11px 22px;
-  letter-spacing: 0.01em;
+  transition: all 0.22s ease;
+  padding: 14px 26px;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -262,21 +263,21 @@ a:hover { text-decoration: underline; }
   background: var(--citi-navy);
   color: #fff;
 }
-.btn-primary:hover { background: #003A9E; box-shadow: 0 2px 8px rgba(0,44,119,0.25); }
+.btn-primary:hover { background: #003A9E; box-shadow: 0 4px 14px rgba(0,44,119,0.3); transform: translateY(-1px); }
 
 .btn-secondary {
   background: var(--bg-white);
   color: var(--citi-navy);
-  border: 1.5px solid var(--citi-navy);
+  border: 2px solid var(--citi-navy);
 }
 .btn-secondary:hover { background: var(--bg-muted); }
 
 .btn-ghost {
   background: transparent;
   color: var(--citi-blue);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
 }
-.btn-ghost:hover { background: var(--bg-muted); }
+.btn-ghost:hover { background: var(--bg-muted); border-color: var(--border-strong); }
 
 .btn-danger {
   background: var(--citi-red);
@@ -284,54 +285,64 @@ a:hover { text-decoration: underline; }
 }
 .btn-danger:hover { background: #A00015; }
 
-.btn-sm { padding: 7px 14px; font-size: 12px; }
-.btn-lg { padding: 14px 28px; font-size: 15px; }
+.btn-sm { padding: 9px 16px; font-size: 13px; }
+.btn-lg { padding: 16px 32px; font-size: 16px; }
 .btn-full { width: 100%; }
 
 /* ── Forms ───────────────────────────────────────────────────────────────────── */
-.form-group { margin-bottom: 18px; }
+.form-group { margin-bottom: 22px; }
 
 .form-label {
   display: block;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text-secondary);
-  margin-bottom: 6px;
-  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .form-input, .form-select {
   width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  height: 50px;
+  padding: 0 16px;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--text-primary);
   background: var(--bg-white);
-  border: 1.5px solid var(--border-strong);
+  border: 2px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  transition: var(--transition);
+  transition: all 0.22s ease;
   outline: none;
   appearance: none;
 }
 
-.form-input::placeholder { color: var(--text-disabled); }
+.form-input::placeholder {
+  color: var(--text-disabled);
+  font-weight: 400;
+  font-size: 14px;
+}
+
 .form-input:focus, .form-select:focus {
-  border-color: var(--citi-blue);
-  box-shadow: 0 0 0 3px rgba(0,102,204,0.12);
+  border-color: var(--citi-navy);
+  box-shadow: 0 0 0 3px rgba(0,44,119,0.1);
+  background: #FAFCFF;
 }
 
 .form-hint {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-muted);
-  margin-top: 5px;
+  margin-top: 6px;
   line-height: 1.4;
 }
 
 .form-error {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--red);
-  margin-top: 5px;
+  margin-top: 6px;
+  font-weight: 500;
 }
 
 /* ── Auth Pages ──────────────────────────────────────────────────────────────── */
@@ -346,18 +357,18 @@ a:hover { text-decoration: underline; }
 
 .auth-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   background: var(--bg-white);
-  border: 1px solid var(--border);
-  border-top: 4px solid var(--citi-navy);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border);
+  border-top: 5px solid var(--citi-navy);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
   overflow: hidden;
 }
 
 .auth-card-header {
-  padding: 28px 32px 20px;
-  border-bottom: 1px solid var(--border);
+  padding: 32px 36px 22px;
+  border-bottom: 2px solid var(--border);
   text-align: center;
 }
 
@@ -365,31 +376,35 @@ a:hover { text-decoration: underline; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   color: var(--citi-navy);
 }
 
 .auth-title {
-  font-size: 22px;
+  font-family: 'Roboto Condensed', 'DM Sans', sans-serif;
+  font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 6px;
+  color: var(--citi-navy);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .auth-subtitle {
-  font-size: 13px;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: 14px;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.auth-card-body { padding: 28px 32px; }
+.auth-card-body { padding: 32px 36px; }
 
 .auth-card-footer {
-  padding: 16px 32px;
+  padding: 18px 36px;
   background: var(--bg-light);
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--border);
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
