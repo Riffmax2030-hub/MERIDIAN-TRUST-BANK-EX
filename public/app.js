@@ -28,7 +28,7 @@ function route() {
   renderNav();
   const h = window.location.hash || '#';
 
-  const publicRoutes  = ['#', '#/', '#/login', '#/register'];
+  const publicRoutes  = ['#', '#/', '#/login', '#/register', '#/products', '#/services', '#/legal', '#/about'];
   const privateRoutes = ['#/dashboard', '#/send'];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/login'); return; }
@@ -41,6 +41,10 @@ function route() {
     case '#/register': renderRegister(); break;
     case '#/dashboard': loadDashboard(); break;
     case '#/send':      loadSend(); break;
+    case '#/products':  renderProducts(); break;
+    case '#/services':  renderServices(); break;
+    case '#/legal':     renderLegal(); break;
+    case '#/about':     renderAbout(); break;
     default: renderLanding();
   }
 }
@@ -144,107 +148,47 @@ const icons = {
 // Landing Page
 function renderLanding() {
   setRoot(`
-    <!-- Hero Section: Citibank Style -->
-    <section class="hero-citi">
-      <div class="hero-citi-inner">
-        <!-- Hero Left Content -->
-        <div class="hero-citi-left">
-          <div class="hero-citi-label">MERIDIAN PLATINUM®</div>
-          <h1 class="hero-citi-title">Great for Global Capital</h1>
-          <p class="hero-citi-desc">Enjoy multi-currency balances, zero international transaction fees, and instant corporate credit lines.</p>
-          <div style="display:flex;align-items:center;gap:18px;margin-top:24px;">
-            <button class="btn-citi-primary" onclick="nav('#/register')">Apply Now</button>
-            <a onclick="nav('#/register')" class="citi-link-pricing">*Pricing and Information</a>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <div class="hero-tag">Full-Reserve Offshore Banking</div>
+          <h1 class="hero-title">International Banking Built for Global Commerce</h1>
+          <p class="hero-desc">Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.</p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" onclick="nav('#/register')">Open an Account</button>
+            <button class="btn-hero-outline" onclick="nav('#/login')">Client Portal Login</button>
           </div>
         </div>
-
-        <!-- Hero Card Graphic in 180 degrees -->
-        <div class="hero-citi-card-container">
-          <div class="meridian-platinum-card">
-            <div class="card-inner-top">
-              <span class="card-chip-citi"></span>
-              <span class="card-contactless-citi">
-                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 8a6 6 0 0 1 0 8M8 6a9 9 0 0 1 0 12M11 4a12 12 0 0 1 0 16"/></svg>
-              </span>
-            </div>
-            <div class="card-inner-mid">
-              <div class="card-logo-citi">
-                <span style="font-weight:850;font-size:16px;">meridian</span>
-                <span class="logo-text-arc-mini"></span>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-card-stack">
+            <div class="hero-debit-card card-back"></div>
+            <div class="hero-debit-card card-front">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div class="card-chip"></div>
+                <span style="font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.06em;">DEBIT</span>
               </div>
-              <div class="card-name-platinum">PLATINUM</div>
-            </div>
-            <div class="card-inner-bottom">
-              <span class="card-holder-name">LINDA WALKER</span>
-              <span class="card-brand-circles">
-                <span class="brand-circle-red"></span>
-                <span class="brand-circle-yellow"></span>
-              </span>
+              <div>
+                <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;4821</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                <div><div class="card-label">Cardholder</div><div class="card-value">MERIDIAN CLIENT</div></div>
+                <div style="text-align:right;"><div class="card-label">Expires</div><div class="card-value">12/31</div></div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Hero Right Login Box -->
-        <div class="hero-citi-login-box">
-          <form onsubmit="handleLogin(event)">
-            <div style="display:flex;gap:12px;">
-              <div class="form-group-citi" style="flex:1;">
-                <label class="label-citi">User ID</label>
-                <input type="text" id="f-uid" class="input-citi" required>
-              </div>
-              <div class="form-group-citi" style="flex:1; position:relative;">
-                <label class="label-citi">Password</label>
-                <input type="password" id="f-pwd" class="input-citi" required>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;width:100%;margin-top:14px;">
-              <input type="checkbox" id="remember-uid" class="checkbox-citi">
-              <label for="remember-uid" class="checkbox-label-citi">Remember User ID</label>
-            </div>
-            <button type="submit" class="btn-citi-login-submit">Sign On</button>
-            <div class="login-box-footer-links">
-              <a onclick="nav('#/register')">Register / Activate</a>
-              <span style="color:#d0d7e2;">|</span>
-              <a onclick="nav('#/login')">Forgot User ID or Password</a>
-            </div>
-            <div class="passwordless-signon-btn" onclick="nav('#/login')">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right:6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Passwordless Sign On
-            </div>
-          </form>
+      </div>
+      <div class="trust-bar">
+        <div class="trust-bar-inner">
+          <div class="trust-item">${icons.shield} AES-256 Encryption</div>
+          <div class="trust-item">${icons.lock} Two-Factor Authentication</div>
+          <div class="trust-item">${icons.globe} SWIFT & SEPA Compatible</div>
+          <div class="trust-item">${icons.card} Instant Card Issuance</div>
+          <div class="trust-item">${icons.check} Full-Reserve Custody</div>
         </div>
       </div>
     </section>
-
-    <!-- Citibank-style bottom navigation strip -->
-    <div class="citi-nav-strip">
-      <div class="citi-nav-strip-inner">
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-          <span style="font-weight:600;">Credit Cards</span>
-        </div>
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg></div>
-          <span style="font-weight:600;">Checking Accounts</span>
-        </div>
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-          <span style="font-weight:600;">Mortgage</span>
-        </div>
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <span style="font-weight:600;">Personal Loans</span>
-        </div>
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-          <span style="font-weight:600;">Investing Options</span>
-        </div>
-        <div class="citi-nav-item" onclick="nav('#/')">
-          <div class="citi-nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-          <span style="font-weight:600;">Small Business</span>
-        </div>
-      </div>
-    </div>
 
     <!-- Features -->
     <section class="landing-section">
@@ -1142,6 +1086,132 @@ function logout() {
   localStorage.removeItem('mtb_session');
   toast('Signed Out', 'Your secure session has been terminated.', 'info');
   nav('#/login');
+}
+
+// Products & Programs View
+function renderProducts() {
+  setRoot(`
+    <div class="app-container">
+      <div class="panel" style="margin-bottom:32px;">
+        <div class="panel-header" style="background:#002C77;color:#fff;">
+          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Meridian Offshore Accounts & Programs</h2>
+        </div>
+        <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+            ⚠️ Simulated System Notice: The ledger account systems, credit limits, card placements, and balances presented here are part of a private banking digital simulation. No real funds are held or processed.
+          </div>
+          
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Multi-Currency Checking Programs</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Our flagship checking program is designed for private corporate entities and high-net-worth individuals requiring immediate global liquidity. Key features include:</p>
+          <ul style="padding-left:20px;margin-bottom:24px;font-size:13.5px;color:#475569;line-height:1.8;">
+            <li style="margin-bottom:6px;"><strong>Ledger Currency Splitting:</strong> Maintain independent balances in USD, EUR, and GBP within a single profile.</li>
+            <li style="margin-bottom:6px;"><strong>SWIFT Settlement Routing:</strong> Seamless processing parameters matching international routing codes.</li>
+            <li style="margin-bottom:6px;"><strong>Real-Time Ledger Audits:</strong> Instant balance adjustments and manual deposit credits via secure operators.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">High-Yield Savings & Money Markets</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">For asset placements and reserve preservation, our savings and capital market programs offer fixed returns and structured ledger protection, yielding full capital backing across sovereign instruments.</p>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Debit Cards & Virtual Programs</h3>
+          <p style="margin-bottom:12px;font-size:14px;color:#475569;">Manage corporate spending instantly with our debit card suite. Operators can issue cards, toggle status (active, frozen, cancelled), and view CVV/expiry details directly inside the portal.</p>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// Services View
+function renderServices() {
+  setRoot(`
+    <div class="app-container">
+      <div class="panel" style="margin-bottom:32px;">
+        <div class="panel-header" style="background:#002C77;color:#fff;">
+          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Core Banking Services</h2>
+        </div>
+        <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+            ⚠️ Simulated System Notice: All transfer routing and FX rates displayed on this platform are part of a private ledger simulation.
+          </div>
+          
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Outbound SWIFT Wire Transfers</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Submit international wire transfers globally. Secure 2FA multi-factor checks verify and authorize transactions before outbound routing is written to the ledger block.</p>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Interbank FX Conversion</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Exchange balances across USD, EUR, and GBP immediately at estimated wholesale conversion values, allowing real-time currency reallocation.</p>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Identity Management & Compliance KYC</h3>
+          <p style="margin-bottom:12px;font-size:14px;color:#475569;">We apply professional identity verification and tax classification checks to ensure profile compliance. Operators approve or reject onboarding queues securely from the operations console.</p>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// Legal & Compliance View
+function renderLegal() {
+  setRoot(`
+    <div class="app-container">
+      <div class="panel" style="margin-bottom:32px;">
+        <div class="panel-header" style="background:#002C77;color:#fff;">
+          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Legal, Compliance & Disclaimers</h2>
+        </div>
+        <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:16px;margin-bottom:24px;border-radius:4px;font-size:14px;color:#991b1b;font-weight:700;">
+            ⚠️ CRITICAL REGULATORY NOTICE & DISCLAIMER:<br>
+            THIS PLATFORM IS AN ENTIRELY SIMULATED DIGITAL banking environment. It is constructed solely for private demonstrations, software testing, and auditing purposes. No real monetary transactions, deposits, or withdrawals are processed. All funds, balances, account details, and payment cards are fictional.
+          </div>
+          
+          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">1. Purpose of Simulation</h3>
+          <p style="margin-bottom:20px;font-size:13.5px;color:#475569;">The Meridian Trust Bank digital interface mimics a secure corporate offshore banking client portal to demonstrate multi-currency ledgers, administrative compliance controls, and SWIFT wire authorizations. No real-world deposits are held or protected by the FDIC or other financial regulators.</p>
+
+          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">2. Privacy & Data Integrity</h3>
+          <p style="margin-bottom:20px;font-size:13.5px;color:#475569;">All personal details entered during registration are treated as simulated inputs. For compliance, please do not use your real-world banking passcodes or critical credentials.</p>
+
+          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">3. Anti-Money Laundering (AML) Compliance</h3>
+          <p style="margin-bottom:12px;font-size:13.5px;color:#475569;">The system simulates real-time transaction intercept filters to block transfers under preset administrative rules. These blocks mimic regulatory holds for auditing exercises.</p>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// About View
+function renderAbout() {
+  setRoot(`
+    <div class="app-container">
+      <div class="panel" style="margin-bottom:32px;">
+        <div class="panel-header" style="background:#002C77;color:#fff;">
+          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">About Meridian Trust Bank</h2>
+        </div>
+        <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+            ⚠️ Simulated System Notice: This about section describes a simulated banking concept for auditing and demonstration.
+          </div>
+          
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Private Offshore Capital Preservation</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Meridian Trust represents a concept in full-reserve private offshore banking. In an era of fractional reserve exposure, our design prioritizes absolute ledger security and capital transparency.</p>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Secure Offshore Custody Model</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Under our simulated framework, 100% of capital reserves are allocated directly to liquid short-term government instruments. This prevents lending exposure, offering immediate availability on settlement requests.</p>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Digital Core Infrastructure</h3>
+          <p style="margin-bottom:12px;font-size:14px;color:#475569;">With path-based admin consoles, dynamic transaction intercepts, and 2-phase MFA security, our core engineering represents a highly resilient system built for secure demonstration auditing.</p>
+        </div>
+      </div>
+    </div>
+  `);
 }
 
 // ── API Fetch Wrapper ─────────────────────────────────────────────────────────
