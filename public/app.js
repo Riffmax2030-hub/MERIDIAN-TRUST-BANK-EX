@@ -1237,9 +1237,9 @@ async function handleSend(e) {
 
         setTimeout(() => {
           hideLoader();
-          toast('Wire Transmitted', `${fmtMoney(amt, acc.currency)} dispatched to ${v('s-recipient-name')}.`, 'success');
+          toast('Wire Submitted', `SWIFT wire transfer of ${fmtMoney(amt, acc.currency)} to ${v('s-recipient-name')} has been submitted for compliance review.`, 'info');
           state.accounts = []; // Force refresh
-          nav('#/dashboard');
+          nav('#/portal/digital-banking/dashboard');
         }, delay);
       } catch (err) {
         hideLoader();
