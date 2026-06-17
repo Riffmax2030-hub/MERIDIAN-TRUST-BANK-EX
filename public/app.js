@@ -1254,10 +1254,13 @@ async function handleSend(e) {
 }
 
 function logout() {
+  if (!confirm('Are you sure you want to sign out and terminate your secure banking session?')) {
+    return;
+  }
   state = { user: null, accounts: [], transactions: [], cards: [], adminUsers: [], pendingEmail: null, devOtp: null };
   localStorage.removeItem('mtb_session');
   toast('Signed Out', 'Your secure session has been terminated.', 'info');
-  nav('#/login');
+  nav('#/portal/client-auth/login');
 }
 
 // Toggle Card (freeze/unfreeze)
