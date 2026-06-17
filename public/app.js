@@ -214,8 +214,8 @@ function renderLanding() {
             Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
           </p>
           <div class="w3-hero-cta">
-            <button class="w3-btn-primary" onclick="nav('#/register')">Open an Account</button>
-            <button class="w3-btn-ghost" onclick="nav('#/login')">Client Portal Login</button>
+            <button class="w3-btn-primary" onclick="nav('#/portal/client-onboarding/apply')">Open an Account</button>
+            <button class="w3-btn-ghost" onclick="nav('#/portal/client-auth/login')">Client Portal Login</button>
           </div>
         </div>
 
@@ -406,8 +406,8 @@ function renderLanding() {
           <h2 class="w3-cta-title">Ready to Open Your Offshore Account?</h2>
           <p class="w3-cta-desc">Registration takes under three minutes. Accounts are provisioned instantly upon identity verification. Begin your application now.</p>
           <div class="w3-cta-actions">
-            <button class="w3-btn-primary" onclick="nav('#/register')">Begin Application</button>
-            <button class="w3-btn-ghost" onclick="nav('#/login')">Existing Client Login</button>
+            <button class="w3-btn-primary" onclick="nav('#/portal/client-onboarding/apply')">Begin Application</button>
+            <button class="w3-btn-ghost" onclick="nav('#/portal/client-auth/login')">Existing Client Login</button>
           </div>
         </div>
       </section>
@@ -436,17 +436,17 @@ function renderLogin() {
           <form id="login-form" onsubmit="handleLogin(event)">
             <div class="form-group">
               <label class="form-label">Client Account ID</label>
-              <input id="f-uid" type="text" class="form-input" placeholder="MTB-XXXXXX" autocomplete="username" required>
+              <input id="f-uid" type="text" class="form-input" placeholder="Client ID" autocomplete="username" required>
             </div>
             <div class="form-group">
               <label class="form-label">Secure Passcode</label>
-              <input id="f-pwd" type="password" class="form-input" placeholder="Enter your passcode" autocomplete="current-password" required>
+              <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required>
             </div>
             <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
           </form>
         </div>
         <div class="auth-card-footer">
-          New to Meridian Trust? <a onclick="nav('#/register')">Open an account</a>
+          New to Meridian Trust? <a onclick="nav('#/portal/client-onboarding/apply')">Open an account</a>
         </div>
       </div>
     </div>
@@ -474,28 +474,28 @@ function renderRegister() {
           <form id="reg-form-step1" onsubmit="goToRegisterStep2(event)">
             <div class="form-group">
               <label class="form-label">Full Legal Name / Entity Name</label>
-              <input id="r-name" type="text" class="form-input" placeholder="As shown on passport/legal ID" value="${d.name || ''}" required>
+              <input id="r-name" type="text" class="form-input" placeholder="Full Legal Name" value="${d.name || ''}" required>
             </div>
             <div class="form-group">
               <label class="form-label">Email Address</label>
-              <input id="r-email" type="email" class="form-input" placeholder="yourname@domain.com" value="${d.email || ''}" required>
+              <input id="r-email" type="email" class="form-input" placeholder="Email Address" value="${d.email || ''}" required>
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number</label>
-              <input id="r-phone" type="tel" class="form-input" placeholder="+1 (555) 000-0000" value="${d.phone || ''}" required>
+              <input id="r-phone" type="tel" class="form-input" placeholder="Phone Number" value="${d.phone || ''}" required>
             </div>
             <div class="form-group">
               <label class="form-label">Residential Address</label>
-              <input id="r-address" type="text" class="form-input" placeholder="Street Address" value="${d.address || ''}" required>
+              <input id="r-address" type="text" class="form-input" placeholder="Residential Address" value="${d.address || ''}" required>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">State</label>
-                <input id="r-state" type="text" class="form-input" placeholder="NY" value="${d.state || ''}" required>
+                <input id="r-state" type="text" class="form-input" placeholder="State" value="${d.state || ''}" required>
               </div>
               <div class="form-group">
                 <label class="form-label">ZIP Code</label>
-                <input id="r-zip" type="text" class="form-input" placeholder="10001" value="${d.zip || ''}" required>
+                <input id="r-zip" type="text" class="form-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
               </div>
             </div>
             <div class="form-group">
@@ -622,7 +622,7 @@ function renderRegisterStep2() {
             </p>
             <div class="form-group">
               <label class="form-label">Social Security Number (SSN) / ITIN</label>
-              <input id="r-ssn" type="password" class="form-input" placeholder="000-00-0000" style="letter-spacing:2px;font-family:monospace;" required>
+              <input id="r-ssn" type="password" class="form-input" placeholder="Tax ID / SSN" style="letter-spacing:2px;font-family:monospace;" required>
             </div>
             <div style="display:flex;gap:10px;margin-top:16px;">
               <button type="button" class="btn btn-ghost" style="flex:1;" onclick="renderRegister()">Back</button>
