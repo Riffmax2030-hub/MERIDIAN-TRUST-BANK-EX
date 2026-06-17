@@ -689,7 +689,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // 1. Secret Administration Panel Directory Mounting
-app.use('/ops-secure-console', express.static(path.join(__dirname, 'admin')));
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 // 2. Default Public Client Application Directory Mounting
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -1127,12 +1127,12 @@ app.post('/api/admin/user/adjust-balance', async (req, res) => {
 // ── CATCH-ALL ROUTING FOR FRONTEND CLIPS ─────────────────────────────────────
 
 // Serve Admin Dashboard HTML on Secret Path
-app.get('/ops-secure-console/*', (req, res) => {
+app.get('/admin/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
 
-app.get('/ops-secure-console', (req, res) => {
-  res.redirect('/ops-secure-console/');
+app.get('/admin', (req, res) => {
+  res.redirect('/admin/');
 });
 
 // Serve Public Portal as Default Fallback Route
@@ -1145,5 +1145,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`[-] SERVER: Meridian Core active on Port ${PORT}`);
   console.log(`[-] ACCESS USER WEBSITE  : http://localhost:${PORT}`);
-  console.log(`[-] ACCESS ADMIN CONSOLE : http://localhost:${PORT}/ops-secure-console`);
+  console.log(`[-] ACCESS ADMIN CONSOLE : http://localhost:${PORT}/admin`);
 });
