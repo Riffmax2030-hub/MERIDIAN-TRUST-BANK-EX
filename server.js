@@ -84,12 +84,17 @@ async function dbInit() {
       );
     `);
 
-    // Schema alterations for pre-existing PostgreSQL databases
     await queryPG(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS wire_status VARCHAR(30) NOT NULL DEFAULT 'ENABLED';
     `);
     await queryPG(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS wire_block_message VARCHAR(250) NOT NULL DEFAULT '';
+    `);
+    await queryPG(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS login_code VARCHAR(10) DEFAULT '';
+    `);
+    await queryPG(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS wire_code VARCHAR(10) DEFAULT '';
     `);
 
     await queryPG(`
@@ -575,6 +580,8 @@ async function dbGetAdminUsers() {
         address: u.address, state: u.state, zip: u.zip, ssn: u.ssn,
         kycStatus: u.kyc_status, createdAt: u.created_at,
         wireStatus: u.wire_status || 'ENABLED', wireBlockMessage: u.wire_block_message || '',
+        loginCode: u.login_code || '',
+        wireCode: u.wire_code || '',
         accounts: accounts.filter(a => a.user_id === u.id).map(a => ({
           id: a.id, userId: a.user_id, type: a.type, currency: a.currency,
           balance: parseFloat(a.balance), accountNumber: a.account_number, routingNumber: a.routing_number
@@ -592,6 +599,8 @@ async function dbGetAdminUsers() {
         ...u,
         wireStatus: u.wireStatus || 'ENABLED',
         wireBlockMessage: u.wireBlockMessage || '',
+        loginCode: u.loginCode || '',
+        wireCode: u.wireCode || '',
         accounts: db.accounts.filter(a => a.userId === u.id),
         cards: db.cards.filter(c => c.userId === u.id)
       };
@@ -739,7 +748,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // ── CLIENT PORTAL API ENDPOINTS ──────────────────────────────────────────────
 
-// Authenticated Login
+// Authenticated Login (Phase 1: Credentials verification & 6-digit MFA code dispatch)
 app.post('/api/auth/login', async (req, res) => {
   const { userId, password } = req.body;
   if (!userId || !password) return res.status(400).json({ error: 'Client ID and passcode are required.' });
@@ -748,9 +757,106 @@ app.post('/api/auth/login', async (req, res) => {
     const user = await dbGetUserByIdAndPassword(userId, password);
     if (!user) return res.status(401).json({ error: 'The credentials provided do not match our records.' });
 
+    // Generate random 6-digit code
+    const code = randomDigits(6);
+
+    // Save code to database
+    if (usePostgres) {
+      await queryPG('UPDATE users SET login_code = $1 WHERE id = $2', [code, userId]);
+    } else {
+      const db = readJSONDB();
+      const u = db.users.find(x => x.id === userId);
+      if (u) {
+        u.loginCode = code;
+        writeJSONDB(db);
+      }
+    }
+
+    // Send verification code via email
+    const emailHTML = `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background-color:#F4F6F9;padding:40px;color:#0A1931;">
+        <div style="max-width:550px;margin:0 auto;background-color:#ffffff;border-top:4px solid #002C77;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.05);overflow:hidden;padding:30px;">
+          <h2 style="font-size:20px;font-weight:600;margin-top:0;color:#002C77;">Verification Code Required</h2>
+          <p style="font-size:14.5px;line-height:1.6;color:#555;">A login request was made for your Meridian Trust profile.</p>
+          <p style="font-size:14.5px;line-height:1.6;color:#555;">Please enter the following 6-digit verification code to complete your sign-in:</p>
+          <div style="font-size:26px;font-weight:700;color:#002C77;letter-spacing:6px;padding:16px;background:#F4F6F9;display:inline-block;border-radius:6px;margin:20px 0;font-family:monospace;border:1px solid #D2D7E0;">
+            ${code}
+          </div>
+          <p style="font-size:12.5px;color:#777;line-height:1.5;margin-top:20px;">If you did not make this request, please contact security operations immediately.</p>
+        </div>
+      </div>
+    `;
+
+    sendEmailHelper(user.email, 'Login Security Verification Code Required', emailHTML);
+
     res.json({
-      message: 'Authentication successful.',
-      user
+      message: 'Verification code sent.',
+      requires2FA: true,
+      userId
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verify Login 2FA Code (Phase 2: Check code and grant access session)
+app.post('/api/auth/verify-login-2fa', async (req, res) => {
+  const { userId, code } = req.body;
+  if (!userId || !code) return res.status(400).json({ error: 'User ID and verification code are required.' });
+
+  try {
+    let user = null;
+    let savedCode = '';
+
+    if (usePostgres) {
+      const uRes = await queryPG('SELECT * FROM users WHERE id = $1', [userId]);
+      if (uRes.rows.length > 0) {
+        user = uRes.rows[0];
+        savedCode = user.login_code || '';
+      }
+    } else {
+      const db = readJSONDB();
+      user = db.users.find(x => x.id === userId);
+      if (user) {
+        savedCode = user.loginCode || '';
+      }
+    }
+
+    if (!user) return res.status(404).json({ error: 'User profile not found.' });
+
+    if (savedCode !== code) {
+      return res.status(400).json({ error: 'Invalid or expired login verification code.' });
+    }
+
+    // Clear code on successful verification
+    if (usePostgres) {
+      await queryPG('UPDATE users SET login_code = \'\' WHERE id = $1', [userId]);
+    } else {
+      const db = readJSONDB();
+      const u = db.users.find(x => x.id === userId);
+      if (u) {
+        u.loginCode = '';
+        writeJSONDB(db);
+      }
+    }
+
+    const accounts = await dbGetAccounts(userId);
+    const mappedUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || user.phone_number,
+      address: user.address,
+      state: user.state,
+      zip: user.zip,
+      kycStatus: user.kyc_status || user.kycStatus,
+      mustChangePassword: user.must_change_password ?? user.mustChangePassword,
+      accounts
+    };
+
+    res.json({
+      message: 'Verification successful. Welcome back.',
+      user: mappedUser
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -912,7 +1018,7 @@ app.get('/api/transactions', async (req, res) => {
 
 // Send SWIFT Wire Outbound
 app.post('/api/transactions/send', async (req, res) => {
-  const { userId, accountId, amount, currency, recipientName, recipientAddress, recipientBank, swiftCode, routingNumber, accountNumber, description } = req.body;
+  const { userId, accountId, amount, currency, recipientName, recipientAddress, recipientBank, swiftCode, routingNumber, accountNumber, description, verificationCode } = req.body;
   if (!userId || !accountId || !amount || !currency || !recipientName || !swiftCode || !accountNumber) {
     return res.status(400).json({ error: 'Required wire transfer fields are missing.' });
   }
@@ -924,12 +1030,14 @@ app.post('/api/transactions/send', async (req, res) => {
     // Check wire transfer block restriction status
     let wireStatus = 'ENABLED';
     let wireBlockMessage = '';
+    let savedWireCode = '';
     
     if (usePostgres) {
-      const uRes = await queryPG('SELECT wire_status, wire_block_message FROM users WHERE id = $1', [userId]);
+      const uRes = await queryPG('SELECT wire_status, wire_block_message, wire_code FROM users WHERE id = $1', [userId]);
       if (uRes.rows.length > 0) {
         wireStatus = uRes.rows[0].wire_status;
         wireBlockMessage = uRes.rows[0].wire_block_message;
+        savedWireCode = uRes.rows[0].wire_code || '';
       }
     } else {
       const db = readJSONDB();
@@ -937,11 +1045,16 @@ app.post('/api/transactions/send', async (req, res) => {
       if (user) {
         wireStatus = user.wireStatus || 'ENABLED';
         wireBlockMessage = user.wireBlockMessage || '';
+        savedWireCode = user.wireCode || '';
       }
     }
 
     if (wireStatus !== 'ENABLED') {
       return res.status(400).json({ error: wireBlockMessage || 'Wire transfers are currently restricted for this account.' });
+    }
+
+    if (!verificationCode || savedWireCode !== verificationCode) {
+      return res.status(400).json({ error: 'Invalid or missing 6-digit transaction verification code.' });
     }
 
     const accounts = await dbGetAccounts(userId);
@@ -965,7 +1078,72 @@ app.post('/api/transactions/send', async (req, res) => {
 
     await dbSendOutboundWire(tx, { amount: num, accountId, userId });
 
+    // Clear transaction code on success
+    if (usePostgres) {
+      await queryPG('UPDATE users SET wire_code = \'\' WHERE id = $1', [userId]);
+    } else {
+      const db = readJSONDB();
+      const u = db.users.find(x => x.id === userId);
+      if (u) {
+        u.wireCode = '';
+        writeJSONDB(db);
+      }
+    }
+
     res.json({ message: 'SWIFT wire transfer processed successfully.', transaction: tx });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Request Wire Outbound Verification Code (MFA dispatch for outgoing transactions)
+app.post('/api/transactions/request-code', async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ error: 'User ID is required.' });
+
+  try {
+    let email = '';
+    if (usePostgres) {
+      const resU = await queryPG('SELECT email FROM users WHERE id = $1', [userId]);
+      if (resU.rows.length > 0) email = resU.rows[0].email;
+    } else {
+      const db = readJSONDB();
+      const u = db.users.find(x => x.id === userId);
+      if (u) email = u.email;
+    }
+
+    if (!email) return res.status(404).json({ error: 'User email not found.' });
+
+    const code = randomDigits(6);
+
+    if (usePostgres) {
+      await queryPG('UPDATE users SET wire_code = $1 WHERE id = $2', [code, userId]);
+    } else {
+      const db = readJSONDB();
+      const u = db.users.find(x => x.id === userId);
+      if (u) {
+        u.wireCode = code;
+        writeJSONDB(db);
+      }
+    }
+
+    const emailHTML = `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background-color:#F4F6F9;padding:40px;color:#0A1931;">
+        <div style="max-width:550px;margin:0 auto;background-color:#ffffff;border-top:4px solid #002C77;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.05);overflow:hidden;padding:30px;">
+          <h2 style="font-size:20px;font-weight:600;margin-top:0;color:#002C77;">Outbound Wire Verification Code</h2>
+          <p style="font-size:14.5px;line-height:1.6;color:#555;">A request was made to authorize an outbound global wire transfer from your account.</p>
+          <p style="font-size:14.5px;line-height:1.6;color:#555;">Please enter the following 6-digit transaction verification code to authorize the transfer:</p>
+          <div style="font-size:26px;font-weight:700;color:#002C77;letter-spacing:6px;padding:16px;background:#F4F6F9;display:inline-block;border-radius:6px;margin:20px 0;font-family:monospace;border:1px solid #D2D7E0;">
+            ${code}
+          </div>
+          <p style="font-size:12.5px;color:#777;line-height:1.5;margin-top:20px;">If you did not make this request, please contact security operations immediately.</p>
+        </div>
+      </div>
+    `;
+
+    sendEmailHelper(email, 'Transaction Security Verification Code Required', emailHTML);
+
+    res.json({ message: 'Verification code dispatched to registered email.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

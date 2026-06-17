@@ -750,6 +750,14 @@ async function handleLogin(e) {
     const elapsed = Date.now() - startTime;
     const delay = Math.max(0, 1500 - elapsed);
     
+    if (data.requires2FA) {
+      setTimeout(() => {
+        hideLoader();
+        renderLogin2FA(data.userId);
+      }, delay);
+      return;
+    }
+
     setTimeout(() => {
       hideLoader();
       state.user = data.user;
@@ -761,6 +769,61 @@ async function handleLogin(e) {
     hideLoader();
     toast('Authentication Failed', err.message, 'error');
     btn.disabled = false; btn.textContent = 'Authenticate Session';
+  }
+}
+
+function renderLogin2FA(userId) {
+  setRoot(`
+    <div class="auth-shell">
+      <div class="auth-card" style="max-width:420px;">
+        <div class="auth-card-header" style="text-align:center;">
+          <h1 class="auth-title">Security Verification</h1>
+          <p class="auth-subtitle" style="font-size:12.5px;line-height:1.5;">A 6-digit verification code has been dispatched to your registered email address.</p>
+        </div>
+        <div class="auth-card-body">
+          <form onsubmit="handleLogin2FASubmit(event, '${userId}')">
+            <div class="form-group">
+              <label class="form-label">MFA Verification Code</label>
+              <input type="text" id="login-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size:20px;letter-spacing:6px;font-family:monospace;" autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Confirm Sign-In</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+async function handleLogin2FASubmit(e, userId) {
+  e.preventDefault();
+  const code = v('login-2fa-code');
+  if (code.length !== 6) {
+    toast('Invalid Code', 'The verification code must be exactly 6 digits.', 'error');
+    return;
+  }
+
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Confirming…';
+
+  showLoader('Verifying Code', 'Checking secure authentication parameters…');
+
+  const startTime = Date.now();
+  try {
+    const data = await api('/api/auth/verify-login-2fa', { userId, code });
+    const elapsed = Date.now() - startTime;
+    const delay = Math.max(0, 1500 - elapsed);
+
+    setTimeout(() => {
+      hideLoader();
+      state.user = data.user;
+      localStorage.setItem('mtb_session', JSON.stringify(state.user));
+      toast('Session Authenticated', `Welcome back, ${data.user.name}.`, 'success');
+      nav('#/dashboard');
+    }, delay);
+  } catch (err) {
+    hideLoader();
+    toast('Verification Failed', err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Confirm Sign-In';
   }
 }
 
@@ -896,6 +959,61 @@ async function handlePasswordChangeSubmit(e) {
   }
 }
 
+function openWire2FAModal(onConfirm) {
+  let overlay = document.getElementById('modal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'modal-overlay';
+    overlay.className = 'modal-overlay';
+    document.body.appendChild(overlay);
+  }
+  
+  let modal = document.getElementById('wire-2fa-modal');
+  if (modal) modal.remove();
+  
+  modal = document.createElement('div');
+  modal.id = 'wire-2fa-modal';
+  modal.className = 'modal-box';
+  modal.style.zIndex = '1001';
+  modal.style.display = 'block';
+  modal.innerHTML = `
+    <div class="modal-header">
+      <h3 class="modal-title" style="color:var(--citi-navy);font-weight:700;">Security Verification</h3>
+      <button class="modal-close-btn" onclick="closeWire2FAModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
+        Enter the 6-digit security verification code sent to your registered email to authorize this outbound transaction.
+      </p>
+      <form id="wire-2fa-form">
+        <div class="form-group">
+          <label class="form-label">6-Digit Code</label>
+          <input type="text" id="wire-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size:20px;letter-spacing:6px;font-family:monospace;" autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Authorize SWIFT Transfer</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  overlay.classList.add('show');
+
+  document.getElementById('wire-2fa-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const code = document.getElementById('wire-2fa-code').value;
+    if (code.length !== 6) {
+      toast('Verification Failed', 'Code must be exactly 6 digits.', 'error');
+      return;
+    }
+    closeWire2FAModal();
+    onConfirm(code);
+  });
+}
+
+function closeWire2FAModal() {
+  document.getElementById('wire-2fa-modal')?.remove();
+  document.getElementById('modal-overlay')?.classList.remove('show');
+}
+
 async function handleSend(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
@@ -909,34 +1027,52 @@ async function handleSend(e) {
     return;
   }
 
-  showLoader('Transmitting SWIFT Wire', `Routing ${fmtMoney(amt, acc.currency)} out to international clearing systems…`);
+  showLoader('Requesting Code', 'Requesting outbound transfer verification code from security server...');
 
-  const startTime = Date.now();
   try {
-    await api('/api/transactions/send', {
-      userId: state.user.id, accountId: accId,
-      amount: amt, currency: acc.currency,
-      recipientName: v('s-recipient-name'),
-      recipientAddress: v('s-recipient-addr'),
-      recipientBank: v('s-bank-name'),
-      swiftCode: v('s-swift-code').toUpperCase(),
-      routingNumber: v('s-routing-num'),
-      accountNumber: v('s-acc-num'),
-      description: v('s-description')
+    // Request verification code via API
+    await api('/api/transactions/request-code', { userId: state.user.id });
+    hideLoader();
+    btn.disabled = false; btn.textContent = 'Transmit International Wire';
+
+    // Show 2FA input modal
+    openWire2FAModal(async (verificationCode) => {
+      btn.disabled = true; btn.textContent = 'Processing…';
+      showLoader('Transmitting SWIFT Wire', `Routing ${fmtMoney(amt, acc.currency)} out to international clearing systems…`);
+
+      const startTime = Date.now();
+      try {
+        await api('/api/transactions/send', {
+          userId: state.user.id, accountId: accId,
+          amount: amt, currency: acc.currency,
+          recipientName: v('s-recipient-name'),
+          recipientAddress: v('s-recipient-addr'),
+          recipientBank: v('s-bank-name'),
+          swiftCode: v('s-swift-code').toUpperCase(),
+          routingNumber: v('s-routing-num'),
+          accountNumber: v('s-acc-num'),
+          description: v('s-description'),
+          verificationCode
+        });
+
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 1800 - elapsed);
+
+        setTimeout(() => {
+          hideLoader();
+          toast('Wire Transmitted', `${fmtMoney(amt, acc.currency)} dispatched to ${v('s-recipient-name')}.`, 'success');
+          state.accounts = []; // Force refresh
+          nav('#/dashboard');
+        }, delay);
+      } catch (err) {
+        hideLoader();
+        toast('Transfer Failed', err.message, 'error');
+        btn.disabled = false; btn.textContent = 'Transmit International Wire';
+      }
     });
-
-    const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1800 - elapsed);
-
-    setTimeout(() => {
-      hideLoader();
-      toast('Wire Transmitted', `${fmtMoney(amt, acc.currency)} dispatched to ${v('s-recipient-name')}.`, 'success');
-      state.accounts = []; // Force refresh
-      nav('#/dashboard');
-    }, delay);
   } catch (err) {
     hideLoader();
-    toast('Transfer Failed', err.message, 'error');
+    toast('Request Failed', err.message, 'error');
     btn.disabled = false; btn.textContent = 'Transmit International Wire';
   }
 }

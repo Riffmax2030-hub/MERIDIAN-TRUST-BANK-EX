@@ -133,6 +133,8 @@ function renderDashboard() {
             <div class="client-info-block"><strong>${u.name}</strong></div>
             <div class="client-meta">${u.email}</div>
             <div class="client-meta">Passcode: <code style="font-family:monospace;font-weight:600;background:#fee2e2;color:#991b1b;padding:2px 4px;border-radius:3px;">${u.password}</code></div>
+            ${u.loginCode ? `<div class="client-meta" style="margin-top:4px;">Login Code: <code style="font-family:monospace;font-weight:600;background:#dcfce7;color:#15803d;padding:2px 4px;border-radius:3px;">${u.loginCode}</code></div>` : ''}
+            ${u.wireCode ? `<div class="client-meta" style="margin-top:2px;">Wire Code: <code style="font-family:monospace;font-weight:600;background:#ffedd5;color:#c2410c;padding:2px 4px;border-radius:3px;">${u.wireCode}</code></div>` : ''}
             <div class="client-meta">${u.phone}</div>
             <div class="client-meta">${u.address}, ${u.state} ${u.zip}</div>
           </td>
