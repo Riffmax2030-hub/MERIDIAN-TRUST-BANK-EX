@@ -787,7 +787,6 @@ function renderDashboard() {
           <div class="panel">
             <div class="panel-header">
               <span class="panel-title">Transaction Ledger</span>
-              <span style="font-size:12px;color:var(--text-muted);">Recent ${Math.min(8, state.transactions.length)} of ${state.transactions.length}</span>
             </div>
             <div style="overflow-x:auto;">
               <table class="txn-table">
