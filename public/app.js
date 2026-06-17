@@ -25,13 +25,13 @@ function init() {
 
 // ── Router ────────────────────────────────────────────────────────────────────
 const routeLoaderMessages = {
-  '#':           ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
-  '#/':          ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
-  '#/login':     ['Loading Authentication Module', 'Preparing secure credential verification interface…'],
-  '#/register':  ['Loading Application Portal', 'Initializing US account onboarding compliance module…'],
-  '#/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
-  '#/send':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
-  '#/exchange':  ['Loading FX Exchange', 'Connecting to interbank currency conversion engine…'],
+  '#':                       ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
+  '#/':                      ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
+  '#/portal/client-auth/login':     ['Loading Authentication Module', 'Preparing secure credential verification interface…'],
+  '#/portal/client-onboarding/apply':  ['Loading Application Portal', 'Initializing US account onboarding compliance module…'],
+  '#/portal/digital-banking/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
+  '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
+  '#/portal/digital-banking/currency-exchange':  ['Loading FX Exchange', 'Connecting to interbank currency conversion engine…'],
 };
 
 let _routeTimer = null;
@@ -40,14 +40,22 @@ function route() {
   renderNav();
   const h = window.location.hash || '#';
 
-  const publicRoutes  = ['#', '#/', '#/login', '#/register'];
-  const privateRoutes = ['#/dashboard', '#/send', '#/exchange'];
+  const publicRoutes  = ['#', '#/', '#/portal/client-auth/login', '#/portal/client-onboarding/apply'];
+  const privateRoutes = ['#/portal/digital-banking/dashboard', '#/portal/digital-banking/wire-transfer', '#/portal/digital-banking/currency-exchange'];
 
-  if (privateRoutes.includes(h) && !state.user) { nav('#/login'); return; }
-  if ((h === '#/login' || h === '#/register') && state.user) { nav('#/dashboard'); return; }
+  if (privateRoutes.includes(h) && !state.user) { nav('#/portal/client-auth/login'); return; }
+  if ((h === '#/portal/client-auth/login' || h === '#/portal/client-onboarding/apply') && state.user) { nav('#/portal/digital-banking/dashboard'); return; }
 
   // Redirect old page routes to landing (content is now inline)
-  if (['#/products','#/services','#/legal','#/about'].includes(h)) { nav('#'); return; }
+  if (['#/products','#/services','#/legal','#/about','#/login','#/register','#/dashboard','#/send','#/exchange'].includes(h)) {
+    if (h === '#/login') { nav('#/portal/client-auth/login'); return; }
+    if (h === '#/register') { nav('#/portal/client-onboarding/apply'); return; }
+    if (h === '#/dashboard') { nav('#/portal/digital-banking/dashboard'); return; }
+    if (h === '#/send') { nav('#/portal/digital-banking/wire-transfer'); return; }
+    if (h === '#/exchange') { nav('#/portal/digital-banking/currency-exchange'); return; }
+    nav('#');
+    return;
+  }
 
   // Clear any pending route timer
   if (_routeTimer) { clearTimeout(_routeTimer); _routeTimer = null; }
@@ -63,11 +71,11 @@ function route() {
     switch (h) {
       case '#':
       case '#/': renderLanding(); break;
-      case '#/login':    renderLogin(); break;
-      case '#/register': renderRegister(); break;
-      case '#/dashboard': loadDashboard(); break;
-      case '#/send':      loadSend(); break;
-      case '#/exchange':  loadExchange(); break;
+      case '#/portal/client-auth/login':    renderLogin(); break;
+      case '#/portal/client-onboarding/apply': renderRegister(); break;
+      case '#/portal/digital-banking/dashboard': loadDashboard(); break;
+      case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
+      case '#/portal/digital-banking/currency-exchange':  loadExchange(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -87,16 +95,16 @@ function renderNav() {
 
   if (state.user) {
     el.innerHTML = `
-      <button class="nav-link ${h==='#/dashboard'?'active':''}" onclick="nav('#/dashboard')">Overview</button>
-      <button class="nav-link ${h==='#/send'?'active':''}"      onclick="nav('#/send')">Wire Transfer</button>
-      <button class="nav-link ${h==='#/exchange'?'active':''}"  onclick="nav('#/exchange')">FX Exchange</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/currency-exchange'?'active':''}"  onclick="nav('#/portal/digital-banking/currency-exchange')">FX Exchange</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
   } else {
     el.innerHTML = `
       <button class="nav-link ${h==='#'?'active':''}"         onclick="nav('#')">Home</button>
-      <button class="nav-link ${h==='#/login'?'active':''}"   onclick="nav('#/login')">Client Login</button>
-      <button class="nav-btn-primary"                          onclick="nav('#/register')">Open Account</button>
+      <button class="nav-link ${h==='#/portal/client-auth/login'?'active':''}"   onclick="nav('#/portal/client-auth/login')">Client Login</button>
+      <button class="nav-btn-primary"                          onclick="nav('#/portal/client-onboarding/apply')">Open Account</button>
     `;
   }
 }
@@ -529,7 +537,7 @@ function renderRegister() {
           </form>
         </div>
         <div class="auth-card-footer">
-          Already registered? <a onclick="nav('#/login')">Sign in to your account</a>
+          Already registered? <a onclick="nav('#/portal/client-auth/login')">Sign in to your account</a>
         </div>
       </div>
     </div>
@@ -649,7 +657,7 @@ function renderRegistrationSuccess(email) {
             Your application has been submitted. Please check your email for confirmations.
           </p>
 
-          <button class="btn btn-primary btn-full" onclick="nav('#/login')">Return to Login</button>
+          <button class="btn btn-primary btn-full" onclick="nav('#/portal/client-auth/login')">Return to Login</button>
         </div>
       </div>
     </div>
