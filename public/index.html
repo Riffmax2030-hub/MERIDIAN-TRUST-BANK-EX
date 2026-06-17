@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Meridian Trust Bank — Premier offshore digital banking for international businesses and private clients. Multi-currency accounts in USD, EUR, and GBP.">
+  <title>Meridian Trust Bank — International Private Banking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Host -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+
+  <!-- Alert Bar -->
+  <div class="site-alert">
+    Meridian Trust Bank — Licensed Offshore Digital Institution &nbsp;|&nbsp; FDIC Member Equivalent &nbsp;|&nbsp; AES-256 Encrypted Sessions &nbsp;|&nbsp; 100% Full-Reserve Custody
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-area" onclick="navigateTo('#')">
+        <svg class="bank-logo-icon" viewBox="0 0 28 28" width="32" height="32" fill="none">
+          <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.5" opacity="0.25"/>
+          <path d="M14 2 C14 26 M2 14 H26" stroke="currentColor" stroke-width="0.8" opacity="0.2"/>
+          <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-wordmark">
+          <span class="logo-main">Meridian Trust</span>
+          <span class="logo-sub">International Private Banking</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu" id="nav-links"></nav>
+
+      <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none">
+          <line x1="3" y1="8" x2="21" y2="8"></line>
+          <line x1="3" y1="16" x2="21" y2="16"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main application view -->
+  <main id="app-root"></main>
+
+  <!-- Footer (always visible) -->
+  <footer class="main-footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-brand-name">Meridian Trust Bank</div>
+        <p class="footer-brand-desc">A premier offshore digital banking institution providing multi-currency accounts, international wire services, and private wealth management solutions.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Products</div>
+        <ul class="footer-links">
+          <li>Personal Checking</li>
+          <li>Business Treasury</li>
+          <li>Savings Accounts</li>
+          <li>Money Market</li>
+          <li>Virtual Cards</li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <ul class="footer-links">
+          <li>International Wires</li>
+          <li>FX Conversion</li>
+          <li>Wealth Management</li>
+          <li>Corporate Accounts</li>
+          <li>Compliance & KYC</li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li>Client Portal</li>
+          <li>Secure Messaging</li>
+          <li>Wire Investigations</li>
+          <li>Legal & Compliance</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Meridian Trust Bank Ltd. All rights reserved. Deposits held in full-reserve sovereign instruments.</span>
+      <span>Privacy Policy &nbsp;&middot;&nbsp; Terms of Service &nbsp;&middot;&nbsp; AML Policy</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

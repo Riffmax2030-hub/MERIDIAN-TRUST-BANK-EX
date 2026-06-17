@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Meridian Trust Bank - Operations & Identity Console. Private banking administrative suite.">
+  <title>Meridian Trust Bank — Administrator Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- Secure Toast Notifications -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+
+  <!-- Balance Adjust Modal -->
+  <div id="balance-modal" class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Override Ledger Balance</h3>
+      <button class="modal-close-btn" onclick="closeBalanceModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:#666;margin-bottom:16px;line-height:1.5;">
+        Instruct the core ledger to overwrite the designated account balance directly. This action bypasses the clearing house and writes directly to the balance field.
+      </p>
+      <input type="hidden" id="adj-uid">
+      <div class="form-group">
+        <label class="form-label">Target Account</label>
+        <select id="adj-accid" class="form-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Balance (USD/EUR/GBP)</label>
+        <input type="number" step="0.01" id="adj-balance" class="form-input" placeholder="0.00" required>
+      </div>
+      <button onclick="submitBalanceAdj()" class="btn btn-primary btn-full" style="margin-top:12px;">Execute Direct Balance Overwrite</button>
+    </div>
+  </div>
+
+  <!-- Manual Inbound Wire Modal -->
+  <div id="inbound-modal" class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Credit Manual Inbound Wire</h3>
+      <button class="modal-close-btn" onclick="closeInboundModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:#666;margin-bottom:16px;line-height:1.5;">
+        Simulate an incoming SWIFT wire deposit from an external global bank to this user's account.
+      </p>
+      <input type="hidden" id="inbound-uid">
+      <div class="form-group">
+        <label class="form-label">Recipient Account</label>
+        <select id="inbound-accid" class="form-select"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deposit Amount (Matching account currency)</label>
+        <input type="number" step="0.01" id="inbound-amount" class="form-input" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ordering Institution / Sender Name</label>
+        <input type="text" id="inbound-sender" class="form-input" placeholder="e.g. JPMorgan Chase Bank, N.A." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reference / Memo</label>
+        <input type="text" id="inbound-desc" class="form-input" placeholder="e.g. Inbound Wire Transfer Ref #94812" required>
+      </div>
+      <button onclick="submitInboundWire()" class="btn btn-primary btn-full" style="margin-top:12px;">Credit Inbound SWIFT Deposit</button>
+    </div>
+  </div>
+
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <svg class="bank-logo-icon" viewBox="0 0 28 28" width="28" height="28" fill="none">
+          <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+          <path d="M14 2 C14 26 M2 14 H26" stroke="currentColor" stroke-width="0.8" opacity="0.2"/>
+          <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-wordmark">
+          <span class="logo-main">Meridian Trust</span>
+          <span class="logo-sub">Operations & Control Console (Port 3001)</span>
+        </div>
+      </div>
+      <div class="security-badge">
+        <span class="pulse-indicator"></span> SECURE ADMIN CHANNEL
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Workspace -->
+  <main class="admin-workspace">
+    
+    <!-- Metrics Bar -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Core Ledger Vault</div>
+        <div class="metric-value" id="m-vault">$0.00</div>
+        <div class="metric-subtext">Total client deposits in equivalent USD</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Active Portfolios</div>
+        <div class="metric-value" id="m-users">0</div>
+        <div class="metric-subtext">Identity verified approved profiles</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Onboarding Queue</div>
+        <div class="metric-value" id="m-apps">0</div>
+        <div class="metric-subtext">Awaiting regulatory review</div>
+      </div>
+    </div>
+
+    <!-- Onboarding applications queue -->
+    <div class="panel" style="margin-bottom:32px;">
+      <div class="panel-header">
+        <span class="panel-title">Pending Account Applications</span>
+        <span class="panel-badge" id="badge-apps-count">0 Awaiting Review</span>
+      </div>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Applicant Name</th>
+              <th>Email Address</th>
+              <th>Phone</th>
+              <th>Address details</th>
+              <th>SSN / ITIN</th>
+              <th>Date Filed</th>
+              <th style="text-align:right;">KYC Decision</th>
+            </tr>
+          </thead>
+          <tbody id="applications-table-body">
+            <tr>
+              <td colspan="7" style="text-align:center;padding:32px;color:#777;font-size:13px;">No applications awaiting review.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Active Client Profiles Explorer -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Active Client Ledger Profiles</span>
+        <span class="panel-badge" id="badge-users-count">0 Enrolled</span>
+      </div>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Client Account ID</th>
+              <th>Identity Details</th>
+              <th>Ledger Currencies & Balances</th>
+              <th>Card Programs</th>
+              <th>Registration Date</th>
+              <th style="text-align:right;">Ledger Controls</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <tr>
+              <td colspan="6" style="text-align:center;padding:32px;color:#777;font-size:13px;">Loading system records...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

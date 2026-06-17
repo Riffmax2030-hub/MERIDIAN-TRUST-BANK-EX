@@ -1,0 +1,270 @@
+{
+  "users": [
+    {
+      "id": "MTB-553210",
+      "name": "Julian Mercer",
+      "email": "j.mercer@mercerasset.com",
+      "password": "password123",
+      "accountType": "personal",
+      "kycStatus": "APPROVED",
+      "createdAt": "2026-01-10T12:00:00.000Z"
+    },
+    {
+      "id": "MTB-889021",
+      "name": "Aetheron Global Technologies LLC",
+      "email": "treasury@aetheron.global",
+      "password": "password123",
+      "accountType": "business",
+      "kycStatus": "APPROVED",
+      "createdAt": "2026-02-15T08:30:00.000Z"
+    },
+    {
+      "id": "MTB-112233",
+      "name": "Sophia Laurent",
+      "email": "s.laurent@laurentcapital.ch",
+      "password": "password123",
+      "accountType": "personal",
+      "kycStatus": "PENDING",
+      "createdAt": "2026-06-01T14:45:00.000Z"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "ACC-553210-CHK",
+      "userId": "MTB-553210",
+      "type": "checking",
+      "currency": "USD",
+      "balance": 1314750,
+      "accountNumber": "0388921102",
+      "routingNumber": "MTBUSD2X"
+    },
+    {
+      "id": "ACC-553210-SAV",
+      "userId": "MTB-553210",
+      "type": "savings",
+      "currency": "EUR",
+      "balance": 512000,
+      "accountNumber": "0388921115",
+      "routingNumber": "MTBEUR2X"
+    },
+    {
+      "id": "ACC-553210-MKT",
+      "userId": "MTB-553210",
+      "type": "market",
+      "currency": "GBP",
+      "balance": 175500,
+      "accountNumber": "0388921128",
+      "routingNumber": "MTBGBP2X"
+    },
+    {
+      "id": "ACC-889021-CHK",
+      "userId": "MTB-889021",
+      "type": "checking",
+      "currency": "USD",
+      "balance": 1450000,
+      "accountNumber": "0744931089",
+      "routingNumber": "MTBUSD2X"
+    },
+    {
+      "id": "ACC-889021-SAV",
+      "userId": "MTB-889021",
+      "type": "savings",
+      "currency": "EUR",
+      "balance": 875000,
+      "accountNumber": "0744931092",
+      "routingNumber": "MTBEUR2X"
+    },
+    {
+      "id": "ACC-889021-MKT",
+      "userId": "MTB-889021",
+      "type": "market",
+      "currency": "GBP",
+      "balance": 620000,
+      "accountNumber": "0744931103",
+      "routingNumber": "MTBGBP2X"
+    },
+    {
+      "id": "ACC-112233-CHK",
+      "userId": "MTB-112233",
+      "type": "checking",
+      "currency": "USD",
+      "balance": 48200,
+      "accountNumber": "0811902231",
+      "routingNumber": "MTBUSD2X"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "TXN-001",
+      "accountId": "ACC-553210-CHK",
+      "userId": "MTB-553210",
+      "type": "DEPOSIT",
+      "description": "International wire receipt — Mercer Asset Management Ltd",
+      "amount": 300000,
+      "currency": "USD",
+      "date": "2026-01-12T10:00:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Mercer Asset Management Ltd"
+    },
+    {
+      "id": "TXN-002",
+      "accountId": "ACC-553210-CHK",
+      "userId": "MTB-553210",
+      "type": "TRANSFER_OUT",
+      "description": "Q1 advisory retainer — Pemberton & Cross LLP",
+      "amount": 15250,
+      "currency": "USD",
+      "date": "2026-03-15T16:20:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Pemberton & Cross LLP"
+    },
+    {
+      "id": "TXN-003",
+      "accountId": "ACC-553210-CHK",
+      "userId": "MTB-553210",
+      "type": "TRANSFER_OUT",
+      "description": "Private equity capital call — Hartwell Capital Fund III",
+      "amount": 50000,
+      "currency": "USD",
+      "date": "2026-04-02T09:15:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Hartwell Capital Fund III"
+    },
+    {
+      "id": "TXN-004",
+      "accountId": "ACC-553210-SAV",
+      "userId": "MTB-553210",
+      "type": "DEPOSIT",
+      "description": "FX conversion receipt — EUR treasury rebalance",
+      "amount": 512000,
+      "currency": "EUR",
+      "date": "2026-02-20T14:00:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust FX Desk"
+    },
+    {
+      "id": "TXN-005",
+      "accountId": "ACC-889021-CHK",
+      "userId": "MTB-889021",
+      "type": "DEPOSIT",
+      "description": "Series B institutional funding — Apex Ventures Fund IV",
+      "amount": 1500000,
+      "currency": "USD",
+      "date": "2026-02-20T09:00:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Apex Ventures Fund IV"
+    },
+    {
+      "id": "TXN-006",
+      "accountId": "ACC-889021-CHK",
+      "userId": "MTB-889021",
+      "type": "TRANSFER_OUT",
+      "description": "Cloud infrastructure annual contract — AWS Enterprise",
+      "amount": 50000,
+      "currency": "USD",
+      "date": "2026-04-10T11:00:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Amazon Web Services"
+    },
+    {
+      "id": "TXN-007",
+      "accountId": "ACC-889021-SAV",
+      "userId": "MTB-889021",
+      "type": "DEPOSIT",
+      "description": "Corporate treasury rebalance — EUR allocation",
+      "amount": 875000,
+      "currency": "EUR",
+      "date": "2026-03-05T14:00:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Aetheron Treasury Operations"
+    },
+    {
+      "id": "TXN-008",
+      "accountId": "ACC-889021-MKT",
+      "userId": "MTB-889021",
+      "type": "DEPOSIT",
+      "description": "Sterling reserve placement — London clearing",
+      "amount": 620000,
+      "currency": "GBP",
+      "date": "2026-03-22T10:30:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust GBP Clearing"
+    },
+    {
+      "id": "TXN-009",
+      "accountId": "ACC-889021-CHK",
+      "userId": "MTB-889021",
+      "type": "TRANSFER_OUT",
+      "description": "Legal compliance audit — Blackstone & Partners",
+      "amount": 28500,
+      "currency": "USD",
+      "date": "2026-05-14T13:45:00.000Z",
+      "status": "COMPLETED",
+      "counterparty": "Blackstone & Partners"
+    }
+  ],
+  "cards": [
+    {
+      "id": "CRD-001",
+      "userId": "MTB-553210",
+      "cardNumber": "4111222233334444",
+      "cardholderName": "JULIAN MERCER",
+      "expiry": "12/30",
+      "cvv": "392",
+      "status": "ACTIVE",
+      "type": "DEBIT"
+    },
+    {
+      "id": "CRD-002",
+      "userId": "MTB-553210",
+      "cardNumber": "4222333344445555",
+      "cardholderName": "JULIAN MERCER",
+      "expiry": "06/29",
+      "cvv": "109",
+      "status": "ACTIVE",
+      "type": "VIRTUAL"
+    },
+    {
+      "id": "CRD-003",
+      "userId": "MTB-889021",
+      "cardNumber": "4888999900001111",
+      "cardholderName": "AETHERON GLOBAL",
+      "expiry": "04/31",
+      "cvv": "552",
+      "status": "ACTIVE",
+      "type": "DEBIT"
+    },
+    {
+      "id": "CRD-004",
+      "userId": "MTB-889021",
+      "cardNumber": "4999000011112222",
+      "cardholderName": "AETHERON GLOBAL",
+      "expiry": "09/28",
+      "cvv": "781",
+      "status": "FROZEN",
+      "type": "VIRTUAL"
+    },
+    {
+      "id": "CRD-107956",
+      "userId": "MTB-553210",
+      "cardNumber": "4847172290757421",
+      "cardholderName": "JULIAN MERCER",
+      "expiry": "09/31",
+      "cvv": "887",
+      "status": "ACTIVE",
+      "type": "VIRTUAL"
+    },
+    {
+      "id": "CRD-515400",
+      "userId": "MTB-553210",
+      "cardNumber": "4807737568304500",
+      "cardholderName": "JULIAN MERCER",
+      "expiry": "09/31",
+      "cvv": "468",
+      "status": "ACTIVE",
+      "type": "VIRTUAL"
+    }
+  ],
+  "applications": [],
+  "pendingVerifications": {}
+}
