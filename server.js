@@ -8,7 +8,7 @@ const { Pool } = require('pg');
 
 // ── DATABASE CONFIGURATION ───────────────────────────────────────────────────
 const DB_PATH = path.join(__dirname, 'db.json');
-const usePostgres = !!process.env.DATABASE_URL;
+let usePostgres = !!process.env.DATABASE_URL;
 let pgPool = null;
 
 if (usePostgres) {
@@ -36,11 +36,28 @@ function writeJSONDB(data) {
 
 // ── DB ADAPTER LAYER (POLYMORPHIC PG/JSON) ───────────────────────────────────
 async function queryPG(text, params) {
-  const client = await pgPool.connect();
+  if (!usePostgres) {
+    throw new Error('PostgreSQL database fallback has been activated.');
+  }
+  let client;
   try {
+    client = await pgPool.connect();
     return await client.query(text, params);
+  } catch (err) {
+    // If it's a network reachability or connection issue, activate fallback immediately
+    if (
+      err.code === 'ENETUNREACH' || 
+      err.message.includes('ENETUNREACH') || 
+      err.message.includes('ECONNREFUSED') || 
+      err.message.includes('timeout') || 
+      err.message.includes('connect')
+    ) {
+      console.error('[!] Database: PostgreSQL is unreachable. Failing over to Local JSON DB storage.');
+      usePostgres = false;
+    }
+    throw err;
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }
 
@@ -696,10 +713,18 @@ async function sendEmailHelper(to, subject, html) {
   }
 }
 
-// Initialize core DB Schema tables/JSON values
-dbInit().catch(err => {
-  console.error('[!] Database: Schema creation failed on start:', err.message);
-});
+// Boot Core Services
+async function boot() {
+  try {
+    await dbInit();
+  } catch (err) {
+    if (usePostgres) {
+      console.warn('[!] PostgreSQL initialization failed during boot. Falling back to local JSON database storage.');
+      usePostgres = false;
+    }
+  }
+}
+boot();
 
 // ── EXPRESS APPLICATION SINGLE PORT ROUTER ───────────────────────────────────
 const app = express();
@@ -985,54 +1010,107 @@ app.post('/api/admin/approve', async (req, res) => {
     const selected = appDetails.selectedAccounts || ['checking', 'savings', 'market'];
     const accountsSeed = [];
 
+    // Distribute 5 million dollars overall: checking = $2,500,000.00, savings = $1,500,000.00, market = $1,000,000.00 (in respective currency approximations)
     if (selected.includes('checking')) {
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'checking',
         currency: 'USD',
-        balance: 12500.00,
+        balance: 2500000.00,
         accountNumber: `0${randomDigits(9)}`,
         routingNumber: 'MTBUSD2X'
       });
     }
 
     if (selected.includes('savings')) {
+      // $1.5M equivalent in EUR: 1,500,000 / 1.1 = 1,363,636.36
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'savings',
         currency: 'EUR',
-        balance: 7500.00,
+        balance: 1363636.36,
         accountNumber: `0${randomDigits(9)}`,
         routingNumber: 'MTBEUR2X'
       });
     }
 
     if (selected.includes('market')) {
+      // $1M equivalent in GBP: 1,000,000 / 1.3 = 769,230.77
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'market',
         currency: 'GBP',
-        balance: 3000.00,
+        balance: 769230.77,
         accountNumber: `0${randomDigits(9)}`,
         routingNumber: 'MTBGBP2X'
       });
     }
 
-    const txsSeed = accountsSeed.map((acc) => ({
-      id: `TXN-${randomDigits(6)}`,
-      accountId: acc.id,
-      userId,
-      type: 'DEPOSIT',
-      description: 'Account opening — Meridian Trust clearing credit',
-      amount: acc.balance,
-      currency: acc.currency,
-      date: new Date().toISOString(),
-      status: 'COMPLETED',
-      counterparty: 'Meridian Trust Clearing'
-    }));
+    const txsSeed = [];
+    
+    // Generate realistic transactions from 2021 to current date
+    const transactionTemplates = [
+      { type: 'DEPOSIT', desc: 'Offshore Assets Settlement', partner: 'Laurent Capital Trust', baseUSD: 850000.00 },
+      { type: 'TRANSFER_OUT', desc: 'Capital Retainer Placement', partner: 'Pemberton Advisory Partners', baseUSD: 45000.00 },
+      { type: 'DEPOSIT', desc: 'Advisory Retainer Clearance', partner: 'Apex Group Corporate Solutions', baseUSD: 125000.00 },
+      { type: 'DEPOSIT', desc: 'Q3 Dividend Yield Credit', partner: 'Meridian Global Securities Desk', baseUSD: 78500.00 },
+      { type: 'TRANSFER_OUT', desc: 'Sovereign Bond Allocation', partner: 'Federal Yield Clearance', baseUSD: 250000.00 },
+      { type: 'DEPOSIT', desc: 'Commercial Real Estate Return', partner: 'Hudson Development Syndicate', baseUSD: 310000.00 },
+      { type: 'DEPOSIT', desc: 'Capital Gain Distributions', partner: 'Vanguard Private Ledger', baseUSD: 94000.00 },
+      { type: 'TRANSFER_OUT', desc: 'Corporate Retainer Service Fees', partner: 'Blackstone Wealth Audit', baseUSD: 18400.00 },
+      { type: 'DEPOSIT', desc: 'Offshore Equity Liquidation', partner: 'Chubb Asset Holding Group', baseUSD: 620000.00 },
+      { type: 'TRANSFER_OUT', desc: 'Private Equity Retainer Payment', partner: 'Crosslands Capital Partners', baseUSD: 80000.00 },
+      { type: 'DEPOSIT', desc: 'Q1 Advisory Clearance Credit', partner: 'Goldman Wealth Desk', baseUSD: 140000.00 },
+      { type: 'DEPOSIT', desc: 'Venture Capital Dividend Return', partner: 'Blue Ridge Ventures Group', baseUSD: 112000.00 }
+    ];
+
+    accountsSeed.forEach(acc => {
+      let multiplier = 1.0;
+      if (acc.currency === 'EUR') multiplier = 0.909;
+      if (acc.currency === 'GBP') multiplier = 0.769;
+
+      // Seed core deposit opening
+      txsSeed.push({
+        id: `TXN-${randomDigits(6)}`,
+        accountId: acc.id,
+        userId,
+        type: 'DEPOSIT',
+        description: 'Account opening — Meridian Trust clearing credit',
+        amount: acc.balance,
+        currency: acc.currency,
+        date: new Date().toISOString(),
+        status: 'COMPLETED',
+        counterparty: 'Meridian Trust Clearing'
+      });
+
+      // Generate randomized transactions back to 2021
+      const count = 6 + Math.floor(Math.random() * 4); // 6 to 9 transactions per account
+      for (let i = 0; i < count; i++) {
+        const temp = transactionTemplates[Math.floor(Math.random() * transactionTemplates.length)];
+        const amount = Math.round((temp.baseUSD * (0.8 + Math.random() * 0.4)) * multiplier * 100) / 100;
+        
+        // Random date between Jan 2021 and Dec 2025
+        const start = new Date('2021-01-15T00:00:00Z').getTime();
+        const end = new Date('2025-12-15T00:00:00Z').getTime();
+        const randDate = new Date(start + Math.random() * (end - start)).toISOString();
+
+        txsSeed.push({
+          id: `TXN-${randomDigits(6)}`,
+          accountId: acc.id,
+          userId,
+          type: temp.type,
+          description: temp.desc,
+          amount,
+          currency: acc.currency,
+          date: randDate,
+          status: 'COMPLETED',
+          counterparty: temp.partner
+        });
+      }
+    });
 
     const cardSeed = {
       id: `CRD-${randomDigits(6)}`,
