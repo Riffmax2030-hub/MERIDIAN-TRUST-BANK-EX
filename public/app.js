@@ -28,11 +28,14 @@ function route() {
   renderNav();
   const h = window.location.hash || '#';
 
-  const publicRoutes  = ['#', '#/', '#/login', '#/register', '#/products', '#/services', '#/legal', '#/about'];
-  const privateRoutes = ['#/dashboard', '#/send'];
+  const publicRoutes  = ['#', '#/', '#/login', '#/register'];
+  const privateRoutes = ['#/dashboard', '#/send', '#/exchange'];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/login'); return; }
   if ((h === '#/login' || h === '#/register') && state.user) { nav('#/dashboard'); return; }
+
+  // Redirect old page routes to landing (content is now inline)
+  if (['#/products','#/services','#/legal','#/about'].includes(h)) { nav('#'); return; }
 
   switch (h) {
     case '#':
@@ -41,10 +44,7 @@ function route() {
     case '#/register': renderRegister(); break;
     case '#/dashboard': loadDashboard(); break;
     case '#/send':      loadSend(); break;
-    case '#/products':  renderProducts(); break;
-    case '#/services':  renderServices(); break;
-    case '#/legal':     renderLegal(); break;
-    case '#/about':     renderAbout(); break;
+    case '#/exchange':  loadExchange(); break;
     default: renderLanding();
   }
 }
@@ -65,6 +65,7 @@ function renderNav() {
     el.innerHTML = `
       <button class="nav-link ${h==='#/dashboard'?'active':''}" onclick="nav('#/dashboard')">Overview</button>
       <button class="nav-link ${h==='#/send'?'active':''}"      onclick="nav('#/send')">Wire Transfer</button>
+      <button class="nav-link ${h==='#/exchange'?'active':''}"  onclick="nav('#/exchange')">FX Exchange</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
   } else {
@@ -145,101 +146,241 @@ const icons = {
 
 // ── VIEWS ─────────────────────────────────────────────────────────────────────
 
-// Landing Page
+// Scroll-to-section helper for single-page nav
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.scrollToSection = scrollToSection;
+
+// Web3-Style Single-Page Landing
 function renderLanding() {
   setRoot(`
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="hero-copy">
-          <div class="hero-tag">Full-Reserve Offshore Banking</div>
-          <h1 class="hero-title">International Banking Built for Global Commerce</h1>
-          <p class="hero-desc">Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.</p>
-          <div class="hero-actions">
-            <button class="btn-hero-primary" onclick="nav('#/register')">Open an Account</button>
-            <button class="btn-hero-outline" onclick="nav('#/login')">Client Portal Login</button>
+    <div class="w3-landing">
+
+      <!-- ═══ HERO — Fullscreen immersive ═══ -->
+      <section class="w3-hero" id="w3-top">
+        <div class="w3-hero-bg"></div>
+        <div class="w3-hero-overlay"></div>
+        <div class="w3-hero-mesh"></div>
+        <div class="w3-hero-particles">
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+        </div>
+
+        <div class="w3-hero-content">
+          <div class="w3-hero-badge">
+            <span class="w3-hero-badge-dot"></span>
+            Full-Reserve Offshore Banking
+          </div>
+          <h1 class="w3-hero-title">
+            International Banking<br>Built for <span class="w3-highlight">Global Commerce</span>
+          </h1>
+          <p class="w3-hero-subtitle">
+            Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
+          </p>
+          <div class="w3-hero-cta">
+            <button class="w3-btn-primary" onclick="nav('#/register')">Open an Account</button>
+            <button class="w3-btn-ghost" onclick="nav('#/login')">Client Portal Login</button>
           </div>
         </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-card-stack">
-            <div class="hero-debit-card card-back"></div>
-            <div class="hero-debit-card card-front">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div class="card-chip"></div>
-                <span style="font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.06em;">DEBIT</span>
+
+        <div class="w3-scroll-indicator" onclick="scrollToSection('w3-stats')">
+          <span>Explore</span>
+          <div class="w3-scroll-line"></div>
+        </div>
+      </section>
+
+      <!-- ═══ STATS BAR ═══ -->
+      <section class="w3-stats-bar" id="w3-stats">
+        <div class="w3-stats-inner">
+          <div class="w3-stat-item">
+            <div class="w3-stat-number">180<span class="w3-highlight">+</span></div>
+            <div class="w3-stat-label">Countries Served</div>
+          </div>
+          <div class="w3-stat-item">
+            <div class="w3-stat-number">$2.4<span class="w3-highlight">B</span></div>
+            <div class="w3-stat-label">Assets Custodied</div>
+          </div>
+          <div class="w3-stat-item">
+            <div class="w3-stat-number">99.97<span class="w3-highlight">%</span></div>
+            <div class="w3-stat-label">Uptime SLA</div>
+          </div>
+          <div class="w3-stat-item">
+            <div class="w3-stat-number">3</div>
+            <div class="w3-stat-label">Major Currencies</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ FEATURES — Platform capabilities ═══ -->
+      <section class="w3-section w3-section-dark" id="w3-features">
+        <div class="w3-section-inner">
+          <div class="w3-section-header">
+            <div class="w3-section-tag">
+              <span class="w3-section-tag-line"></span>
+              Our Platform
+              <span class="w3-section-tag-line"></span>
+            </div>
+            <h2 class="w3-section-title">Everything Your Business Needs to Bank Globally</h2>
+            <p class="w3-section-desc">Designed for startups, holding companies, and high-net-worth individuals requiring a sophisticated offshore banking partner.</p>
+          </div>
+
+          <div class="w3-features-grid">
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.globe}</div>
+              <h3 class="w3-feature-title">Multi-Currency Accounts</h3>
+              <p class="w3-feature-desc">Maintain separate ledger balances in US Dollars, Euros, and British Pounds. Switch between currencies in real time with interbank-rate FX conversions.</p>
+            </div>
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.send}</div>
+              <h3 class="w3-feature-title">International Wire Transfers</h3>
+              <p class="w3-feature-desc">Send outbound SWIFT wires to 180+ countries. Set custom settlement dates for historical reconciliation and retroactive ledger adjustments.</p>
+            </div>
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.card}</div>
+              <h3 class="w3-feature-title">Debit & Virtual Cards</h3>
+              <p class="w3-feature-desc">Instantly issue physical debit cards and virtual cards for your team. Freeze, unfreeze, or cancel any card from within the client portal.</p>
+            </div>
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.shield}</div>
+              <h3 class="w3-feature-title">KYC & Compliance</h3>
+              <p class="w3-feature-desc">Tiered identity verification for personal and corporate accounts. Real-time AML screening and suspicious transaction monitoring.</p>
+            </div>
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.lock}</div>
+              <h3 class="w3-feature-title">Full-Reserve Security</h3>
+              <p class="w3-feature-desc">100% of client deposits are held in short-term sovereign treasury instruments. We do not engage in fractional reserve lending.</p>
+            </div>
+            <div class="w3-feature-card">
+              <div class="w3-feature-icon">${icons.receive}</div>
+              <h3 class="w3-feature-title">Personal & Business Accounts</h3>
+              <p class="w3-feature-desc">Separate account profiles for individuals and corporate entities. Business accounts support multiple signatories and treasury controls.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ SECURITY & TRUST — Glass morphism split ═══ -->
+      <section class="w3-section w3-section-navy" id="w3-security">
+        <div class="w3-section-inner">
+          <div class="w3-glass-grid">
+            <div class="w3-glass-card">
+              <h2 class="w3-glass-card-title">Bank-Grade Security Infrastructure</h2>
+              <p class="w3-glass-card-text">Our offshore custody model ensures 100% of deposits are allocated directly to liquid short-term sovereign treasury instruments. No fractional reserve exposure.</p>
+              <div class="w3-trust-list">
+                <div class="w3-trust-item">
+                  <div class="w3-trust-icon">${icons.shield}</div>
+                  <span>AES-256 end-to-end encryption on all data channels</span>
+                </div>
+                <div class="w3-trust-item">
+                  <div class="w3-trust-icon">${icons.lock}</div>
+                  <span>Two-factor MFA verification on every login & wire</span>
+                </div>
+                <div class="w3-trust-item">
+                  <div class="w3-trust-icon">${icons.globe}</div>
+                  <span>SWIFT & SEPA network compatibility for global routing</span>
+                </div>
+                <div class="w3-trust-item">
+                  <div class="w3-trust-icon">${icons.check}</div>
+                  <span>Real-time AML/KYC screening & transaction monitoring</span>
+                </div>
               </div>
-              <div>
-                <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;4821</div>
+            </div>
+
+            <div class="w3-security-visual">
+              <div class="w3-shield-circle">
+                <div class="w3-shield-inner">
+                  <svg viewBox="0 0 24 24" width="56" height="56" stroke="currentColor" stroke-width="1.5" fill="none">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10" stroke-width="2"/>
+                  </svg>
+                </div>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-                <div><div class="card-label">Cardholder</div><div class="card-value">MERIDIAN CLIENT</div></div>
-                <div style="text-align:right;"><div class="card-label">Expires</div><div class="card-value">12/31</div></div>
+              <div class="w3-security-metrics">
+                <div class="w3-metric-box">
+                  <div class="w3-metric-value">100%</div>
+                  <div class="w3-metric-label">Full Reserve</div>
+                </div>
+                <div class="w3-metric-box">
+                  <div class="w3-metric-value">256-bit</div>
+                  <div class="w3-metric-label">Encryption</div>
+                </div>
+                <div class="w3-metric-box">
+                  <div class="w3-metric-value">6-Digit</div>
+                  <div class="w3-metric-label">MFA Codes</div>
+                </div>
+                <div class="w3-metric-box">
+                  <div class="w3-metric-value">24/7</div>
+                  <div class="w3-metric-label">Monitoring</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="trust-bar">
-        <div class="trust-bar-inner">
-          <div class="trust-item">${icons.shield} AES-256 Encryption</div>
-          <div class="trust-item">${icons.lock} Two-Factor Authentication</div>
-          <div class="trust-item">${icons.globe} SWIFT & SEPA Compatible</div>
-          <div class="trust-item">${icons.card} Instant Card Issuance</div>
-          <div class="trust-item">${icons.check} Full-Reserve Custody</div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Features -->
-    <section class="landing-section">
-      <div class="section-label">Our Platform</div>
-      <h2 class="section-title">Everything your business needs to bank globally</h2>
-      <p class="section-desc">Designed for startups, holding companies, and high-net-worth individuals requiring a sophisticated offshore banking partner.</p>
+      <!-- ═══ SERVICES — What we offer ═══ -->
+      <section class="w3-section w3-section-dark" id="w3-services">
+        <div class="w3-section-inner">
+          <div class="w3-section-header">
+            <div class="w3-section-tag">
+              <span class="w3-section-tag-line"></span>
+              Core Services
+              <span class="w3-section-tag-line"></span>
+            </div>
+            <h2 class="w3-section-title">Comprehensive Offshore Banking Solutions</h2>
+            <p class="w3-section-desc">From international wire routing to real-time currency exchange, every tool you need for global financial operations.</p>
+          </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.globe}</div>
-          <h3 class="feature-title">Multi-Currency Accounts</h3>
-          <p class="feature-desc">Maintain separate ledger balances in US Dollars, Euros, and British Pounds. Switch between currencies in real time with interbank-rate FX conversions.</p>
+          <div class="w3-services-list">
+            <div class="w3-service-card">
+              <div class="w3-service-num">01</div>
+              <div>
+                <h3 class="w3-service-title">Outbound SWIFT Wire Transfers</h3>
+                <p class="w3-service-desc">Submit international wire transfers globally. Secure 2FA multi-factor checks verify and authorize transactions before outbound routing is written to the ledger.</p>
+              </div>
+            </div>
+            <div class="w3-service-card">
+              <div class="w3-service-num">02</div>
+              <div>
+                <h3 class="w3-service-title">Interbank FX Conversion</h3>
+                <p class="w3-service-desc">Exchange balances across USD, EUR, and GBP immediately at estimated wholesale conversion values, allowing real-time currency reallocation.</p>
+              </div>
+            </div>
+            <div class="w3-service-card">
+              <div class="w3-service-num">03</div>
+              <div>
+                <h3 class="w3-service-title">Offshore Debit & Virtual Cards</h3>
+                <p class="w3-service-desc">Manage corporate spending instantly. Operators can issue cards, toggle status, and view CVV/expiry details directly inside the secure portal.</p>
+              </div>
+            </div>
+            <div class="w3-service-card">
+              <div class="w3-service-num">04</div>
+              <div>
+                <h3 class="w3-service-title">Identity & Compliance KYC</h3>
+                <p class="w3-service-desc">We apply professional identity verification and tax classification checks to ensure profile compliance with international banking regulations.</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.send}</div>
-          <h3 class="feature-title">International Wire Transfers</h3>
-          <p class="feature-desc">Send outbound SWIFT wires to 180+ countries. Set custom settlement dates for historical reconciliation and retroactive ledger adjustments.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.card}</div>
-          <h3 class="feature-title">Debit & Virtual Cards</h3>
-          <p class="feature-desc">Instantly issue physical debit cards and virtual cards for your team. Freeze, unfreeze, or cancel any card from within the client portal.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.shield}</div>
-          <h3 class="feature-title">KYC & Compliance</h3>
-          <p class="feature-desc">Tiered identity verification for personal and corporate accounts. Real-time AML screening and suspicious transaction monitoring.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.lock}</div>
-          <h3 class="feature-title">Full-Reserve Security</h3>
-          <p class="feature-desc">100% of client deposits are held in short-term sovereign treasury instruments. We do not engage in fractional reserve lending.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon-box">${icons.receive}</div>
-          <h3 class="feature-title">Personal & Business Accounts</h3>
-          <p class="feature-desc">Separate account profiles for individuals and corporate entities. Business accounts support multiple signatories and treasury controls.</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- CTA Strip -->
-    <section style="background:var(--citi-navy);padding:48px 0;margin-top:64px;">
-      <div style="max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;">
-        <div>
-          <h2 style="color:#fff;font-size:24px;margin-bottom:8px;">Ready to open your offshore account?</h2>
-          <p style="color:rgba(255,255,255,0.65);font-size:14px;">Registration takes under three minutes. Accounts are provisioned instantly upon identity verification.</p>
+      <!-- ═══ CTA — Final call to action ═══ -->
+      <section class="w3-cta" id="w3-cta">
+        <div class="w3-cta-inner">
+          <h2 class="w3-cta-title">Ready to Open Your Offshore Account?</h2>
+          <p class="w3-cta-desc">Registration takes under three minutes. Accounts are provisioned instantly upon identity verification. Begin your application now.</p>
+          <div class="w3-cta-actions">
+            <button class="w3-btn-primary" onclick="nav('#/register')">Begin Application</button>
+            <button class="w3-btn-ghost" onclick="nav('#/login')">Existing Client Login</button>
+          </div>
         </div>
-        <button class="btn-hero-primary" onclick="nav('#/register')" style="flex-shrink:0;">Begin Application</button>
-      </div>
-    </section>
+      </section>
+
+    </div>
   `);
 }
 
@@ -1086,6 +1227,115 @@ function logout() {
   localStorage.removeItem('mtb_session');
   toast('Signed Out', 'Your secure session has been terminated.', 'info');
   nav('#/login');
+}
+
+// Toggle Card (freeze/unfreeze)
+async function toggleCard(cardId) {
+  try {
+    const card = state.cards.find(c => c.id === cardId);
+    if (!card) return;
+    const newStatus = card.status === 'FROZEN' ? 'ACTIVE' : 'FROZEN';
+    await api('/api/cards/toggle', { cardId, status: newStatus, userId: state.user.id });
+    card.status = newStatus;
+    toast('Card Updated', `Card ending ••${card.cardNumber.slice(-4)} is now ${newStatus}.`, 'success');
+    renderDashboard();
+  } catch (err) {
+    toast('Card Action Failed', err.message, 'error');
+  }
+}
+
+// Issue Virtual Card
+async function issueVirtualCard() {
+  try {
+    showLoader('Issuing Card', 'Generating virtual card credentials...');
+    await api('/api/cards/issue', { userId: state.user.id });
+    const cards = await api(`/api/cards?userId=${state.user.id}`);
+    state.cards = cards;
+    hideLoader();
+    toast('Card Issued', 'A new virtual card has been provisioned.', 'success');
+    renderDashboard();
+  } catch (err) {
+    hideLoader();
+    toast('Card Issue Failed', err.message, 'error');
+  }
+}
+
+// FX Exchange Page
+async function loadExchange() {
+  if (!state.accounts.length) {
+    const accounts = await api(`/api/accounts?userId=${state.user.id}`);
+    state.accounts = accounts;
+  }
+
+  const fromOpts = state.accounts.map(a =>
+    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} (${a.currency}) — ${fmtMoney(a.balance, a.currency)}</option>`
+  ).join('');
+
+  const toOpts = state.accounts.map(a =>
+    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} (${a.currency}) — ${fmtMoney(a.balance, a.currency)}</option>`
+  ).join('');
+
+  setRoot(`
+    <div class="app-container exchange-shell">
+      <div class="page-header">
+        <div>
+          <h2 class="page-greeting">Interbank FX Conversion</h2>
+          <p class="page-subtext">Exchange balances between your multi-currency accounts at estimated wholesale rates.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Currency Exchange</span></div>
+        <div class="panel-body">
+          <form id="exchange-form" onsubmit="handleExchange(event)">
+            <div class="form-group">
+              <label class="form-label">From Account</label>
+              <select id="ex-from" class="form-select">${fromOpts}</select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Account</label>
+              <select id="ex-to" class="form-select">${toOpts}</select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Amount to Convert</label>
+              <input id="ex-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Execute FX Conversion</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+async function handleExchange(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Converting…';
+
+  const fromId = v('ex-from');
+  const toId = v('ex-to');
+  const amount = parseFloat(v('ex-amt'));
+
+  if (fromId === toId) {
+    toast('Exchange Error', 'Source and destination accounts must be different.', 'error');
+    btn.disabled = false; btn.textContent = 'Execute FX Conversion';
+    return;
+  }
+
+  showLoader('Converting Currency', 'Executing interbank FX conversion at wholesale rates…');
+
+  try {
+    await api('/api/transactions/exchange', { userId: state.user.id, fromAccountId: fromId, toAccountId: toId, amount });
+    hideLoader();
+    toast('FX Conversion Complete', `Successfully converted ${fmtMoney(amount, state.accounts.find(a=>a.id===fromId)?.currency || 'USD')}.`, 'success');
+    state.accounts = [];
+    nav('#/dashboard');
+  } catch (err) {
+    hideLoader();
+    toast('Conversion Failed', err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Execute FX Conversion';
+  }
 }
 
 // Products & Programs View

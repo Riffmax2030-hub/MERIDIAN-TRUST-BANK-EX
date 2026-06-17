@@ -26,6 +26,38 @@
       "accountType": "personal",
       "kycStatus": "PENDING",
       "createdAt": "2026-06-01T14:45:00.000Z"
+    },
+    {
+      "id": "MTB-280912",
+      "name": "Auto Verifier User",
+      "email": "testuser_249644@example.com",
+      "phone": "+1 (555) 019-2831",
+      "address": "100 Core Ledger Blvd",
+      "state": "NY",
+      "zip": "10001",
+      "ssn": "*******9644",
+      "password": "u0zlUC9n",
+      "accountType": "personal",
+      "kycStatus": "APPROVED",
+      "mustChangePassword": true,
+      "createdAt": "2026-06-17T16:19:39.549Z"
+    },
+    {
+      "id": "MTB-759508",
+      "name": "Auto Verifier User",
+      "email": "testuser_771680@example.com",
+      "phone": "+1 (555) 019-2831",
+      "address": "100 Core Ledger Blvd",
+      "state": "NY",
+      "zip": "10001",
+      "ssn": "*******1680",
+      "password": "10opWxVW",
+      "accountType": "personal",
+      "kycStatus": "APPROVED",
+      "mustChangePassword": true,
+      "createdAt": "2026-06-17T16:24:43.206Z",
+      "wireStatus": "ENABLED",
+      "wireBlockMessage": ""
     }
   ],
   "accounts": [
@@ -91,6 +123,42 @@
       "balance": 48200,
       "accountNumber": "0811902231",
       "routingNumber": "MTBUSD2X"
+    },
+    {
+      "id": "ACC-45419407",
+      "userId": "MTB-280912",
+      "type": "checking",
+      "currency": "USD",
+      "balance": 12500,
+      "accountNumber": "0660604720",
+      "routingNumber": "MTBUSD2X"
+    },
+    {
+      "id": "ACC-45434314",
+      "userId": "MTB-280912",
+      "type": "savings",
+      "currency": "EUR",
+      "balance": 7500,
+      "accountNumber": "0739798167",
+      "routingNumber": "MTBEUR2X"
+    },
+    {
+      "id": "ACC-98166911",
+      "userId": "MTB-759508",
+      "type": "checking",
+      "currency": "USD",
+      "balance": 12400,
+      "accountNumber": "0424295788",
+      "routingNumber": "MTBUSD2X"
+    },
+    {
+      "id": "ACC-89114074",
+      "userId": "MTB-759508",
+      "type": "savings",
+      "currency": "EUR",
+      "balance": 7500,
+      "accountNumber": "0478344381",
+      "routingNumber": "MTBEUR2X"
     }
   ],
   "transactions": [
@@ -201,6 +269,73 @@
       "date": "2026-05-14T13:45:00.000Z",
       "status": "COMPLETED",
       "counterparty": "Blackstone & Partners"
+    },
+    {
+      "id": "TXN-568577",
+      "accountId": "ACC-45419407",
+      "userId": "MTB-280912",
+      "type": "DEPOSIT",
+      "description": "Account opening — Meridian Trust clearing credit",
+      "amount": 12500,
+      "currency": "USD",
+      "date": "2026-06-17T16:19:39.547Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust Clearing"
+    },
+    {
+      "id": "TXN-858398",
+      "accountId": "ACC-45434314",
+      "userId": "MTB-280912",
+      "type": "DEPOSIT",
+      "description": "Account opening — Meridian Trust clearing credit",
+      "amount": 7500,
+      "currency": "EUR",
+      "date": "2026-06-17T16:19:39.547Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust Clearing"
+    },
+    {
+      "id": "TXN-907835",
+      "accountId": "ACC-98166911",
+      "userId": "MTB-759508",
+      "type": "DEPOSIT",
+      "description": "Account opening — Meridian Trust clearing credit",
+      "amount": 12500,
+      "currency": "USD",
+      "date": "2026-06-17T16:24:43.203Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust Clearing"
+    },
+    {
+      "id": "TXN-387431",
+      "accountId": "ACC-89114074",
+      "userId": "MTB-759508",
+      "type": "DEPOSIT",
+      "description": "Account opening — Meridian Trust clearing credit",
+      "amount": 7500,
+      "currency": "EUR",
+      "date": "2026-06-17T16:24:43.203Z",
+      "status": "COMPLETED",
+      "counterparty": "Meridian Trust Clearing"
+    },
+    {
+      "id": "TXN-466403",
+      "accountId": "ACC-98166911",
+      "userId": "MTB-759508",
+      "type": "TRANSFER_OUT",
+      "description": "Test Wire",
+      "amount": 100,
+      "currency": "USD",
+      "date": "2026-06-17T16:24:43.649Z",
+      "status": "COMPLETED",
+      "counterparty": "Test Recipient",
+      "swiftDetails": {
+        "recipientAddress": "456 Receiver St",
+        "recipientBank": "Chase Bank",
+        "swiftCode": "CHASUS33XXX",
+        "routingNumber": "021000021",
+        "accountNumber": "987654321"
+      }
     }
   ],
   "cards": [
@@ -263,6 +398,26 @@
       "cvv": "468",
       "status": "ACTIVE",
       "type": "VIRTUAL"
+    },
+    {
+      "id": "CRD-831208",
+      "userId": "MTB-280912",
+      "cardNumber": "4847585384609994",
+      "cardholderName": "AUTO VERIFIER USER",
+      "expiry": "12/31",
+      "cvv": "990",
+      "status": "ACTIVE",
+      "type": "DEBIT"
+    },
+    {
+      "id": "CRD-380233",
+      "userId": "MTB-759508",
+      "cardNumber": "4932381225613117",
+      "cardholderName": "AUTO VERIFIER USER",
+      "expiry": "12/31",
+      "cvv": "002",
+      "status": "ACTIVE",
+      "type": "DEBIT"
     }
   ],
   "applications": [],

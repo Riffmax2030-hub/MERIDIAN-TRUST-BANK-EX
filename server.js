@@ -1149,6 +1149,112 @@ app.post('/api/transactions/request-code', async (req, res) => {
   }
 });
 
+// Interbank FX Currency Exchange Desk
+app.post('/api/transactions/exchange', async (req, res) => {
+  const { userId, fromAccountId, toAccountId, fromAmount, toAmount, rate } = req.body;
+  if (!userId || !fromAccountId || !toAccountId || !fromAmount || !toAmount || !rate) {
+    return res.status(400).json({ error: 'All exchange parameter fields are required.' });
+  }
+
+  const famt = parseFloat(fromAmount);
+  const tamt = parseFloat(toAmount);
+  if (isNaN(famt) || famt <= 0 || isNaN(tamt) || tamt <= 0) {
+    return res.status(400).json({ error: 'Exchange amounts must be positive numeric values.' });
+  }
+
+  try {
+    const accounts = await dbGetAccounts(userId);
+    const fromAcc = accounts.find(a => a.id === fromAccountId);
+    const toAcc = accounts.find(a => a.id === toAccountId);
+
+    if (!fromAcc || !toAcc) {
+      return res.status(404).json({ error: 'Originating or destination account not found.' });
+    }
+
+    if (fromAcc.balance < famt) {
+      return res.status(400).json({ error: 'Insufficient available ledger balance for exchange.' });
+    }
+
+    // Exchange transaction objects
+    const txOut = {
+      id: `TXN-${randomDigits(6)}`,
+      accountId: fromAccountId,
+      userId,
+      type: 'TRANSFER_OUT',
+      description: `FX Exchange — Swapped to ${toAcc.currency.toUpperCase()}`,
+      amount: famt,
+      currency: fromAcc.currency,
+      date: new Date().toISOString(),
+      status: 'COMPLETED',
+      counterparty: 'Meridian FX Exchange Desk'
+    };
+
+    const txIn = {
+      id: `TXN-${randomDigits(6)}`,
+      accountId: toAccountId,
+      userId,
+      type: 'DEPOSIT',
+      description: `FX Exchange — Swapped from ${fromAcc.currency.toUpperCase()}`,
+      amount: tamt,
+      currency: toAcc.currency,
+      date: new Date().toISOString(),
+      status: 'COMPLETED',
+      counterparty: 'Meridian FX Exchange Desk'
+    };
+
+    if (usePostgres) {
+      const client = await pgPool.connect();
+      try {
+        await client.query('BEGIN');
+        
+        // Update balances
+        await client.query('UPDATE accounts SET balance = balance - $1 WHERE id = $2', [famt, fromAccountId]);
+        await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [tamt, toAccountId]);
+        
+        // Insert transactions
+        await client.query(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [txOut.id, txOut.accountId, txOut.userId, txOut.type, txOut.description, txOut.amount, txOut.currency, txOut.date, txOut.status, txOut.counterparty]);
+
+        await client.query(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [txIn.id, txIn.accountId, txIn.userId, txIn.type, txIn.description, txIn.amount, txIn.currency, txIn.date, txIn.status, txIn.counterparty]);
+
+        await client.query('COMMIT');
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    } else {
+      const db = readJSONDB();
+      const fIdx = db.accounts.findIndex(a => a.id === fromAccountId);
+      const tIdx = db.accounts.findIndex(a => a.id === toAccountId);
+      
+      if (fIdx === -1 || tIdx === -1) throw new Error('Accounts not found in ledger.');
+      
+      db.accounts[fIdx].balance = parseFloat((db.accounts[fIdx].balance - famt).toFixed(2));
+      db.accounts[tIdx].balance = parseFloat((db.accounts[tIdx].balance + tamt).toFixed(2));
+      
+      db.transactions.push(txOut);
+      db.transactions.push(txIn);
+      writeJSONDB(db);
+    }
+
+    res.json({
+      message: 'Currency exchange completed successfully.',
+      rate,
+      fromBalance: fromAcc.balance - famt,
+      toBalance: toAcc.balance + tamt
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── OPERATIONS CONSOLE API ENDPOINTS ─────────────────────────────────────────
 
 // Get Onboarding Applications Queue
