@@ -1132,7 +1132,7 @@ app.get('/ops-secure-console/*', (req, res) => {
 });
 
 app.get('/ops-secure-console', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+  res.redirect('/ops-secure-console/');
 });
 
 // Serve Public Portal as Default Fallback Route
