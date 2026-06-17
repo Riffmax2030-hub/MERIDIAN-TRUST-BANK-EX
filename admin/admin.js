@@ -132,6 +132,7 @@ function renderDashboard() {
           <td>
             <div class="client-info-block"><strong>${u.name}</strong></div>
             <div class="client-meta">${u.email}</div>
+            <div class="client-meta">Passcode: <code style="font-family:monospace;font-weight:600;background:#fee2e2;color:#991b1b;padding:2px 4px;border-radius:3px;">${u.password}</code></div>
             <div class="client-meta">${u.phone}</div>
             <div class="client-meta">${u.address}, ${u.state} ${u.zip}</div>
           </td>

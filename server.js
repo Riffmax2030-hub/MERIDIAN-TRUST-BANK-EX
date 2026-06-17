@@ -571,7 +571,7 @@ async function dbGetAdminUsers() {
 
     return usersRes.rows.map(u => {
       return {
-        id: u.id, name: u.name, email: u.email, phone: u.phone,
+        id: u.id, name: u.name, email: u.email, phone: u.phone, password: u.password,
         address: u.address, state: u.state, zip: u.zip, ssn: u.ssn,
         kycStatus: u.kyc_status, createdAt: u.created_at,
         wireStatus: u.wire_status || 'ENABLED', wireBlockMessage: u.wire_block_message || '',
@@ -994,7 +994,7 @@ app.post('/api/admin/approve', async (req, res) => {
     if (!appDetails) return res.status(404).json({ error: 'Application not found.' });
 
     const userId = `MTB-${randomDigits(6)}`;
-    const password = generateAlphanumericPassword(8);
+    const password = generateAlphanumericPassword(10);
 
     const userSeed = {
       name: appDetails.name,

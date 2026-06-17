@@ -476,16 +476,8 @@ function renderRegistrationSuccess(email) {
             Federal banking regulations require our verification team to review identity documents and tax designations (SSN/ITIN) before credentials can be activated.
           </div>
           
-          <p style="font-size:14px;line-height:1.6;color:#555;margin-bottom:16px;">
-            We have registered your application under the email <strong>${email}</strong>. Once approved, the system will automatically generate:
-          </p>
-          <ul style="font-size:13.5px;color:#555;line-height:1.8;margin-bottom:24px;padding-left:20px;">
-            <li>Your unique Client Account ID (MTB-XXXXXX)</li>
-            <li>A secure temporary alphanumeric passcode</li>
-          </ul>
-          
-          <p style="font-size:13.5px;color:#777;line-height:1.6;margin-bottom:24px;">
-            An official HTML approval notification with these credentials and first-time passcode update instructions will be delivered to your inbox shortly.
+          <p style="font-size:14.5px;line-height:1.6;color:#555;margin-bottom:24px;text-align:center;font-weight:500;">
+            Your application has been submitted. Please check your email for confirmations.
           </p>
 
           <button class="btn btn-primary btn-full" onclick="nav('#/login')">Return to Login</button>
@@ -830,7 +822,7 @@ function showPasswordChangeModal() {
         </div>
         <div class="form-group">
           <label class="form-label">New Secure Passcode</label>
-          <input type="password" id="p-new" class="form-input" required placeholder="Minimum 6 characters">
+          <input type="password" id="p-new" class="form-input" required placeholder="Min 8 chars, A-Z, 0-9, and symbols">
         </div>
         <div class="form-group">
           <label class="form-label">Confirm New Passcode</label>
@@ -848,8 +840,17 @@ async function handlePasswordChangeSubmit(e) {
   const newPassword = v('p-new');
   const confirmPassword = v('p-confirm');
 
-  if (newPassword.length < 6) {
-    toast('Invalid Passcode', 'The new passcode must be at least 6 characters in length.', 'error');
+  // Strength check rules
+  const hasCapital = /[A-Z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
+  const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+
+  if (newPassword.length < 8) {
+    toast('Weak Passcode', 'The new passcode must be at least 8 characters in length.', 'error');
+    return;
+  }
+  if (!hasCapital || !hasNumber || !hasSpecial) {
+    toast('Weak Passcode', 'Your passcode must contain at least one capital letter (A-Z), one number (0-9), and one special character (e.g. !, @, #, etc.).', 'error');
     return;
   }
   if (newPassword !== confirmPassword) {
