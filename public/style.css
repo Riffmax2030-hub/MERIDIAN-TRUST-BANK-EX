@@ -485,7 +485,8 @@ a:hover { text-decoration: underline; }
 
 /* ── Hero / Landing ──────────────────────────────────────────────────────────── */
 .hero {
-  background: var(--citi-navy);
+  background: linear-gradient(rgba(0, 44, 119, 0.85), rgba(0, 20, 50, 0.92)), url('bank_hero_bg.png') no-repeat center center;
+  background-size: cover;
   color: #fff;
   padding: 64px 0 0;
   overflow: hidden;
