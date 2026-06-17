@@ -708,7 +708,7 @@ function renderDashboard() {
   const txRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
     return `
-      <tr>
+      <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-interactive">
         <td style="width:44px;">
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
         </td>
@@ -1188,6 +1188,161 @@ function openWire2FAModal(onConfirm) {
 function closeWire2FAModal() {
   document.getElementById('wire-2fa-modal')?.remove();
   document.getElementById('modal-overlay')?.classList.remove('show');
+}
+
+function showTransactionDetails(txnId) {
+  const txn = state.transactions.find(t => t.id === txnId);
+  if (!txn) return;
+
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+
+  let modal = document.getElementById('txn-details-modal');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'txn-details-modal';
+  modal.className = 'modal-box';
+  modal.style.display = 'block';
+  modal.style.maxWidth = '550px';
+
+  const isWire = txn.type === 'TRANSFER_OUT';
+  const swift = txn.swiftDetails || {};
+
+  let swiftHtml = '';
+  if (isWire && swift.recipientBank) {
+    swiftHtml = `
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:14px; margin-top:16px;">
+        <h4 style="margin:0 0 10px 0; color:var(--citi-navy); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">SWIFT Routing Details</h4>
+        <table style="width:100%; font-size:13px; border-collapse:collapse;">
+          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Bank:</td><td style="padding:4px 0; font-weight:600; text-align:right;">${swift.recipientBank}</td></tr>
+          <tr><td style="padding:4px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.swiftCode}</td></tr>
+          <tr><td style="padding:4px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
+          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Account:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.accountNumber}</td></tr>
+          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Address:</td><td style="padding:4px 0; font-weight:600; text-align:right;">${swift.recipientAddress || 'N/A'}</td></tr>
+        </table>
+      </div>
+    `;
+  }
+
+  let pdfButtonHtml = '';
+  if (isWire && txn.status === 'COMPLETED') {
+    pdfButtonHtml = `
+      <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="downloadWirePDF('${txn.id}')">
+        📥 Download SWIFT MT103 Advice PDF
+      </button>
+    `;
+  } else if (isWire && txn.status === 'PENDING') {
+    pdfButtonHtml = `
+      <div style="background:#fff7ed; border:1px solid #ffedd5; color:#c2410c; padding:12px; border-radius:6px; font-size:13px; text-align:center; font-weight:500; margin-top:16px;">
+        ⏳ Outbound wire transfer is pending administrative clearance. advice PDF will be available upon approval.
+      </div>
+    `;
+  }
+
+  modal.innerHTML = `
+    <div class="modal-header">
+      <h3 class="modal-title" style="color:var(--citi-navy); font-weight:700;">Transaction Details</h3>
+      <button class="modal-close-btn" onclick="closeTransactionDetails()">&times;</button>
+    </div>
+    <div class="modal-body" style="padding-top:10px;">
+      <table style="width:100%; font-size:14px; border-collapse:collapse; margin-bottom:16px;">
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:10px 0; font-weight:700; text-align:right; font-family:monospace;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Description:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Value Date:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${fmtDate(txn.date)}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Transaction Type:</td><td style="padding:10px 0; font-weight:600; text-align:right; text-transform:uppercase; font-size:12px;">${txn.type.replace('_',' ')}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:10px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
+        <tr><td style="padding:10px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:10px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:18px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
+      </table>
+      ${swiftHtml}
+      ${pdfButtonHtml}
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function closeTransactionDetails() {
+  document.getElementById('txn-details-modal')?.remove();
+  document.getElementById('modal-overlay')?.classList.remove('show');
+}
+
+function downloadWirePDF(txnId) {
+  const txn = state.transactions.find(t => t.id === txnId);
+  if (!txn) return;
+
+  const swift = txn.swiftDetails || {};
+  
+  // Premium HTML advice sheet template for pdf download
+  const optEl = document.createElement('div');
+  optEl.style.width = '700px';
+  optEl.style.padding = '40px';
+  optEl.style.background = '#ffffff';
+  optEl.style.color = '#0c1a30';
+  optEl.style.fontFamily = "'DM Sans', sans-serif";
+
+  optEl.innerHTML = `
+    <!-- Header -->
+    <div style="border-bottom:3px solid #002C77; padding-bottom:20px; display:flex; justify-content:between; align-items:center;">
+      <div>
+        <h1 style="color:#002C77; margin:0; font-size:24px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
+        <div style="font-size:10px; color:#0099D6; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Licensed Offshore Digital Financial Institution</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase;">SWIFT MT103 ADVICE</div>
+        <div style="font-size:12px; font-family:monospace; font-weight:600; color:#002C77; margin-top:3px;">REF: ${txn.id}</div>
+      </div>
+    </div>
+
+    <!-- Status Alert Bar -->
+    <div style="margin-top:24px; background:#e6f4ea; border-left:4px solid #137333; padding:12px 16px; color:#137333; border-radius:0 4px 4px 0; font-size:13px; font-weight:600;">
+      ✔ TRANSACTION EXECUTED SUCCESSFULLY — FUNDS SETTLED AND ROUTED VIA SWIFT CLEARING HOUSE.
+    </div>
+
+    <!-- Core Details Table -->
+    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:28px 0 14px 0; letter-spacing:0.5px;">Transfer Summary</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.8;">
+      <tr><td style="width:35%; color:#555;">Value Date:</td><td style="font-weight:600;">${new Date(txn.date).toUTCString()}</td></tr>
+      <tr><td style="color:#555;">Ordering Customer ID:</td><td style="font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
+      <tr><td style="color:#555;">Sending Account:</td><td style="font-weight:600;">Offshore Private Placement Treasury (USD/EUR/GBP equivalent)</td></tr>
+      <tr><td style="color:#555;">Memo / Reference:</td><td style="font-weight:600;">${txn.description}</td></tr>
+      <tr><td style="color:#555;">Settled Net Amount:</td><td style="font-weight:700; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
+    </table>
+
+    <!-- SWIFT Routing details -->
+    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:28px 0 14px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:2.0;">
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; color:#555;">Beneficiary Customer Name:</td><td style="font-weight:600;">${txn.counterparty}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Bank Name:</td><td style="font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">SWIFT / BIC Identifier:</td><td style="font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">ABA / Sort Code / IBAN:</td><td style="font-weight:600; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Account Number:</td><td style="font-weight:600; font-family:monospace;">${swift.accountNumber || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Destination Address:</td><td style="font-weight:600;">${swift.recipientAddress || 'N/A'}</td></tr>
+    </table>
+
+    <!-- Sign-off / Compliance Seals -->
+    <div style="margin-top:48px; border-top:1px solid #e2e8f0; padding-top:24px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:11px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
+        <div style="font-size:10px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & CLEANED</div>
+        <div style="font-size:10px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
+      </div>
+    </div>
+  `;
+
+  const opt = {
+    margin:       [0.4, 0.4, 0.4, 0.4],
+    filename:     `Meridian_Trust_Wire_Advice_${txn.id}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(optEl).save();
 }
 
 async function handleSend(e) {
