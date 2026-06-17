@@ -117,6 +117,7 @@ async function dbInit() {
         zip VARCHAR(30),
         ssn VARCHAR(50),
         account_type VARCHAR(30) NOT NULL,
+        selected_accounts VARCHAR(200) NOT NULL DEFAULT 'checking,savings,market',
         status VARCHAR(30) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -247,11 +248,15 @@ async function dbGetApplications() {
     return res.rows.map(r => ({
       id: r.id, name: r.name, email: r.email, phone: r.phone,
       address: r.address, state: r.state, zip: r.zip, ssn: r.ssn,
-      accountType: r.account_type, status: r.status, createdAt: r.created_at
+      accountType: r.account_type, selectedAccounts: r.selected_accounts ? r.selected_accounts.split(',') : [],
+      status: r.status, createdAt: r.created_at
     }));
   } else {
     const db = readJSONDB();
-    return db.applications || [];
+    return (db.applications || []).map(a => ({
+      ...a,
+      selectedAccounts: a.selectedAccounts || ['checking', 'savings', 'market']
+    }));
   }
 }
 
@@ -259,9 +264,9 @@ async function dbGetApplications() {
 async function dbSaveApplication(app) {
   if (usePostgres) {
     await queryPG(`
-      INSERT INTO applications (id, name, email, phone, address, state, zip, ssn, account_type, status, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-    `, [app.id, app.name, app.email, app.phone, app.address, app.state, app.zip, app.ssn, app.accountType, app.status, app.createdAt]);
+      INSERT INTO applications (id, name, email, phone, address, state, zip, ssn, account_type, selected_accounts, status, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `, [app.id, app.name, app.email, app.phone, app.address, app.state, app.zip, app.ssn, app.accountType, (app.selectedAccounts || []).join(','), app.status, app.createdAt]);
   } else {
     const db = readJSONDB();
     if (!db.applications) db.applications = [];
@@ -716,7 +721,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Submit Onboarding Application
 app.post('/api/auth/register-submit', async (req, res) => {
-  const { name, email, phone, address, state, zip, ssn, accountType } = req.body;
+  const { name, email, phone, address, state, zip, ssn, accountType, selectedAccounts } = req.body;
   if (!name || !email || !ssn) {
     return res.status(400).json({ error: 'Name, Email, and SSN are required.' });
   }
@@ -737,6 +742,7 @@ app.post('/api/auth/register-submit', async (req, res) => {
       zip: zip || '',
       ssn,
       accountType: accountType || 'personal',
+      selectedAccounts: selectedAccounts || ['checking', 'savings'],
       status: 'PENDING',
       createdAt: new Date().toISOString()
     };
@@ -940,28 +946,52 @@ app.post('/api/admin/approve', async (req, res) => {
       accountType: appDetails.accountType
     };
 
-    const currencies = ['USD', 'EUR', 'GBP'];
-    const types      = ['checking', 'savings', 'market'];
-    const seeds      = [12500, 7500, 3000];
-    const swifts     = ['MTBUSD2X', 'MTBEUR2X', 'MTBGBP2X'];
+    const selected = appDetails.selectedAccounts || ['checking', 'savings', 'market'];
+    const accountsSeed = [];
 
-    const accountsSeed = currencies.map((cur, i) => ({
-      id: `ACC-${randomDigits(8)}`,
-      userId,
-      type: types[i],
-      currency: cur,
-      balance: seeds[i],
-      accountNumber: `0${randomDigits(9)}`,
-      routingNumber: swifts[i]
-    }));
+    if (selected.includes('checking')) {
+      accountsSeed.push({
+        id: `ACC-${randomDigits(8)}`,
+        userId,
+        type: 'checking',
+        currency: 'USD',
+        balance: 12500.00,
+        accountNumber: `0${randomDigits(9)}`,
+        routingNumber: 'MTBUSD2X'
+      });
+    }
 
-    const txsSeed = accountsSeed.map((acc, i) => ({
+    if (selected.includes('savings')) {
+      accountsSeed.push({
+        id: `ACC-${randomDigits(8)}`,
+        userId,
+        type: 'savings',
+        currency: 'EUR',
+        balance: 7500.00,
+        accountNumber: `0${randomDigits(9)}`,
+        routingNumber: 'MTBEUR2X'
+      });
+    }
+
+    if (selected.includes('market')) {
+      accountsSeed.push({
+        id: `ACC-${randomDigits(8)}`,
+        userId,
+        type: 'market',
+        currency: 'GBP',
+        balance: 3000.00,
+        accountNumber: `0${randomDigits(9)}`,
+        routingNumber: 'MTBGBP2X'
+      });
+    }
+
+    const txsSeed = accountsSeed.map((acc) => ({
       id: `TXN-${randomDigits(6)}`,
       accountId: acc.id,
       userId,
       type: 'DEPOSIT',
       description: 'Account opening — Meridian Trust clearing credit',
-      amount: seeds[i],
+      amount: acc.balance,
       currency: acc.currency,
       date: new Date().toISOString(),
       status: 'COMPLETED',

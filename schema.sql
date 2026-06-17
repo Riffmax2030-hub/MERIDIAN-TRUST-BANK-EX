@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS applications (
   zip VARCHAR(30),
   ssn VARCHAR(50),
   account_type VARCHAR(30) NOT NULL,
+  selected_accounts VARCHAR(200) NOT NULL DEFAULT 'checking,savings,market',
   status VARCHAR(30) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

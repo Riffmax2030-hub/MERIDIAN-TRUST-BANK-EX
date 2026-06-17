@@ -281,7 +281,7 @@ function renderRegister() {
   const d = state.regData || {};
   setRoot(`
     <div class="auth-shell">
-      <div class="auth-card">
+      <div class="auth-card" style="max-width:550px;">
         <div class="auth-card-header">
           <div class="auth-logo-wrap">
             <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
@@ -323,11 +323,39 @@ function renderRegister() {
             </div>
             <div class="form-group">
               <label class="form-label">Account Classification</label>
-              <select id="r-type" class="form-select">
+              <select id="r-type" class="form-select" onchange="toggleAccountTypeLabels()">
                 <option value="personal" ${d.accountType === 'personal' ? 'selected' : ''}>Personal / Private Client</option>
                 <option value="business" ${d.accountType === 'business' ? 'selected' : ''}>Corporate / Business Entity</option>
               </select>
             </div>
+
+            <div class="form-group">
+              <label class="form-label" style="margin-bottom:10px;">Select Account Programs to Open (Choose at least one)</label>
+              <div style="display:flex;flex-direction:column;gap:12px;background:#f8fafc;padding:12px;border:1px solid #cbd5e1;border-radius:4px;">
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="acc-checking" checked style="width:16px;height:16px;">
+                  <div>
+                    <strong id="lbl-checking-title">USD Private Checking</strong>
+                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-checking-desc">Everyday transactions, swift wires, debit card settlements</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="acc-savings" checked style="width:16px;height:16px;">
+                  <div>
+                    <strong id="lbl-savings-title">EUR High-Yield Savings</strong>
+                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-savings-desc">Compounding offshore yield, wealth preservation</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="acc-market" style="width:16px;height:16px;">
+                  <div>
+                    <strong id="lbl-market-title">GBP Global Money Market</strong>
+                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-market-desc">For institutional currency placements and yields</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Next: Identity Verification</button>
           </form>
         </div>
@@ -337,10 +365,50 @@ function renderRegister() {
       </div>
     </div>
   `);
+  setTimeout(() => { toggleAccountTypeLabels(); }, 10);
 }
+
+function toggleAccountTypeLabels() {
+  const type = document.getElementById('r-type')?.value;
+  if (!type) return;
+
+  const chkTitle = document.getElementById('lbl-checking-title');
+  const chkDesc  = document.getElementById('lbl-checking-desc');
+  const savTitle = document.getElementById('lbl-savings-title');
+  const savDesc  = document.getElementById('lbl-savings-desc');
+  const mktTitle = document.getElementById('lbl-market-title');
+  const mktDesc  = document.getElementById('lbl-market-desc');
+
+  if (type === 'personal') {
+    if (chkTitle) chkTitle.textContent = 'USD Private Checking';
+    if (chkDesc)  chkDesc.textContent  = 'Everyday transactions, swift wires, debit card settlements';
+    if (savTitle) savTitle.textContent = 'EUR High-Yield Savings';
+    if (savDesc)  savDesc.textContent  = 'Compounding offshore yield, wealth preservation';
+    if (mktTitle) mktTitle.textContent = 'GBP Global Money Market';
+    if (mktDesc)  mktDesc.textContent  = 'For institutional currency placements and yields';
+  } else {
+    if (chkTitle) chkTitle.textContent = 'USD Business Treasury Checking';
+    if (chkDesc)  chkDesc.textContent  = 'Operating account for wires, vendor bills, and payroll';
+    if (savTitle) savTitle.textContent = 'EUR Corporate Reserve Savings';
+    if (savDesc)  savDesc.textContent  = 'Asset-backed reserve holding with high-interest yields';
+    if (mktTitle) mktTitle.textContent = 'GBP Institutional Investment Placement';
+    if (mktDesc)  mktDesc.textContent  = 'High-balance multi-currency corporate treasury cash positioning';
+  }
+}
+window.toggleAccountTypeLabels = toggleAccountTypeLabels;
 
 function goToRegisterStep2(e) {
   e.preventDefault();
+  const selected = [];
+  if (document.getElementById('acc-checking').checked) selected.push('checking');
+  if (document.getElementById('acc-savings').checked) selected.push('savings');
+  if (document.getElementById('acc-market').checked) selected.push('market');
+
+  if (selected.length === 0) {
+    toast('Selection Required', 'Please select at least one account program to open.', 'error');
+    return;
+  }
+
   state.regData = {
     name: document.getElementById('r-name').value,
     email: document.getElementById('r-email').value,
@@ -348,7 +416,8 @@ function goToRegisterStep2(e) {
     address: document.getElementById('r-address').value,
     state: document.getElementById('r-state').value,
     zip: document.getElementById('r-zip').value,
-    accountType: document.getElementById('r-type').value
+    accountType: document.getElementById('r-type').value,
+    selectedAccounts: selected
   };
   renderRegisterStep2();
 }
