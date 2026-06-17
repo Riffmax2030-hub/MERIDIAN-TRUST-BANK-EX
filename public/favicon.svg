@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none">
+  <!-- Outer circle and grid lines -->
+  <circle cx="14" cy="14" r="12" stroke="#002C77" stroke-width="1.5" opacity="0.2"/>
+  <path d="M14 2 L14 26 M2 14 L26 14" stroke="#002C77" stroke-width="0.8" opacity="0.15"/>
+  <!-- Primary brand mark (The M/Arch structure) -->
+  <path d="M7 10 L14 17 L21 10" stroke="#0066CC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="7" y1="20" x2="21" y2="20" stroke="#0066CC" stroke-width="2.8" stroke-linecap="round"/>
+</svg>
