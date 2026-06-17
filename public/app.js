@@ -24,6 +24,18 @@ function init() {
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────
+const routeLoaderMessages = {
+  '#':           ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
+  '#/':          ['Initializing Secure Portal', 'Establishing encrypted connection to Meridian Trust systems…'],
+  '#/login':     ['Loading Authentication Module', 'Preparing secure credential verification interface…'],
+  '#/register':  ['Loading Application Portal', 'Initializing US account onboarding compliance module…'],
+  '#/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
+  '#/send':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
+  '#/exchange':  ['Loading FX Exchange', 'Connecting to interbank currency conversion engine…'],
+};
+
+let _routeTimer = null;
+
 function route() {
   renderNav();
   const h = window.location.hash || '#';
@@ -37,16 +49,28 @@ function route() {
   // Redirect old page routes to landing (content is now inline)
   if (['#/products','#/services','#/legal','#/about'].includes(h)) { nav('#'); return; }
 
-  switch (h) {
-    case '#':
-    case '#/': renderLanding(); break;
-    case '#/login':    renderLogin(); break;
-    case '#/register': renderRegister(); break;
-    case '#/dashboard': loadDashboard(); break;
-    case '#/send':      loadSend(); break;
-    case '#/exchange':  loadExchange(); break;
-    default: renderLanding();
-  }
+  // Clear any pending route timer
+  if (_routeTimer) { clearTimeout(_routeTimer); _routeTimer = null; }
+
+  // Determine loader text
+  const msgs = routeLoaderMessages[h] || ['Loading', 'Please wait…'];
+  showLoader(msgs[0], msgs[1]);
+
+  _routeTimer = setTimeout(() => {
+    hideLoader();
+    _routeTimer = null;
+
+    switch (h) {
+      case '#':
+      case '#/': renderLanding(); break;
+      case '#/login':    renderLogin(); break;
+      case '#/register': renderRegister(); break;
+      case '#/dashboard': loadDashboard(); break;
+      case '#/send':      loadSend(); break;
+      case '#/exchange':  loadExchange(); break;
+      default: renderLanding();
+    }
+  }, 3000);
 }
 
 function nav(hash) { window.location.hash = hash; }
