@@ -157,6 +157,39 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function fmtDateTime(iso) {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return `${date}, ${time}`;
+}
+
+// Balance visibility state (default: hidden)
+let balanceVisible = false;
+function toggleBalanceVisibility() {
+  balanceVisible = !balanceVisible;
+  renderDashboard();
+}
+window.toggleBalanceVisibility = toggleBalanceVisibility;
+
+function togglePasswordEye(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  } else {
+    input.type = 'password';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+}
+window.togglePasswordEye = togglePasswordEye;
+
+function maskBalance(amount, currency) {
+  if (!balanceVisible) return '••••••••';
+  return fmtMoney(amount, currency);
+}
+
 function todayValue() {
   return new Date().toISOString().split('T')[0];
 }
@@ -591,7 +624,12 @@ function renderLogin() {
               </div>
               <div class="form-group">
                 <label class="form-label">Secure Passcode <span style="color:#dc2626;">*</span></label>
-                <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required>
+                <div style="position:relative;">
+                  <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required style="padding-right:44px;">
+                  <button type="button" onclick="togglePasswordEye('f-pwd', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-muted);" aria-label="Toggle password visibility">
+                    <svg id="eye-icon-f-pwd" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
             </form>
@@ -1315,17 +1353,14 @@ function renderDashboard() {
     }, 100);
   }
 
-  // Account tiles
-  const accTiles = state.accounts.map(a => `
-    <div class="acc-tile ${a.type}">
-      <div>
-        <span class="acc-type-label">${a.type === 'market' ? 'Money Market' : a.type} Account</span>
-        <span class="acc-currency-tag">${a.currency}</span>
-      </div>
-      <div class="acc-balance">${fmtMoney(a.balance, a.currency)}</div>
-      <div class="acc-number">Acct: ••${a.accountNumber.slice(-6)} &nbsp;|&nbsp; ${a.routingNumber}</div>
-    </div>
-  `).join('');
+  // Compute net assets
+  let netAssets = 0;
+  state.accounts.forEach(a => {
+    netAssets += parseFloat(a.balance) || 0;
+  });
+
+  const eyeOpenSvg = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const eyeClosedSvg = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
   // Transaction rows (show last 8)
   const recent = state.transactions.slice(0, 8);
@@ -1340,7 +1375,7 @@ function renderDashboard() {
           <div class="txn-desc">${t.description}</div>
           <div class="txn-party">${t.counterparty}</div>
         </td>
-        <td class="txn-date">${fmtDate(t.date)}</td>
+        <td class="txn-date">${fmtDateTime(t.date)}</td>
         <td>
           <span class="status-pill ${t.status}">${t.status}</span>
         </td>
@@ -1359,7 +1394,7 @@ function renderDashboard() {
         <div class="card-visual ${frozen ? 'frozen' : 'active'}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div class="card-chip"></div>
-            <span class="card-network">${c.type}</span>
+            <span class="card-network">Mastercard</span>
           </div>
           <div>
             <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;${c.cardNumber.slice(-4)}</div>
@@ -1378,34 +1413,6 @@ function renderDashboard() {
     `;
   }).join('<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">');
 
-  // Compute real-time dashboard metrics (Income, Outcome, Asset, Expenditure)
-  let netAssets = 0;
-  state.accounts.forEach(a => {
-    netAssets += parseFloat(a.balance) || 0;
-  });
-
-  let totalInflow = 0;
-  let totalOutflow = 0;
-  let currentMonthOutflow = 0;
-
-  // Real-time calculation based on transactions
-  const now = new Date();
-  const currentYear = 2026; // system date year
-  const currentMonth = 5;   // June is 5 (0-indexed)
-
-  state.transactions.forEach(t => {
-    const amt = parseFloat(t.amount) || 0;
-    const txDate = new Date(t.date);
-    if (t.type === 'DEPOSIT') {
-      totalInflow += amt;
-    } else {
-      totalOutflow += amt;
-      if (txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth) {
-        currentMonthOutflow += amt;
-      }
-    }
-  });
-
   setRoot(`
     <div class="app-container">
       <div class="page-header">
@@ -1422,38 +1429,34 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- Account Balances -->
-      <div class="accounts-row">${accTiles || '<p style="color:var(--text-muted);font-size:13px;">No accounts found.</p>'}</div>
-
-      <!-- Real-time Metrics Row -->
-      <div class="metric-row">
-        <div class="metric-card glass">
-          <div>
-            <span class="metric-label">Net Assets</span>
-            <div class="metric-value">${fmtMoney(netAssets, 'USD')}</div>
-          </div>
-          <span class="metric-trend positive">${icons.check} Active Portfolio</span>
+      <!-- Net Balance & Account List -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="panel-title">Portfolio Overview</span>
+          <button class="btn btn-ghost btn-xs" onclick="toggleBalanceVisibility()" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
+            ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
+            ${balanceVisible ? 'Hide Balances' : 'Show Balances'}
+          </button>
         </div>
-        <div class="metric-card glass">
-          <div>
-            <span class="metric-label">Total Inflow (Income)</span>
-            <div class="metric-value">${fmtMoney(totalInflow, 'USD')}</div>
+        <div class="panel-body" style="padding:24px;">
+          <div style="text-align:center; margin-bottom:20px;">
+            <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.05em; margin-bottom:4px;">Net Balance Across All Accounts</div>
+            <div style="font-size:32px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(netAssets, 'USD')}</div>
           </div>
-          <span class="metric-trend positive">↑ Seeded Asset Growth</span>
-        </div>
-        <div class="metric-card glass">
-          <div>
-            <span class="metric-label">Total Outflow (Outcome)</span>
-            <div class="metric-value">${fmtMoney(totalOutflow, 'USD')}</div>
+          <div style="border-top:1px solid var(--border); padding-top:16px;">
+            ${state.accounts.map(a => `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:8px; height:8px; border-radius:50%; background:${a.type === 'checking' ? '#002C77' : a.type === 'savings' ? '#0066CC' : a.type === 'market' ? '#0099D6' : '#b5a25e'};"></div>
+                  <div>
+                    <div style="font-weight:600; font-size:14px; color:var(--citi-navy); text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type} Account</div>
+                    <div style="font-size:12px; color:var(--text-muted);">Acct: ••${a.accountNumber.slice(-6)} &nbsp;|&nbsp; ${a.routingNumber}</div>
+                  </div>
+                </div>
+                <div style="font-size:18px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
+              </div>
+            `).join('')}
           </div>
-          <span class="metric-trend negative">↓ Capital Expenditures</span>
-        </div>
-        <div class="metric-card glass">
-          <div>
-            <span class="metric-label">Monthly Expenditure</span>
-            <div class="metric-value">${fmtMoney(currentMonthOutflow, 'USD')}</div>
-          </div>
-          <span class="metric-trend negative">↓ June Outflow Volume</span>
         </div>
       </div>
 
@@ -1515,7 +1518,7 @@ function renderDashboard() {
                   <tr>
                     <th></th>
                     <th>Description</th>
-                    <th>Date</th>
+                    <th>Date & Time</th>
                     <th>Status</th>
                     <th style="text-align:right;">Amount</th>
                   </tr>
@@ -2227,7 +2230,7 @@ function showTransactionDetails(txnId) {
   }
 
   let pdfButtonHtml = '';
-  if (isWire && txn.status === 'COMPLETED') {
+  if (txn.status === 'COMPLETED') {
     pdfButtonHtml = `
       <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="downloadWirePDF('${txn.id}')">
         📥 Download Receipt
@@ -2251,7 +2254,7 @@ function showTransactionDetails(txnId) {
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${txn.id}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDate(txn.date)}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction Type:</td><td style="padding:12px 0; font-weight:600; text-align:right; text-transform:uppercase; font-size:13px;">${txn.type.replace('_',' ')}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
         <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
@@ -2272,19 +2275,54 @@ function downloadWirePDF(txnId) {
   const txn = state.transactions.find(t => t.id === txnId);
   if (!txn) return;
 
+  const isWire = txn.type === 'TRANSFER_OUT';
   const swift = txn.swiftDetails || {};
-  
-  // Premium HTML advice sheet template for pdf download
   const optEl = document.createElement('div');
-  optEl.style.width = '700px';
-  optEl.style.padding = '40px';
+  optEl.style.width = '7.5in';
+  optEl.style.padding = '30px';
   optEl.style.background = '#ffffff';
   optEl.style.color = '#0c1a30';
   optEl.style.fontFamily = "'DM Sans', sans-serif";
 
+  // Format date and time
+  const txnDate = new Date(txn.date);
+  const formattedDate = txnDate.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+  const formattedTime = txnDate.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+  });
+
+  let specSectionHtml = '';
+  if (isWire) {
+    specSectionHtml = `
+      <!-- SWIFT Routing details -->
+      <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:4px 0; color:#555;">Beneficiary Customer Name:</td><td style="padding:4px 0; font-weight:600;">${txn.counterparty}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; font-weight:600;">Beneficiary Bank Name:</td><td style="padding:4px 0; font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">SWIFT / BIC Identifier:</td><td style="padding:4px 0; font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; font-weight:600; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Beneficiary Account Number:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">${swift.accountNumber || 'N/A'}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Beneficiary Destination Address:</td><td style="padding:4px 0; font-weight:600;">${swift.recipientAddress || 'N/A'}</td></tr>
+      </table>
+    `;
+  } else {
+    specSectionHtml = `
+      <!-- Settlement specifications -->
+      <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">Settlement Specifications</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:4px 0; color:#555;">Originating Institution:</td><td style="padding:4px 0; font-weight:600;">${txn.counterparty}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Receiving Institution:</td><td style="padding:4px 0; font-weight:600;">Meridian Trust Bank</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Settlement Channel:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">FEDWIRE / SWIFT INBOUND CLEARING</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Transaction Status:</td><td style="padding:4px 0; font-weight:600; color:#137333;">COMPLETED & SETTLED</td></tr>
+      </table>
+    `;
+  }
+
   optEl.innerHTML = `
-    <!-- Header -->
-    <div style="border-bottom:3px solid #002C77; padding-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+    <!-- Header / Letterhead -->
+    <div style="border-bottom:3px solid #002C77; padding-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
       <div style="display:flex; align-items:center;">
         <svg viewBox="0 0 32 32" width="40" height="40" fill="none" style="margin-right:12px; display:inline-block; vertical-align:middle;">
           <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="#D4AF37" stroke-width="1.2" fill="#002C77" fill-opacity="0.05"/>
@@ -2299,51 +2337,43 @@ function downloadWirePDF(txnId) {
           <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
         </svg>
         <div>
-          <h1 style="color:#002C77; margin:0; font-size:22px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
-          <div style="font-size:10px; color:#a47c14; text-transform:uppercase; letter-spacing:1px; margin-top:2px; font-weight:700;">International Private Banking</div>
+          <h1 style="color:#002C77; margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
+          <div style="font-size:9px; color:#a47c14; text-transform:uppercase; letter-spacing:1px; margin-top:2px; font-weight:700;">International Private Banking</div>
         </div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase;">Official Wire Receipt</div>
-        <div style="font-size:12px; font-family:monospace; font-weight:600; color:#002C77; margin-top:3px;">REF: ${txn.id}</div>
+        <div style="font-size:10px; font-weight:700; color:#555; text-transform:uppercase;">Official Transaction Receipt</div>
+        <div style="font-size:11px; font-family:monospace; font-weight:600; color:#002C77; margin-top:2px;">REF: ${txn.id}</div>
       </div>
     </div>
 
     <!-- Status Alert Bar -->
-    <div style="margin-top:24px; background:#e6f4ea; border-left:4px solid #137333; padding:12px 16px; color:#137333; border-radius:0 4px 4px 0; font-size:13px; font-weight:600;">
-      ✔ TRANSACTION EXECUTED SUCCESSFULLY — FUNDS SETTLED AND ROUTED VIA SWIFT CLEARING HOUSE.
+    <div style="margin-top:16px; background:#e6f4ea; border-left:4px solid #137333; padding:10px 14px; color:#137333; border-radius:0 4px 4px 0; font-size:12px; font-weight:600;">
+      ✔ TRANSACTION COMPLETED — LEDGER ACCREDITED AND AUDITED SUCCESSFULLY.
     </div>
 
     <!-- Core Details Table -->
-    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:28px 0 14px 0; letter-spacing:0.5px;">Transfer Summary</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:15.5px; line-height:1.9;">
-      <tr><td style="width:35%; padding:4px 0; color:#555;">Value Date:</td><td style="padding:4px 0; font-weight:600;">${new Date(txn.date).toUTCString()}</td></tr>
-      <tr><td style="padding:4px 0; color:#555;">Ordering Customer ID:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
-      <tr><td style="padding:4px 0; color:#555;">Sending Account:</td><td style="padding:4px 0; font-weight:600;">Offshore Private Placement Treasury (USD equivalent)</td></tr>
-      <tr><td style="padding:4px 0; color:#555;">Memo / Reference:</td><td style="padding:4px 0; font-weight:600;">${txn.description}</td></tr>
-      <tr><td style="padding:4px 0; color:#555;">Settled Net Amount:</td><td style="padding:4px 0; font-weight:700; font-size:19px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
+    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:20px 0 10px 0; letter-spacing:0.5px;">Transfer Summary</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+      <tr><td style="width:35%; padding:3px 0; color:#555;">Value Date:</td><td style="padding:3px 0; font-weight:600;">${formattedDate}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Transaction Time:</td><td style="padding:3px 0; font-weight:600;">${formattedTime} (UTC)</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Ordering Customer ID:</td><td style="padding:3px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Sending Account:</td><td style="padding:3px 0; font-weight:600;">Offshore Private Placement Treasury (USD equivalent)</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Memo / Reference:</td><td style="padding:3px 0; font-weight:600;">${txn.description}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Settled Net Amount:</td><td style="padding:3px 0; font-weight:700; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
     </table>
 
-    <!-- SWIFT Routing details -->
-    <h3 style="font-size:15px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin:32px 0 16px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:15.5px; line-height:2.1;">
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:6px 0; color:#555;">Beneficiary Customer Name:</td><td style="padding:6px 0; font-weight:600;">${txn.counterparty}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Bank Name:</td><td style="padding:6px 0; font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">SWIFT / BIC Identifier:</td><td style="padding:6px 0; font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">ABA / Sort Code / IBAN:</td><td style="padding:6px 0; font-weight:600; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Account Number:</td><td style="padding:6px 0; font-weight:600; font-family:monospace;">${swift.accountNumber || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Destination Address:</td><td style="padding:6px 0; font-weight:600;">${swift.recipientAddress || 'N/A'}</td></tr>
-    </table>
+    ${specSectionHtml}
 
     <!-- Sign-off / Compliance Seals -->
-    <div style="margin-top:36px; border-top:1px solid #e2e8f0; padding-top:20px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="margin-top:24px; border-top:1px solid #e2e8f0; padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
       <div>
-        <div style="font-size:11px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
-        <div style="font-size:10px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
+        <div style="font-size:10px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
+        <div style="font-size:9px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:11px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & AUDITED</div>
-        <div style="font-size:10px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
+        <div style="font-size:10px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & AUDITED</div>
+        <div style="font-size:9px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
       </div>
     </div>
 
@@ -2827,9 +2857,10 @@ function renderTransactionHistory() {
                 <th></th>
                 <th>Description</th>
                 <th>Account</th>
-                <th>Date</th>
+                <th>Date & Time</th>
                 <th>Status</th>
                 <th style="text-align:right;">Amount</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="hist-table-body">
@@ -2927,16 +2958,21 @@ function applyHistoryFiltersAndRender() {
           <td>
             <span style="font-weight:600;font-size:12px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
           </td>
-          <td class="txn-date">${fmtDate(t.date)}</td>
+          <td class="txn-date">${fmtDateTime(t.date)}</td>
           <td>
             <span class="status-pill ${t.status}">${t.status}</span>
           </td>
           <td class="txn-amount ${isCredit ? 'credit' : 'debit'}">
             ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
           </td>
+          <td style="width:36px; text-align:center;">
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px;" title="Download Receipt">
+              📥
+            </button>
+          </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</td></tr>`;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</td></tr>`;
 
     paginationEl.innerHTML = `
       <div style="font-size:12px; color:var(--text-muted); font-weight:500;">

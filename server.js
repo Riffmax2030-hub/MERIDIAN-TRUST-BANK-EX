@@ -707,7 +707,7 @@ function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5
     { desc: 'Corporate Retainer Service Fees', partner: 'Blackstone Wealth Audit', type: 'TRANSFER_OUT' },
     { desc: 'Offshore Equity Liquidation Credit', partner: 'Chubb Asset Holding Group', type: 'DEPOSIT' },
     { desc: 'Private Equity Capital Retainer Payment', partner: 'Crosslands Capital Partners', type: 'TRANSFER_OUT' },
-    { desc: 'Q1 Advisory Clearance Credit', partner: 'Goldman Wealth Desk', type: 'DEPOSIT' },
+    { desc: 'Q1 Advisory Clearance Credit', partner: 'Goldman Sachs Wealth Desk', type: 'DEPOSIT' },
     { desc: 'Venture Capital Dividend Return Inflow', partner: 'Blue Ridge Ventures Group', type: 'DEPOSIT' },
     { desc: 'International Business Wire Receipt', partner: 'Mercer Asset Management Ltd', type: 'DEPOSIT' },
     { desc: 'Treasury Portfolio Rebalance Inflow', partner: 'Meridian Trust FX Desk', type: 'DEPOSIT' },
@@ -715,9 +715,47 @@ function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5
     { desc: 'Cloud Infrastructure Contract Payment', partner: 'Amazon Web Services', type: 'TRANSFER_OUT' },
     { desc: 'Corporate Treasury Rebalance Settlement', partner: 'Aetheron Treasury Operations', type: 'DEPOSIT' },
     { desc: 'Sterling Reserve Placement Inflow', partner: 'Meridian Trust GBP Clearing', type: 'DEPOSIT' },
-    { desc: 'Legal Compliance Audit Fee Payment', partner: 'Blackstone & Partners', type: 'TRANSFER_OUT' }
+    { desc: 'Legal Compliance Audit Fee Payment', partner: 'Blackstone & Partners', type: 'TRANSFER_OUT' },
+    { desc: 'Commercial Lease Revenue Clearance', partner: 'Brookfield Properties Group', type: 'DEPOSIT' },
+    { desc: 'Sovereign Liquidity Bond Liquidation', partner: 'Federal Reserve Settlement', type: 'DEPOSIT' },
+    { desc: 'Strategic Acquisition Capital Call', partner: 'KKR Global Acquisition Fund', type: 'TRANSFER_OUT' },
+    { desc: 'Secured Debt Facility Drawdown', partner: 'JPMorgan Chase Corporate Desk', type: 'DEPOSIT' },
+    { desc: 'Asset-Backed Securities Yield Credit', partner: 'Fidelity Capital Partners', type: 'DEPOSIT' },
+    { desc: 'Global Logistics Contract Settlement', partner: 'FedEx Express Treasury', type: 'TRANSFER_OUT' },
+    { desc: 'Annual Cybersecurity Infrastructure payment', partner: 'CrowdStrike Solutions Inc', type: 'TRANSFER_OUT' },
+    { desc: 'Institutional Share Buyback Proceeds', partner: 'Microsoft Corporate Treasury', type: 'DEPOSIT' },
+    { desc: 'Patent Licensing Royalty Distribution', partner: 'Apple Inc. Intellectual Property', type: 'DEPOSIT' },
+    { desc: 'Intercompany Liquidity Sweep Inflow', partner: 'Alphabet Finance LLC', type: 'DEPOSIT' },
+    { desc: 'Advertising Campaign Retainer Clearance', partner: 'Meta Platforms Funding', type: 'TRANSFER_OUT' },
+    { desc: 'Strategic Equity Investment Placement', partner: 'Berkshire Hathaway Treasury', type: 'TRANSFER_OUT' },
+    { desc: 'Aerospace Engineering Progress Disbursement', partner: 'Boeing Capital Corporation', type: 'DEPOSIT' },
+    { desc: 'Industrial Turbine System Acquisition', partner: 'General Electric Treasury', type: 'TRANSFER_OUT' },
+    { desc: 'Heavy Machinery Asset Procurement', partner: 'Caterpillar Financial Services', type: 'TRANSFER_OUT' },
+    { desc: 'Automation Systems Integration Payment', partner: 'Siemens Financial Services', type: 'TRANSFER_OUT' },
+    { desc: 'Biomedical Patent Royalty Credit', partner: 'Pfizer Capital Operations', type: 'DEPOSIT' },
+    { desc: 'Pharmaceutical Research Development Grant', partner: 'Merck & Co. Treasury Desk', type: 'DEPOSIT' },
+    { desc: 'Clinical Trial Site License Placement', partner: 'Eli Lilly Financial Services', type: 'TRANSFER_OUT' },
+    { desc: 'Petrochemical Refining Logistics Payment', partner: 'Chevron Funding Corporation', type: 'TRANSFER_OUT' },
+    { desc: 'Offshore Exploration Venture Funding', partner: 'ConocoPhillips Capital Corp', type: 'DEPOSIT' },
+    { desc: 'Seismographic Exploration Contract Fee', partner: 'Schlumberger Treasury Services', type: 'TRANSFER_OUT' },
+    { desc: 'Subsea Drilling Infrastructure payment', partner: 'Halliburton Finance LLC', type: 'TRANSFER_OUT' },
+    { desc: 'Satellite Systems Assembly Payment', partner: 'Lockheed Martin Capital Corp', type: 'TRANSFER_OUT' },
+    { desc: 'Radar Systems Integration Settlement', partner: 'Northrop Grumman Treasury', type: 'TRANSFER_OUT' },
+    { desc: 'Avionics Upgrade Program Disbursement', partner: 'Raytheon Technologies Finance', type: 'TRANSFER_OUT' },
+    { desc: 'Microprocessor Foundry Capital Call', partner: 'Intel Capital Operations', type: 'TRANSFER_OUT' },
+    { desc: 'Enterprise Graphics Processing Procurement', partner: 'Nvidia Corporate Treasury', type: 'DEPOSIT' },
+    { desc: 'Server Architecture Lease Settlement', partner: 'Oracle Corporation Finance', type: 'TRANSFER_OUT' },
+    { desc: 'SaaS Suite Licensing Clearance', partner: 'Salesforce Capital Operations', type: 'TRANSFER_OUT' },
+    { desc: 'Digital Publishing Software Audit Fee', partner: 'Adobe Inc. Treasury Services', type: 'TRANSFER_OUT' }
   ];
-  
+
+  // Fisher-Yates shuffle to randomize templates
+  const shuffled = [...txTemplates];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
   const startDate = new Date('2023-06-20T00:00:00Z').getTime();
   const endDate = new Date('2026-06-20T00:00:00Z').getTime();
   
@@ -725,7 +763,7 @@ function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5
   const count = 40;
   
   for (let i = 0; i < count - 1; i++) {
-    const temp = txTemplates[i % txTemplates.length];
+    const temp = shuffled[i];
     const amount = Math.floor(10 + Math.random() * 170) * 10000;
     
     const randTime = startDate + (i / count) * (endDate - startDate) + (Math.random() * 6 * 24 * 3600 * 1000 - 3 * 24 * 3600 * 1000);
