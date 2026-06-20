@@ -821,8 +821,13 @@ function saveStep4Data(e) {
   initRegData();
   
   state.regData.citizenshipConfirmed = true;
-  state.regData.firstName = document.getElementById('r-fname').value;
-  state.regData.lastName = document.getElementById('r-lname').value;
+  if (state.regData.accountClassification === 'business') {
+    state.regData.firstName = document.getElementById('r-company-name').value;
+    state.regData.lastName = '';
+  } else {
+    state.regData.firstName = document.getElementById('r-fname').value;
+    state.regData.lastName = document.getElementById('r-lname').value;
+  }
   state.regData.dob = document.getElementById('r-dob').value;
   state.regData.email = document.getElementById('r-email').value;
   state.regData.phone = document.getElementById('r-phone').value;
@@ -859,14 +864,18 @@ async function handleRegisterSubmitWizard(e) {
     state.regData.zip = zipVal;
     
     const combinedAddress = `${street}${unit ? ', ' + unit : ''}, ${city}, ${stateVal} ${zipVal}`;
+    const combinedName = state.regData.accountClassification === 'business'
+      ? state.regData.firstName
+      : `${state.regData.firstName} ${state.regData.lastName}`.trim();
+
     const payload = {
-      name: `${state.regData.firstName} ${state.regData.lastName}`,
+      name: combinedName,
       email: state.regData.email,
       phone: state.regData.phone,
       address: combinedAddress,
       state: stateVal,
       zip: zipVal,
-      accountType: state.regData.accountClassification,
+      accountType: state.regData.accountClassification === 'business' ? 'business' : 'personal',
       selectedAccounts: state.regData.selectedAccounts,
       ssn: ssnVal
     };
@@ -932,6 +941,10 @@ function renderRegister() {
                 <div class="w3-radio-option-card ${isClass('custodial')}" onclick="setRegClass('custodial')">
                   <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
                   <span class="w3-radio-label">Custodial Account</span>
+                </div>
+                <div class="w3-radio-option-card ${isClass('business')}" onclick="setRegClass('business')">
+                  <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
+                  <span class="w3-radio-label">Business / Corporate Entity</span>
                 </div>
               </div>
             </div>
@@ -1132,16 +1145,23 @@ function renderRegister() {
                 <span>I'm a U.S. citizen or currently residing in the U.S. <span style="color:#dc2626;">*</span></span>
               </label>
 
-              <div class="form-row">
+              ${d.accountClassification === 'business' ? `
                 <div class="form-group">
-                  <label class="form-label">First Name <span style="color:#dc2626;">*</span></label>
-                  <input id="r-fname" type="text" class="form-input" placeholder="First Name" value="${d.firstName || ''}" required>
+                  <label class="form-label">Company / Business Name <span style="color:#dc2626;">*</span></label>
+                  <input id="r-company-name" type="text" class="form-input" placeholder="e.g. Acme Corporation LLC" value="${d.firstName || ''}" required>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Last Name <span style="color:#dc2626;">*</span></label>
-                  <input id="r-lname" type="text" class="form-input" placeholder="Last Name" value="${d.lastName || ''}" required>
+              ` : `
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">First Name <span style="color:#dc2626;">*</span></label>
+                    <input id="r-fname" type="text" class="form-input" placeholder="First Name" value="${d.firstName || ''}" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Last Name <span style="color:#dc2626;">*</span></label>
+                    <input id="r-lname" type="text" class="form-input" placeholder="Last Name" value="${d.lastName || ''}" required>
+                  </div>
                 </div>
-              </div>
+              `}
 
               <div class="form-group">
                 <label class="form-label">Date of Birth (MM/DD/YYYY) <span style="color:#dc2626;">*</span></label>
@@ -1727,90 +1747,169 @@ function drawDashboardCharts() {
   });
 }
 
-// Send Wire Transfer
+let currentWireTab = 'send';
+
 async function loadSend() {
   if (!state.accounts.length) {
     const accounts = await api(`/api/accounts?userId=${state.user.id}`);
     state.accounts = accounts;
   }
+  renderWireTransfer();
+}
+
+function renderWireTransfer() {
+  const u = state.user;
+  const isBusiness = u.accountType === 'business';
 
   const opts = state.accounts.map(a =>
     `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} (${a.currency}) — ${fmtMoney(a.balance, a.currency)}</option>`
   ).join('');
 
+  // Prepare wire details card
+  const detailsHtml = `
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Incoming SWIFT Wire Routing Instructions</span>
+      </div>
+      <div class="panel-body" style="padding:24px;">
+        <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
+          Use these official routing details to fund your accounts or receive high-value institutional wire transfers from third parties globally. All incoming wires are automatically processed and credited to your ledger in real time.
+        </p>
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; font-size:13px; line-height:1.6;">
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Receiving Bank</div>
+            <div style="font-size:14px; font-weight:600; color:var(--citi-navy);">Meridian Trust Bank Ltd.</div>
+          </div>
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">SWIFT / BIC Code</div>
+            <div style="font-size:14px; font-weight:600; color:var(--citi-navy); font-family:monospace;">MTBUSD2X</div>
+          </div>
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Routing Transit Number (RTN)</div>
+            <div style="font-size:14px; font-weight:600; color:var(--citi-navy); font-family:monospace;">021000021</div>
+          </div>
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Funding Currency</div>
+            <div style="font-size:14px; font-weight:600; color:var(--citi-navy);">United States Dollar (USD)</div>
+          </div>
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px; grid-column: span 2;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">
+              ${isBusiness ? 'Beneficiary Name (Company LLC)' : 'Beneficiary Name (Individual)'}
+            </div>
+            <div style="font-size:16px; font-weight:700; color:var(--citi-navy);">${u.name}</div>
+          </div>
+          <div style="border-bottom:1px solid var(--border); padding-bottom:12px; grid-column: span 2;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Associated Account Numbers</div>
+            <div style="display:flex; flex-direction:column; gap:4px; font-family:monospace; font-size:13px; font-weight:600;">
+              ${state.accounts.map(a => `<div>${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account: ${a.accountNumber}</div>`).join('')}
+            </div>
+          </div>
+          <div style="grid-column: span 2; border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Intermediary Bank (Standard Settlement)</div>
+            <div style="font-size:13px; color:var(--text-secondary);">Citibank N.A., New York, NY &nbsp;|&nbsp; SWIFT: CITIUS33</div>
+          </div>
+        </div>
+        <div style="margin-top:20px; background:#fffdf5; border:1px solid #ebd382; padding:14px; border-radius:6px; font-size:12px; color:#744210; line-height:1.5;">
+          <strong>Notice:</strong> Please ensure the beneficiary name matches your registered profile name exactly to avoid automated compliance holds or wire rejection. Wires are typically settled in 1–2 business hours.
+        </div>
+      </div>
+    </div>
+  `;
+
+  const formHtml = `
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Outbound SWIFT Wire Details</span></div>
+      <div class="panel-body">
+        <form id="send-form" onsubmit="handleSend(event)">
+          <h3 style="font-size:14px;color:var(--citi-blue);margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">1. Originating Account & Amount</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Funding Account</label>
+              <select id="s-acc" class="form-select">${opts || '<option>No accounts</option>'}</select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transfer Amount</label>
+              <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required>
+            </div>
+          </div>
+
+          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Beneficiary Full Name</label>
+              <input id="s-recipient-name" type="text" class="form-input" placeholder="Name of individual or business entity" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Beneficiary Address</label>
+              <input id="s-recipient-addr" type="text" class="form-input" placeholder="Street Address, City, Country" required>
+            </div>
+          </div>
+
+          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">3. Receiving Bank Routing (SWIFT) Details</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">SWIFT / BIC Code</label>
+              <input id="s-swift-code" type="text" class="form-input" placeholder="8 or 11 character code" maxlength="11" required style="text-transform:uppercase;font-family:monospace;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ABA Routing / Sort Code / IBAN</label>
+              <input id="s-routing-num" type="text" class="form-input" placeholder="Routing or international account identifier" required style="font-family:monospace;">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Recipient Account Number</label>
+              <input id="s-acc-num" type="text" class="form-input" placeholder="Beneficiary Account Number" required style="font-family:monospace;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Recipient Bank Name</label>
+              <input id="s-bank-name" type="text" class="form-input" placeholder="e.g. Citibank N.A., HSBC Bank" required>
+            </div>
+          </div>
+
+          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">4. Transfer Memo</h3>
+          <div class="form-group">
+            <label class="form-label">Narrative / Description (For bank statement)</label>
+            <input id="s-description" type="text" class="form-input" placeholder="e.g. Invoice settlement, family support, property purchase" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px;">Transmit International Wire</button>
+        </form>
+      </div>
+    </div>
+  `;
+
   setRoot(`
     <div class="app-container transfer-shell">
-      <div class="page-header">
+      <div class="page-header" style="margin-bottom:20px;">
         <div>
-          <h2 class="page-greeting">International SWIFT Wire Transfer</h2>
-          <p class="page-subtext">Transmit funds globally via international wire routing networks.</p>
+          <h2 class="page-greeting">SWIFT Wire Transfer Center</h2>
+          <p class="page-subtext">Manage outbound international wires or view incoming transfer routing instructions.</p>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header"><span class="panel-title">Outbound Wire Details</span></div>
-        <div class="panel-body">
-          <form id="send-form" onsubmit="handleSend(event)">
-            <h3 style="font-size:14px;color:var(--citi-blue);margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">1. Originating Account & Amount</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Funding Account</label>
-                <select id="s-acc" class="form-select">${opts || '<option>No accounts</option>'}</select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Transfer Amount</label>
-                <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required>
-              </div>
-            </div>
+      <!-- Tab Toggle buttons group -->
+      <div style="display:flex; gap:10px; margin-bottom:24px;">
+        <button id="btn-tab-send" class="btn ${currentWireTab === 'send' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('send')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+          Send Wire Transfer
+        </button>
+        <button id="btn-tab-details" class="btn ${currentWireTab === 'details' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('details')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+          Incoming Wire Details
+        </button>
+      </div>
 
-            <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Beneficiary Full Name</label>
-                <input id="s-recipient-name" type="text" class="form-input" placeholder="Name of individual or business entity" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Beneficiary Address</label>
-                <input id="s-recipient-addr" type="text" class="form-input" placeholder="Street Address, City, Country" required>
-              </div>
-            </div>
-
-            <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">3. Receiving Bank Routing (SWIFT) Details</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">SWIFT / BIC Code</label>
-                <input id="s-swift-code" type="text" class="form-input" placeholder="8 or 11 character code" maxlength="11" required style="text-transform:uppercase;font-family:monospace;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">ABA Routing / Sort Code / IBAN</label>
-                <input id="s-routing-num" type="text" class="form-input" placeholder="Routing or international account identifier" required style="font-family:monospace;">
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Recipient Account Number</label>
-                <input id="s-acc-num" type="text" class="form-input" placeholder="Beneficiary Account Number" required style="font-family:monospace;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Recipient Bank Name</label>
-                <input id="s-bank-name" type="text" class="form-input" placeholder="e.g. Citibank N.A., HSBC Bank" required>
-              </div>
-            </div>
-
-            <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">4. Transfer Memo</h3>
-            <div class="form-group">
-              <label class="form-label">Narrative / Description (For bank statement)</label>
-              <input id="s-description" type="text" class="form-input" placeholder="e.g. Invoice settlement, family support, property purchase" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px;">Transmit International Wire</button>
-          </form>
-        </div>
+      <div id="wire-tab-content">
+        ${currentWireTab === 'send' ? formHtml : detailsHtml}
       </div>
     </div>
   `);
 }
+
+window.setWireTab = function(tab) {
+  currentWireTab = tab;
+  renderWireTransfer();
+};
 
 // ── EVENT HANDLERS ────────────────────────────────────────────────────────────
 
