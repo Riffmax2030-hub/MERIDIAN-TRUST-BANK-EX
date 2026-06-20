@@ -155,6 +155,15 @@ async function dbInit() {
       );
     `);
 
+    await queryPG(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id SERIAL PRIMARY KEY,
+        action VARCHAR(100) NOT NULL,
+        details TEXT NOT NULL,
+        timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Seed default demo data if table is empty
     const testUsers = await queryPG('SELECT id FROM users LIMIT 1');
     if (testUsers.rows.length === 0) {
@@ -330,7 +339,24 @@ async function dbCheckEmailExists(email) {
     const db = readJSONDB();
     const existsUser = db.users.find(u => u.email.toLowerCase() === normEmail);
     const existsApp = (db.applications || []).find(a => a.email.toLowerCase() === normEmail);
-    return !!(existsUser || existsApp);
+  }
+}
+
+// ── ADD OPERATIONS AUDIT LOG ─────────────────────────────────────────────────
+async function dbAddAuditLog(action, details) {
+  const timestamp = new Date().toISOString();
+  try {
+    if (usePostgres) {
+      await queryPG('INSERT INTO audit_logs (action, details, timestamp) VALUES ($1, $2, $3)', [action, details, timestamp]);
+    } else {
+      const db = readJSONDB();
+      if (!db.auditLogs) db.auditLogs = [];
+      db.auditLogs.push({ action, details, timestamp });
+      if (db.auditLogs.length > 100) db.auditLogs.shift();
+      writeJSONDB(db);
+    }
+  } catch (e) {
+    console.error('[!] Database: Failed to write audit log:', e.message);
   }
 }
 
@@ -1426,6 +1452,8 @@ app.post('/api/admin/approve', async (req, res) => {
       txsSeed
     });
 
+    await dbAddAuditLog('APPLICATION_APPROVED', `Approved application ${applicationId} for user ${userId} (${appDetails.name}).`);
+
     // Send Welcome Email containing login credentials
     const reqOrigin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
     const welcomeHTML = `
@@ -1483,6 +1511,7 @@ app.post('/api/admin/reject', async (req, res) => {
 
   try {
     await dbDeleteApplication(applicationId);
+    await dbAddAuditLog('APPLICATION_REJECTED', `Rejected pending application ${applicationId}.`);
     res.json({ message: 'Application declined.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1542,6 +1571,8 @@ app.post('/api/admin/inbound-wire', async (req, res) => {
 
     await dbCreditDeposit(tx, num, accountId);
 
+    await dbAddAuditLog('INBOUND_WIRE_CREDITED', `Credited inbound wire deposit of ${currency} ${num} to Account ${accountId} (Client ${userId}) from ${senderName}.`);
+
     res.json({ message: 'Inbound wire credited successfully.', transaction: tx });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1556,6 +1587,7 @@ app.post('/api/admin/user/adjust-balance', async (req, res) => {
   try {
     const acc = await dbAdjustBalance(accountId, amount);
     if (!acc) return res.status(404).json({ error: 'Account not found.' });
+    await dbAddAuditLog('BALANCE_OVERRIDDEN', `Adjusted/overrode balance for Account ${accountId} to ${amount}.`);
     res.json(acc);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1578,6 +1610,7 @@ app.post('/api/admin/user/toggle-wires', async (req, res) => {
       user.wireBlockMessage = message || '';
       writeJSONDB(db);
     }
+    await dbAddAuditLog('WIRE_STATUS_TOGGLED', `Outbound wires set to ${status} for User ${userId}. Block message: "${message || ''}"`);
     res.json({ message: 'Wire transfer status updated successfully.', userId, status });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1638,18 +1671,28 @@ app.post('/api/admin/wires/approve', async (req, res) => {
       } finally {
         client.release();
       }
+    }
+
+    // Fetch details for logging
+    let usrId = '', amt = 0, curr = 'USD';
+    if (usePostgres) {
+      const txQ = await queryPG('SELECT user_id, amount, currency FROM transactions WHERE id = $1', [transactionId]);
+      if (txQ.rows.length > 0) {
+        usrId = txQ.rows[0].user_id;
+        amt = txQ.rows[0].amount;
+        curr = txQ.rows[0].currency;
+      }
     } else {
       const db = readJSONDB();
-      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
-      if (!tx) return res.status(404).json({ error: 'Pending transaction not found.' });
-
-      const acc = db.accounts.find(a => a.id === tx.accountId && a.userId === tx.userId);
-      if (!acc) return res.status(404).json({ error: 'Account not found.' });
-      
-      acc.balance = parseFloat((acc.balance - tx.amount).toFixed(2));
-      tx.status = 'COMPLETED';
-      writeJSONDB(db);
+      const tx = db.transactions.find(t => t.id === transactionId);
+      if (tx) {
+        usrId = tx.userId;
+        amt = tx.amount;
+        curr = tx.currency;
+      }
     }
+    await dbAddAuditLog('WIRE_APPROVED', `Outbound wire ${transactionId} of ${curr} ${amt} for Client ${usrId} approved and processed.`);
+
     res.json({ message: 'SWIFT wire transfer approved and finalized.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1665,14 +1708,48 @@ app.post('/api/admin/wires/decline', async (req, res) => {
     if (usePostgres) {
       const resUpdate = await queryPG("UPDATE transactions SET status = 'DECLINED' WHERE id = $1 AND status = 'PENDING'", [transactionId]);
       if (resUpdate.rowCount === 0) return res.status(404).json({ error: 'Pending transaction not found.' });
+    }
+
+    // Fetch details for logging
+    let usrId = '', amt = 0, curr = 'USD';
+    if (usePostgres) {
+      const txQ = await queryPG('SELECT user_id, amount, currency FROM transactions WHERE id = $1', [transactionId]);
+      if (txQ.rows.length > 0) {
+        usrId = txQ.rows[0].user_id;
+        amt = txQ.rows[0].amount;
+        curr = txQ.rows[0].currency;
+      }
     } else {
       const db = readJSONDB();
-      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
-      if (!tx) return res.status(404).json({ error: 'Pending transaction not found.' });
-      tx.status = 'DECLINED';
-      writeJSONDB(db);
+      const tx = db.transactions.find(t => t.id === transactionId);
+      if (tx) {
+        usrId = tx.userId;
+        amt = tx.amount;
+        curr = tx.currency;
+      }
     }
+    await dbAddAuditLog('WIRE_DECLINED', `Outbound wire ${transactionId} of ${curr} ${amt} for Client ${usrId} declined and cancelled.`);
+
     res.json({ message: 'SWIFT wire transfer declined.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Fetch Operations Audit Logs
+app.get('/api/admin/audit-logs', async (req, res) => {
+  try {
+    if (usePostgres) {
+      const logsRes = await queryPG('SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 50');
+      res.json(logsRes.rows.map(r => ({
+        id: r.id, action: r.action, details: r.details, timestamp: r.timestamp
+      })));
+    } else {
+      const db = readJSONDB();
+      const logs = db.auditLogs || [];
+      const sortedLogs = [...logs].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+      res.json(sortedLogs.slice(0, 50));
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
