@@ -1429,14 +1429,14 @@ function showTransactionDetails(txnId) {
   let swiftHtml = '';
   if (isWire && swift.recipientBank) {
     swiftHtml = `
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:14px; margin-top:16px;">
-        <h4 style="margin:0 0 10px 0; color:var(--citi-navy); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;">SWIFT Routing Details</h4>
-        <table style="width:100%; font-size:13px; border-collapse:collapse;">
-          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Bank:</td><td style="padding:4px 0; font-weight:600; text-align:right;">${swift.recipientBank}</td></tr>
-          <tr><td style="padding:4px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.swiftCode}</td></tr>
-          <tr><td style="padding:4px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
-          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Account:</td><td style="padding:4px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.accountNumber}</td></tr>
-          <tr><td style="padding:4px 0; color:var(--text-muted);">Beneficiary Address:</td><td style="padding:4px 0; font-weight:600; text-align:right;">${swift.recipientAddress || 'N/A'}</td></tr>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:18px; margin-top:18px;">
+        <h4 style="margin:0 0 12px 0; color:var(--citi-navy); font-size:14px; text-transform:uppercase; letter-spacing:0.06em;">SWIFT Routing Details</h4>
+        <table style="width:100%; font-size:16px; border-collapse:collapse;">
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Bank:</td><td style="padding:8px 0; font-weight:600; text-align:right;">${swift.recipientBank}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.swiftCode}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Account:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.accountNumber}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Address:</td><td style="padding:8px 0; font-weight:600; text-align:right;">${swift.recipientAddress || 'N/A'}</td></tr>
         </table>
       </div>
     `;
@@ -1462,15 +1462,15 @@ function showTransactionDetails(txnId) {
       <h3 class="modal-title" style="color:var(--citi-navy); font-weight:700;">Transaction Details</h3>
       <button class="modal-close-btn" onclick="closeTransactionDetails()">&times;</button>
     </div>
-    <div class="modal-body" style="padding-top:10px;">
-      <table style="width:100%; font-size:14px; border-collapse:collapse; margin-bottom:16px;">
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:10px 0; font-weight:700; text-align:right; font-family:monospace;">${txn.id}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Description:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Value Date:</td><td style="padding:10px 0; font-weight:600; text-align:right;">${fmtDate(txn.date)}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Transaction Type:</td><td style="padding:10px 0; font-weight:600; text-align:right; text-transform:uppercase; font-size:12px;">${txn.type.replace('_',' ')}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:10px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
-        <tr><td style="padding:10px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:10px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:18px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
+    <div class="modal-body" style="padding-top:12px;">
+      <table style="width:100%; font-size:16px; border-collapse:collapse; margin-bottom:18px;">
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDate(txn.date)}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction Type:</td><td style="padding:12px 0; font-weight:600; text-align:right; text-transform:uppercase; font-size:13px;">${txn.type.replace('_',' ')}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
+        <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
       </table>
       ${swiftHtml}
       ${pdfButtonHtml}
@@ -1518,23 +1518,23 @@ function downloadWirePDF(txnId) {
 
     <!-- Core Details Table -->
     <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:28px 0 14px 0; letter-spacing:0.5px;">Transfer Summary</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.8;">
-      <tr><td style="width:35%; color:#555;">Value Date:</td><td style="font-weight:600;">${new Date(txn.date).toUTCString()}</td></tr>
-      <tr><td style="color:#555;">Ordering Customer ID:</td><td style="font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
-      <tr><td style="color:#555;">Sending Account:</td><td style="font-weight:600;">Offshore Private Placement Treasury (USD/EUR/GBP equivalent)</td></tr>
-      <tr><td style="color:#555;">Memo / Reference:</td><td style="font-weight:600;">${txn.description}</td></tr>
-      <tr><td style="color:#555;">Settled Net Amount:</td><td style="font-weight:700; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
+    <table style="width:100%; border-collapse:collapse; font-size:15.5px; line-height:1.9;">
+      <tr><td style="width:35%; padding:4px 0; color:#555;">Value Date:</td><td style="padding:4px 0; font-weight:600;">${new Date(txn.date).toUTCString()}</td></tr>
+      <tr><td style="padding:4px 0; color:#555;">Ordering Customer ID:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
+      <tr><td style="padding:4px 0; color:#555;">Sending Account:</td><td style="padding:4px 0; font-weight:600;">Offshore Private Placement Treasury (USD/EUR/GBP equivalent)</td></tr>
+      <tr><td style="padding:4px 0; color:#555;">Memo / Reference:</td><td style="padding:4px 0; font-weight:600;">${txn.description}</td></tr>
+      <tr><td style="padding:4px 0; color:#555;">Settled Net Amount:</td><td style="padding:4px 0; font-weight:700; font-size:19px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
     </table>
 
     <!-- SWIFT Routing details -->
-    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:28px 0 14px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:2.0;">
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; color:#555;">Beneficiary Customer Name:</td><td style="font-weight:600;">${txn.counterparty}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Bank Name:</td><td style="font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">SWIFT / BIC Identifier:</td><td style="font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">ABA / Sort Code / IBAN:</td><td style="font-weight:600; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Account Number:</td><td style="font-weight:600; font-family:monospace;">${swift.accountNumber || 'N/A'}</td></tr>
-      <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#555;">Beneficiary Destination Address:</td><td style="font-weight:600;">${swift.recipientAddress || 'N/A'}</td></tr>
+    <h3 style="font-size:15px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin:32px 0 16px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:15.5px; line-height:2.1;">
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:6px 0; color:#555;">Beneficiary Customer Name:</td><td style="padding:6px 0; font-weight:600;">${txn.counterparty}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Bank Name:</td><td style="padding:6px 0; font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">SWIFT / BIC Identifier:</td><td style="padding:6px 0; font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">ABA / Sort Code / IBAN:</td><td style="padding:6px 0; font-weight:600; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Account Number:</td><td style="padding:6px 0; font-weight:600; font-family:monospace;">${swift.accountNumber || 'N/A'}</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0; color:#555;">Beneficiary Destination Address:</td><td style="padding:6px 0; font-weight:600;">${swift.recipientAddress || 'N/A'}</td></tr>
     </table>
 
     <!-- Sign-off / Compliance Seals -->
