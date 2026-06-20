@@ -416,236 +416,773 @@ function renderLanding() {
   `);
 }
 
-// Login Page
-function renderLogin() {
-  setRoot(`
-    <div class="auth-shell">
-      <div class="auth-card">
-        <div class="auth-card-header">
-          <div class="auth-logo-wrap">
-            <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
-              <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-            <span style="font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Meridian Trust</span>
-          </div>
-          <h1 class="auth-title">Client Portal Login</h1>
-          <p class="auth-subtitle">Enter your assigned Client ID and passcode to access your accounts.</p>
-        </div>
-        <div class="auth-card-body">
-          <form id="login-form" onsubmit="handleLogin(event)">
-            <div class="form-group">
-              <label class="form-label">Client Account ID</label>
-              <input id="f-uid" type="text" class="form-input" placeholder="Client ID" autocomplete="username" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Secure Passcode</label>
-              <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
-          </form>
-        </div>
-        <div class="auth-card-footer">
-          New to Meridian Trust? <a onclick="nav('#/portal/client-onboarding/apply')">Open an account</a>
-        </div>
-      </div>
+// Modal Utility System for Custom Pop-ups
+function showCustomModal(title, bodyText, confirmCallback, cancelCallback, confirmLabel = 'OK', cancelLabel = '') {
+  document.getElementById('custom-confirm-modal')?.remove();
+  
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay) overlay.classList.add('show');
+  
+  const modal = document.createElement('div');
+  modal.id = 'custom-confirm-modal';
+  modal.className = 'w3-confirm-modal';
+  modal.style.display = 'block';
+  
+  let cancelBtnHtml = '';
+  if (cancelLabel) {
+    cancelBtnHtml = `<button class="btn btn-ghost" style="padding:10px 20px; font-size:14px; font-weight:700;" onclick="closeCustomModal(false)">${cancelLabel}</button>`;
+  }
+  
+  modal.innerHTML = `
+    <div class="w3-confirm-modal-header">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" style="flex-shrink:0;">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>${title}</span>
     </div>
-  `);
+    <div class="w3-confirm-modal-body">
+      ${bodyText}
+    </div>
+    <div class="w3-confirm-modal-actions">
+      ${cancelBtnHtml}
+      <button class="btn btn-primary" style="padding:10px 24px; font-size:14px; font-weight:700;" onclick="closeCustomModal(true)">${confirmLabel}</button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  window.customModalCallbacks = {
+    confirm: () => {
+      if (confirmCallback) confirmCallback();
+    },
+    cancel: () => {
+      if (cancelCallback) cancelCallback();
+    }
+  };
 }
 
-// Register Page — Step 1: Account Information
-function renderRegister() {
-  const d = state.regData || {};
-  setRoot(`
-    <div class="auth-shell">
-      <div class="auth-card" style="max-width:550px;">
-        <div class="auth-card-header">
-          <div class="auth-logo-wrap">
-            <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
-              <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-            <span style="font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Meridian Trust</span>
+function closeCustomModal(isConfirmed) {
+  document.getElementById('custom-confirm-modal')?.remove();
+  document.getElementById('modal-overlay')?.classList.remove('show');
+  
+  if (window.customModalCallbacks) {
+    if (isConfirmed) {
+      window.customModalCallbacks.confirm();
+    } else {
+      window.customModalCallbacks.cancel();
+    }
+    window.customModalCallbacks = null;
+  }
+}
+window.showCustomModal = showCustomModal;
+window.closeCustomModal = closeCustomModal;
+
+// Brand Monogram SVG Header Generator
+function getLoginHeaderHtml(title, subtitle) {
+  return `
+    <div class="auth-card-header">
+      <div class="auth-logo-wrap" style="display:flex; justify-content:center; align-items:center;">
+        <svg class="bank-logo-icon" viewBox="0 0 32 32" width="34" height="34" fill="none" style="margin-right:8px;">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F3E5AB" />
+              <stop offset="30%" stop-color="#D4AF37" />
+              <stop offset="70%" stop-color="#AA7C11" />
+              <stop offset="100%" stop-color="#8C620A" />
+            </linearGradient>
+          </defs>
+          <!-- Outer Shield Crest -->
+          <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.2" fill="#002C77" fill-opacity="0.05"/>
+          <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>
+          <!-- Meridian Lines -->
+          <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+          <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+          <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+          <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+          <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+          <!-- Monogram M and T Interlocked -->
+          <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)"/>
+          <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)"/>
+          <!-- Diamond / Compass Star -->
+          <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
+        </svg>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);">Meridian Trust</span>
+      </div>
+      <h1 class="auth-title" style="margin-top:8px;">${title}</h1>
+      <p class="auth-subtitle">${subtitle}</p>
+    </div>
+  `;
+}
+
+// Upgraded Login Page rendering (with Switch Views)
+function renderLogin() {
+  if (!state.loginView) state.loginView = 'password';
+
+  if (state.loginView === 'password') {
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card">
+          ${getLoginHeaderHtml('Client Portal Login', 'Enter your assigned Client ID and passcode to access your accounts.')}
+          <div class="auth-card-body">
+            <form id="login-form" onsubmit="handleLogin(event)">
+              <div class="form-group">
+                <label class="form-label">Client Account ID</label>
+                <input id="f-uid" type="text" class="form-input" placeholder="Client ID" autocomplete="username" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Secure Passcode</label>
+                <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
+            </form>
+            <div style="display:flex; justify-content:space-between; margin-top:16px; font-size:13px; font-weight:600;">
+              <a onclick="switchLoginView('forgot')">Forgot Passcode?</a>
+              <a onclick="switchLoginView('link')">Sign In with Email Link</a>
+            </div>
           </div>
-          <h1 class="auth-title">US Account Application</h1>
-          <p class="auth-subtitle">Step 1 of 2: Personal & Contact Information</p>
+          <div class="auth-card-footer">
+            New to Meridian Trust? <a onclick="nav('#/portal/client-onboarding/apply')">Open an account</a>
+          </div>
         </div>
-        <div class="auth-card-body">
-          <form id="reg-form-step1" onsubmit="goToRegisterStep2(event)">
-            <div class="form-group">
-              <label class="form-label">Full Legal Name / Entity Name</label>
-              <input id="r-name" type="text" class="form-input" placeholder="Full Legal Name" value="${d.name || ''}" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input id="r-email" type="email" class="form-input" placeholder="Email Address" value="${d.email || ''}" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone Number</label>
-              <input id="r-phone" type="tel" class="form-input" placeholder="Phone Number" value="${d.phone || ''}" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Residential Address</label>
-              <input id="r-address" type="text" class="form-input" placeholder="Residential Address" value="${d.address || ''}" required>
-            </div>
-            <div class="form-row">
+      </div>
+    `);
+  } else if (state.loginView === 'forgot') {
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card">
+          ${getLoginHeaderHtml('Reset Secure Passcode', 'Provide your account credentials to request a passcode override link.')}
+          <div class="auth-card-body">
+            <form id="forgot-form" onsubmit="handleForgotSubmit(event)">
               <div class="form-group">
-                <label class="form-label">State</label>
-                <input id="r-state" type="text" class="form-input" placeholder="State" value="${d.state || ''}" required>
+                <label class="form-label">Client Account ID</label>
+                <input id="fg-uid" type="text" class="form-input" placeholder="Client ID" required>
               </div>
               <div class="form-group">
-                <label class="form-label">ZIP Code</label>
-                <input id="r-zip" type="text" class="form-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
+                <label class="form-label">Registered Email Address</label>
+                <input id="fg-email" type="email" class="form-input" placeholder="email@example.com" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Request Reset Link</button>
+            </form>
+            <div style="text-align:center; margin-top:16px; font-size:13px; font-weight:600;">
+              <a onclick="switchLoginView('password')">Return to Password Sign In</a>
+            </div>
+          </div>
+          <div class="auth-card-footer">
+            Back to <a onclick="nav('#')">Meridian Trust Home</a>
+          </div>
+        </div>
+      </div>
+    `);
+  } else if (state.loginView === 'link') {
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card">
+          ${getLoginHeaderHtml('Sign In with Secure Link', 'Enter your registered email. We will send a one-click session authorization link.')}
+          <div class="auth-card-body">
+            <form id="link-login-form" onsubmit="handleLinkLoginSubmit(event)">
+              <div class="form-group">
+                <label class="form-label">Registered Email Address</label>
+                <input id="lk-email" type="email" class="form-input" placeholder="email@example.com" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Send Sign-In Link</button>
+            </form>
+            <div style="text-align:center; margin-top:16px; font-size:13px; font-weight:600;">
+              <a onclick="switchLoginView('password')">Return to Password Sign In</a>
+            </div>
+          </div>
+          <div class="auth-card-footer">
+            Back to <a onclick="nav('#')">Meridian Trust Home</a>
+          </div>
+        </div>
+      </div>
+    `);
+  }
+}
+
+function switchLoginView(view) {
+  state.loginView = view;
+  renderLogin();
+}
+window.switchLoginView = switchLoginView;
+
+function handleForgotSubmit(e) {
+  e.preventDefault();
+  const uid = document.getElementById('fg-uid').value;
+  const email = document.getElementById('fg-email').value;
+  
+  showLoader('Requesting Reset', 'Locating secure record and preparing passcode override instructions...');
+  setTimeout(() => {
+    hideLoader();
+    showCustomModal(
+      'Passcode Recovery Sent',
+      `Password reset instructions have been successfully generated for Client ID <strong>${uid}</strong> and sent to <strong>${email}</strong>. Please check your spam folder if it does not arrive shortly.`,
+      () => { switchLoginView('password'); },
+      null,
+      'Close'
+    );
+  }, 1200);
+}
+window.handleForgotSubmit = handleForgotSubmit;
+
+function handleLinkLoginSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById('lk-email').value;
+  
+  showLoader('Generating Link', 'Authenticating device signature and encoding session token...');
+  setTimeout(() => {
+    hideLoader();
+    showCustomModal(
+      'Secure Sign-In Link Sent',
+      `A secure session verification link has been sent to <strong>${email}</strong>. Clicking this link will immediately sign you into your offshore digital banking dashboard.`,
+      () => { switchLoginView('password'); },
+      null,
+      'Check Inbox'
+    );
+  }, 1200);
+}
+window.handleLinkLoginSubmit = handleLinkLoginSubmit;
+
+// Registration Wizard Helpers
+function initRegData() {
+  if (!state.regStep) state.regStep = 1;
+  if (!state.regData || !state.regData.selectedAccounts) {
+    state.regData = {
+      accountClassification: 'individual',
+      selectedAccounts: ['checking', 'savings'],
+      addOns: {
+        debitCard: true,
+        checks: true,
+        overdraft: true,
+        overdraftAccount: 'savings'
+      },
+      citizenshipConfirmed: false,
+      firstName: '',
+      lastName: '',
+      dob: '',
+      email: '',
+      phone: '',
+      ssn: '',
+      address: '',
+      addressUnit: '',
+      city: '',
+      state: '',
+      zip: ''
+    };
+  }
+}
+
+function getProgressBarHtml(step) {
+  const pct = step * 20;
+  return `
+    <div class="w3-reg-progress-container">
+      <div class="w3-reg-progress-text">
+        <span>Account Application</span>
+        <span>Step ${step} of 5 (${pct}%)</span>
+      </div>
+      <div class="w3-reg-progress-bar">
+        <div class="w3-reg-progress-fill" style="width: ${pct}%;"></div>
+      </div>
+    </div>
+  `;
+}
+
+function setRegClass(cls) {
+  initRegData();
+  state.regData.accountClassification = cls;
+  renderRegister();
+}
+window.setRegClass = setRegClass;
+
+function toggleRegProgram(type) {
+  initRegData();
+  const idx = state.regData.selectedAccounts.indexOf(type);
+  if (idx > -1) {
+    if (state.regData.selectedAccounts.length > 1) {
+      state.regData.selectedAccounts.splice(idx, 1);
+    } else {
+      toast('Selection Required', 'At least one account program must remain selected.', 'warning');
+    }
+  } else {
+    state.regData.selectedAccounts.push(type);
+  }
+  renderRegister();
+}
+window.toggleRegProgram = toggleRegProgram;
+
+function toggleAddon(key) {
+  initRegData();
+  state.regData.addOns[key] = !state.regData.addOns[key];
+  renderRegister();
+}
+window.toggleAddon = toggleAddon;
+
+function setOverdraftAccount(acc) {
+  initRegData();
+  state.regData.addOns.overdraftAccount = acc;
+  renderRegister();
+}
+window.setOverdraftAccount = setOverdraftAccount;
+
+function prevRegStep(step) {
+  state.regStep = step;
+  renderRegister();
+}
+window.prevRegStep = prevRegStep;
+
+function nextRegStep(step) {
+  initRegData();
+  if (step === 2) {
+    if (state.regData.selectedAccounts.length === 0) {
+      toast('Selection Required', 'Please select at least one account program to open.', 'error');
+      return;
+    }
+  }
+  state.regStep = step;
+  renderRegister();
+}
+window.nextRegStep = nextRegStep;
+
+function saveStep4Data(e) {
+  e.preventDefault();
+  initRegData();
+  
+  if (!document.getElementById('r-citizen').checked) {
+    toast('Citizenship Requirement', 'You must confirm U.S. citizenship or residency to proceed.', 'error');
+    return;
+  }
+  
+  state.regData.citizenshipConfirmed = true;
+  state.regData.firstName = document.getElementById('r-fname').value;
+  state.regData.lastName = document.getElementById('r-lname').value;
+  state.regData.dob = document.getElementById('r-dob').value;
+  state.regData.email = document.getElementById('r-email').value;
+  state.regData.phone = document.getElementById('r-phone').value;
+  
+  state.regStep = 5;
+  renderRegister();
+}
+window.saveStep4Data = saveStep4Data;
+
+async function handleRegisterSubmitWizard(e) {
+  e.preventDefault();
+  initRegData();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  
+  showLoader('Processing Application', 'Verifying tax identification and registering offshore bank accounts…');
+
+  const startTime = Date.now();
+  try {
+    const ssnVal = document.getElementById('r-ssn').value;
+    const street = document.getElementById('r-address').value;
+    const unit = document.getElementById('r-unit').value;
+    const city = document.getElementById('r-city').value;
+    const stateVal = document.getElementById('r-state').value;
+    const zipVal = document.getElementById('r-zip').value;
+    
+    state.regData.address = street;
+    state.regData.addressUnit = unit;
+    state.regData.city = city;
+    state.regData.state = stateVal;
+    state.regData.zip = zipVal;
+    
+    const combinedAddress = `${street}${unit ? ', ' + unit : ''}, ${city}, ${stateVal} ${zipVal}`;
+    const payload = {
+      name: `${state.regData.firstName} ${state.regData.lastName}`,
+      email: state.regData.email,
+      phone: state.regData.phone,
+      address: combinedAddress,
+      state: stateVal,
+      zip: zipVal,
+      accountType: state.regData.accountClassification,
+      selectedAccounts: state.regData.selectedAccounts,
+      ssn: ssnVal
+    };
+
+    const data = await api('/api/auth/register-submit', payload);
+    state.regData = {}; // Clear form memory
+    state.regStep = 1;
+    
+    const elapsed = Date.now() - startTime;
+    const delay = Math.max(0, 1500 - elapsed);
+    
+    setTimeout(() => {
+      hideLoader();
+      toast('Application Submitted', 'Your registration is under review.', 'success');
+      renderRegistrationSuccess(payload.email);
+    }, delay);
+  } catch (err) {
+    hideLoader();
+    toast('Application Failed', err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Submit Application';
+  }
+}
+window.handleRegisterSubmitWizard = handleRegisterSubmitWizard;
+
+// Onboarding Wizard - Core Page Router
+function renderRegister() {
+  initRegData();
+  const step = state.regStep;
+
+  // Icons used in Choice Cards
+  const piggyIcon = `<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M19 12a7 7 0 1 1-14 0c0-2.2 1.4-4 3.5-4.6.6-.2 1.1-.8 1.1-1.4V4c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v2c0 .6.5 1.2 1.1 1.4 2.1.6 3.5 2.4 3.5 4.6z"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M20 12h2M2 12h2M12 20v2"/></svg>`;
+  const cashIcon = `<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>`;
+  const cdIcon = `<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const checkingIcon = `<svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`;
+
+  if (step === 1) {
+    const d = state.regData;
+    const isSel = (type) => d.selectedAccounts.includes(type) ? 'active' : '';
+    const isClass = (cls) => d.accountClassification === cls ? 'active' : '';
+
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card" style="max-width:580px;">
+          ${getLoginHeaderHtml('Create Accounts', 'Select Account Classification & Programs')}
+          <div class="auth-card-body">
+            ${getProgressBarHtml(1)}
+            
+            <div style="margin-bottom:24px;">
+              <h3 style="font-size:15px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Select Account Type</h3>
+              <div class="w3-radio-option-list">
+                <div class="w3-radio-option-card ${isClass('individual')}" onclick="setRegClass('individual')">
+                  <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
+                  <span class="w3-radio-label">Individual</span>
+                </div>
+                <div class="w3-radio-option-card ${isClass('joint')}" onclick="setRegClass('joint')">
+                  <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
+                  <span class="w3-radio-label">Joint</span>
+                </div>
+                <div class="w3-radio-option-card ${isClass('trust')}" onclick="setRegClass('trust')">
+                  <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
+                  <span class="w3-radio-label">In the name of a Trust</span>
+                </div>
+                <div class="w3-radio-option-card ${isClass('custodial')}" onclick="setRegClass('custodial')">
+                  <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
+                  <span class="w3-radio-label">Custodial Account</span>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Account Classification</label>
-              <select id="r-type" class="form-select" onchange="toggleAccountTypeLabels()">
-                <option value="personal" ${d.accountType === 'personal' ? 'selected' : ''}>Personal / Private Client</option>
-                <option value="business" ${d.accountType === 'business' ? 'selected' : ''}>Corporate / Business Entity</option>
+
+            <div style="margin-bottom:24px;">
+              <h3 style="font-size:15px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Accounts to Open (Select at least one)</h3>
+              <div class="w3-choice-cards-grid">
+                
+                <div class="w3-choice-card ${isSel('checking')}" onclick="toggleRegProgram('checking')">
+                  <div class="w3-choice-card-header">
+                    <div class="w3-choice-card-icon checking">${checkingIcon}</div>
+                    <div class="w3-choice-card-checkbox"><span class="w3-choice-card-checkmark">✔</span></div>
+                  </div>
+                  <div class="w3-choice-card-body">
+                    <span class="w3-choice-card-title">Spending / Checking</span>
+                    <span class="w3-choice-card-apy">0.10% APY</span>
+                    <span class="w3-choice-card-desc">Everyday transactions, wire routing.</span>
+                  </div>
+                </div>
+
+                <div class="w3-choice-card ${isSel('savings')}" onclick="toggleRegProgram('savings')">
+                  <div class="w3-choice-card-header">
+                    <div class="w3-choice-card-icon savings">${piggyIcon}</div>
+                    <div class="w3-choice-card-checkbox"><span class="w3-choice-card-checkmark">✔</span></div>
+                  </div>
+                  <div class="w3-choice-card-body">
+                    <span class="w3-choice-card-title">Savings</span>
+                    <span class="w3-choice-card-apy">3.00% APY</span>
+                    <span class="w3-choice-card-desc">Compounding offshore yield preservation.</span>
+                  </div>
+                </div>
+
+                <div class="w3-choice-card ${isSel('market')}" onclick="toggleRegProgram('market')">
+                  <div class="w3-choice-card-header">
+                    <div class="w3-choice-card-icon market">${cashIcon}</div>
+                    <div class="w3-choice-card-checkbox"><span class="w3-choice-card-checkmark">✔</span></div>
+                  </div>
+                  <div class="w3-choice-card-body">
+                    <span class="w3-choice-card-title">Money Market</span>
+                    <span class="w3-choice-card-apy">3.25% APY</span>
+                    <span class="w3-choice-card-desc">Highly liquid money market placements.</span>
+                  </div>
+                </div>
+
+                <div class="w3-choice-card ${isSel('cd')}" onclick="toggleRegProgram('cd')">
+                  <div class="w3-choice-card-header">
+                    <div class="w3-choice-card-icon cd">${cdIcon}</div>
+                    <div class="w3-choice-card-checkbox"><span class="w3-choice-card-checkmark">✔</span></div>
+                  </div>
+                  <div class="w3-choice-card-body">
+                    <span class="w3-choice-card-title">CDs</span>
+                    <span class="w3-choice-card-apy">4.10% APY</span>
+                    <span class="w3-choice-card-desc">Guaranteed fixed return on term placements.</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="nextRegStep(2)" style="margin-top:12px;">Continue</button>
+          </div>
+          <div class="auth-card-footer">
+            Already registered? <a onclick="nav('#/portal/client-auth/login')">Sign in to your account</a>
+          </div>
+        </div>
+      </div>
+    `);
+  } else if (step === 2) {
+    const d = state.regData;
+    const checkAddon = (key) => d.addOns[key] ? 'checked' : '';
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card" style="max-width:580px;">
+          ${getLoginHeaderHtml('Create Accounts', 'Select Add-ons & Overdraft Transfer')}
+          <div class="auth-card-body">
+            ${getProgressBarHtml(2)}
+            
+            <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
+              Select complementary features for your new offshore banking account below.
+            </p>
+
+            <div class="w3-addon-row" onclick="toggleAddon('debitCard')">
+              <div class="w3-addon-checkbox-wrap">
+                <input type="checkbox" id="addon-debit" ${checkAddon('debitCard')} style="width:18px;height:18px;pointer-events:none;">
+              </div>
+              <div class="w3-addon-details">
+                <span class="w3-addon-title">Free Debit Card</span>
+                <span class="w3-addon-desc">Once you put money in your account, we'll mail a debit card to each account owner.</span>
+              </div>
+            </div>
+
+            <div class="w3-addon-row" onclick="toggleAddon('checks')">
+              <div class="w3-addon-checkbox-wrap">
+                <input type="checkbox" id="addon-checks" ${checkAddon('checks')} style="width:18px;height:18px;pointer-events:none;">
+              </div>
+              <div class="w3-addon-details">
+                <span class="w3-addon-title">Free Standard Checks</span>
+                <span class="w3-addon-desc">We'll mail your first order of standard checks once you deposit funds in your account.</span>
+              </div>
+            </div>
+
+            <div class="w3-addon-row" onclick="toggleAddon('overdraft')">
+              <div class="w3-addon-checkbox-wrap">
+                <input type="checkbox" id="addon-overdraft" ${checkAddon('overdraft')} style="width:18px;height:18px;pointer-events:none;">
+              </div>
+              <div class="w3-addon-details">
+                <span class="w3-addon-title">Overdraft Transfer Service</span>
+                <span class="w3-addon-desc">Open an Online Savings or Money Market account with us, and avoid overdraft fees with automatic transfers.</span>
+              </div>
+            </div>
+
+            <div id="overdraft-source-section" style="display:${d.addOns.overdraft ? 'block' : 'none'}; background:#f8fafc; border:1px solid var(--border); padding:16px; border-radius:6px; margin-bottom:20px;">
+              <label class="form-label">What type of account do you want to open for overdraft transfer service?</label>
+              <select id="addon-overdraft-acc" class="form-select" onchange="setOverdraftAccount(this.value)">
+                <option value="savings" ${d.addOns.overdraftAccount === 'savings' ? 'selected' : ''}>Savings</option>
+                <option value="market" ${d.addOns.overdraftAccount === 'market' ? 'selected' : ''}>Money Market</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" style="margin-bottom:10px;">Select Account Programs to Open (Choose at least one)</label>
-              <div style="display:flex;flex-direction:column;gap:12px;background:#f8fafc;padding:12px;border:1px solid #cbd5e1;border-radius:4px;">
-                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
-                  <input type="checkbox" id="acc-checking" checked style="width:16px;height:16px;">
-                  <div>
-                    <strong id="lbl-checking-title">USD Private Checking</strong>
-                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-checking-desc">Everyday transactions, swift wires, debit card settlements</div>
-                  </div>
-                </label>
-                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
-                  <input type="checkbox" id="acc-savings" checked style="width:16px;height:16px;">
-                  <div>
-                    <strong id="lbl-savings-title">EUR High-Yield Savings</strong>
-                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-savings-desc">Compounding offshore yield, wealth preservation</div>
-                  </div>
-                </label>
-                <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
-                  <input type="checkbox" id="acc-market" style="width:16px;height:16px;">
-                  <div>
-                    <strong id="lbl-market-title">GBP Global Money Market</strong>
-                    <div style="font-size:11px;color:var(--text-muted);" id="lbl-market-desc">For institutional currency placements and yields</div>
-                  </div>
-                </label>
-              </div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+              <button class="btn btn-ghost" style="flex:1;" onclick="prevRegStep(1)">Back</button>
+              <button class="btn btn-primary" style="flex:2;" onclick="nextRegStep(3)">Continue</button>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Next: Identity Verification</button>
-          </form>
-        </div>
-        <div class="auth-card-footer">
-          Already registered? <a onclick="nav('#/portal/client-auth/login')">Sign in to your account</a>
-        </div>
-      </div>
-    </div>
-  `);
-  setTimeout(() => { toggleAccountTypeLabels(); }, 10);
-}
-
-function toggleAccountTypeLabels() {
-  const type = document.getElementById('r-type')?.value;
-  if (!type) return;
-
-  const chkTitle = document.getElementById('lbl-checking-title');
-  const chkDesc  = document.getElementById('lbl-checking-desc');
-  const savTitle = document.getElementById('lbl-savings-title');
-  const savDesc  = document.getElementById('lbl-savings-desc');
-  const mktTitle = document.getElementById('lbl-market-title');
-  const mktDesc  = document.getElementById('lbl-market-desc');
-
-  if (type === 'personal') {
-    if (chkTitle) chkTitle.textContent = 'USD Private Checking';
-    if (chkDesc)  chkDesc.textContent  = 'Everyday transactions, swift wires, debit card settlements';
-    if (savTitle) savTitle.textContent = 'EUR High-Yield Savings';
-    if (savDesc)  savDesc.textContent  = 'Compounding offshore yield, wealth preservation';
-    if (mktTitle) mktTitle.textContent = 'GBP Global Money Market';
-    if (mktDesc)  mktDesc.textContent  = 'For institutional currency placements and yields';
-  } else {
-    if (chkTitle) chkTitle.textContent = 'USD Business Treasury Checking';
-    if (chkDesc)  chkDesc.textContent  = 'Operating account for wires, vendor bills, and payroll';
-    if (savTitle) savTitle.textContent = 'EUR Corporate Reserve Savings';
-    if (savDesc)  savDesc.textContent  = 'Asset-backed reserve holding with high-interest yields';
-    if (mktTitle) mktTitle.textContent = 'GBP Institutional Investment Placement';
-    if (mktDesc)  mktDesc.textContent  = 'High-balance multi-currency corporate treasury cash positioning';
-  }
-}
-window.toggleAccountTypeLabels = toggleAccountTypeLabels;
-
-function goToRegisterStep2(e) {
-  e.preventDefault();
-  const selected = [];
-  if (document.getElementById('acc-checking').checked) selected.push('checking');
-  if (document.getElementById('acc-savings').checked) selected.push('savings');
-  if (document.getElementById('acc-market').checked) selected.push('market');
-
-  if (selected.length === 0) {
-    toast('Selection Required', 'Please select at least one account program to open.', 'error');
-    return;
-  }
-
-  state.regData = {
-    name: document.getElementById('r-name').value,
-    email: document.getElementById('r-email').value,
-    phone: document.getElementById('r-phone').value,
-    address: document.getElementById('r-address').value,
-    state: document.getElementById('r-state').value,
-    zip: document.getElementById('r-zip').value,
-    accountType: document.getElementById('r-type').value,
-    selectedAccounts: selected
-  };
-  renderRegisterStep2();
-}
-
-// Register Page — Step 2: SSN / Submission
-function renderRegisterStep2() {
-  setRoot(`
-    <div class="auth-shell">
-      <div class="auth-card">
-        <div class="auth-card-header">
-          <div class="auth-logo-wrap">
-            <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
-              <path d="M7 9 L14 16 L21 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="7" y1="20" x2="21" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-            <span style="font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Meridian Trust</span>
           </div>
-          <h1 class="auth-title">US Account Application</h1>
-          <p class="auth-subtitle">Step 2 of 2: Identity & Compliance Verification</p>
-        </div>
-        <div class="auth-card-body">
-          <form id="reg-form-step2" onsubmit="handleRegisterSubmit(event)">
-            <p style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;">
-              To comply with federal regulations, including USA PATRIOT Act requirements, we must verify your Social Security Number (SSN) or Individual Taxpayer Identification Number (ITIN).
-            </p>
-            <div class="form-group">
-              <label class="form-label">Social Security Number (SSN) / ITIN</label>
-              <input id="r-ssn" type="password" class="form-input" placeholder="Tax ID / SSN" style="letter-spacing:2px;font-family:monospace;" required>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:16px;">
-              <button type="button" class="btn btn-ghost" style="flex:1;" onclick="renderRegister()">Back</button>
-              <button type="submit" class="btn btn-primary" style="flex:2;">Submit Application</button>
-            </div>
-          </form>
         </div>
       </div>
-    </div>
-  `);
+    `);
+  } else if (step === 3) {
+    const d = state.regData;
+    const nameMap = {
+      checking: { title: 'Spending Account', apy: '0.10% APY' },
+      savings: { title: 'Savings Account', apy: '3.00% APY' },
+      market: { title: 'Money Market Account', apy: '3.25% APY' },
+      cd: { title: 'Certificate of Deposit (CD)', apy: '4.10% APY' }
+    };
+    
+    const itemsHtml = d.selectedAccounts.map(type => {
+      const item = nameMap[type];
+      return `
+        <div class="w3-review-item">
+          <div class="w3-review-details">
+            <span class="w3-review-title">${item.title}</span>
+            <span class="w3-review-apy">Annual Percentage Yield: ${item.apy}</span>
+          </div>
+          <button class="w3-review-edit-btn" onclick="prevRegStep(1)">Edit</button>
+        </div>
+      `;
+    }).join('');
+
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card" style="max-width:580px;">
+          ${getLoginHeaderHtml('Create Accounts', 'Review Account Selections')}
+          <div class="auth-card-body">
+            ${getProgressBarHtml(3)}
+            
+            <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:16px;">
+              Here are the accounts you've selected so far. Review your selections and add any other accounts you want to open.
+            </p>
+
+            <div style="margin-bottom:20px;">
+              ${itemsHtml}
+            </div>
+
+            <button class="btn btn-ghost btn-full" onclick="prevRegStep(1)" style="margin-bottom:24px; font-weight:700;">+ Add Another Account</button>
+
+            <div style="border:1px solid var(--border); padding:16px; border-radius:6px; background:#fcfcfc; margin-bottom:20px;">
+              <h4 style="font-size:12px; text-transform:uppercase; color:var(--citi-navy); letter-spacing:0.05em; margin:0 0 8px 0; font-weight:700;">Important Information About Opening a New Account</h4>
+              <p style="font-size:11.5px; color:var(--text-secondary); line-height:1.5; margin:0;">
+                To help the U.S. government fight terrorism and money laundering, federal law requires us to obtain, verify, and record information identifying each person opening an account. We may ask to see your driver's license or other identifying documents.
+              </p>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:20px;">
+              <button class="btn btn-ghost" style="flex:1;" onclick="prevRegStep(2)">Back</button>
+              <button class="btn btn-primary" style="flex:2;" onclick="nextRegStep(4)">Next Step</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  } else if (step === 4) {
+    const d = state.regData;
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card" style="max-width:580px;">
+          ${getLoginHeaderHtml('Create Accounts', 'Your Information')}
+          <div class="auth-card-body">
+            ${getProgressBarHtml(4)}
+
+            <form id="reg-form-step4" onsubmit="saveStep4Data(event)">
+              <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
+                We are only able to open accounts for U.S. citizens and current U.S. residents. We also require a U.S. residential street address to complete the application.
+              </p>
+
+              <label style="display:flex; align-items:flex-start; gap:10px; font-size:13.5px; cursor:pointer; background:#f8fafc; border:1px solid var(--border); padding:14px; border-radius:6px; margin-bottom:20px; line-height:1.4;">
+                <input type="checkbox" id="r-citizen" ${d.citizenshipConfirmed ? 'checked' : ''} style="width:18px; height:18px; margin-top:1px;" required>
+                <span>I'm a U.S. citizen or currently residing in the U.S.</span>
+              </label>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input id="r-fname" type="text" class="form-input" placeholder="First Name" value="${d.firstName || ''}" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input id="r-lname" type="text" class="form-input" placeholder="Last Name" value="${d.lastName || ''}" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
+                <input id="r-dob" type="text" class="form-input" placeholder="MM/DD/YYYY" value="${d.dob || ''}" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input id="r-email" type="email" class="form-input" placeholder="Email Address" value="${d.email || ''}" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input id="r-phone" type="tel" class="form-input" placeholder="Phone Number" value="${d.phone || ''}" required>
+              </div>
+
+              <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" class="btn btn-ghost" style="flex:1;" onclick="prevRegStep(3)">Back</button>
+                <button type="submit" class="btn btn-primary" style="flex:2;">Continue</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `);
+  } else if (step === 5) {
+    const d = state.regData;
+    setRoot(`
+      <div class="auth-shell">
+        <div class="auth-card" style="max-width:580px;">
+          ${getLoginHeaderHtml('Create Accounts', 'Address & Identity Verification')}
+          <div class="auth-card-body">
+            ${getProgressBarHtml(5)}
+
+            <form id="reg-form-step5" onsubmit="handleRegisterSubmitWizard(event)">
+              <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
+                Enter your tax identification and U.S. residential street address details below.
+              </p>
+
+              <div class="form-group">
+                <label class="form-label">Social Security Number (SSN) / ITIN</label>
+                <input id="r-ssn" type="password" class="form-input" placeholder="Tax ID / SSN" style="letter-spacing:2px; font-family:monospace;" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Residential Address (no P.O. Boxes)</label>
+                <input id="r-address" type="text" class="form-input" placeholder="Residential Street Address" value="${d.address || ''}" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Apartment, Suite, Unit, etc. (Optional)</label>
+                <input id="r-unit" type="text" class="form-input" placeholder="e.g. Apt 4B" value="${d.addressUnit || ''}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input id="r-city" type="text" class="form-input" placeholder="City" value="${d.city || ''}" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">State</label>
+                  <input id="r-state" type="text" class="form-input" placeholder="State" value="${d.state || ''}" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ZIP Code</label>
+                  <input id="r-zip" type="text" class="form-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" class="btn btn-ghost" style="flex:1;" onclick="prevRegStep(4)">Back</button>
+                <button type="submit" class="btn btn-primary" style="flex:2;">Submit Application</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `);
+  }
 }
 
-// Success Page — show success notice after registration
+// Success Page — show success notice after registration with brand logo
 function renderRegistrationSuccess(email) {
   setRoot(`
     <div class="auth-shell">
       <div class="auth-card" style="max-width:550px;">
         <div class="auth-card-header" style="text-align:center;">
-          <div style="width:56px;height:56px;border-radius:50%;background:#E6F4EA;color:#137333;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;">
-            ${icons.check}
+          <div style="margin-bottom: 20px;">
+            <svg class="bank-logo-icon" viewBox="0 0 32 32" width="44" height="44" fill="none" style="margin: 0 auto;">
+              <defs>
+                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#F3E5AB" />
+                  <stop offset="30%" stop-color="#D4AF37" />
+                  <stop offset="70%" stop-color="#AA7C11" />
+                  <stop offset="100%" stop-color="#8C620A" />
+                </linearGradient>
+              </defs>
+              <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.2" fill="#002C77" fill-opacity="0.05"/>
+              <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>
+              <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+              <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+              <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+              <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+              <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+              <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)"/>
+              <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)"/>
+              <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
+            </svg>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);margin-top:10px;">Meridian Trust</div>
           </div>
           <h1 class="auth-title">Application Submitted</h1>
-          <p class="auth-subtitle">Your Meridian Trust US offshore account application is under review.</p>
+          <p class="auth-subtitle">Your Meridian Trust offshore account application is under review.</p>
         </div>
         <div class="auth-card-body">
           <div style="background-color:#F4F6F9;border-left:4px solid #002C77;padding:16px;margin-bottom:24px;font-size:13.5px;color:#333;line-height:1.6;border-radius:0 4px 4px 0;">
@@ -1625,13 +2162,19 @@ async function handleSend(e) {
 }
 
 function logout() {
-  if (!confirm('Are you sure you want to sign out and terminate your secure banking session?')) {
-    return;
-  }
-  state = { user: null, accounts: [], transactions: [], cards: [], adminUsers: [], pendingEmail: null, devOtp: null };
-  localStorage.removeItem('mtb_session');
-  toast('Signed Out', 'Your secure session has been terminated.', 'info');
-  nav('#/portal/client-auth/login');
+  showCustomModal(
+    'Are you ready to sign out?',
+    '<p style="margin:0; font-size:15px; color:var(--text-secondary); line-height:1.5;">Please confirm if you are ready to secure and terminate your active banking session. Any unsaved actions will be discarded.</p>',
+    () => {
+      state = { user: null, accounts: [], transactions: [], cards: [], adminUsers: [], pendingEmail: null, devOtp: null };
+      localStorage.removeItem('mtb_session');
+      toast('Signed Out', 'Your secure session has been terminated.', 'info');
+      nav('#/portal/client-auth/login');
+    },
+    null,
+    'Sign Out',
+    'Cancel'
+  );
 }
 
 // Toggle Card (freeze/unfreeze)
