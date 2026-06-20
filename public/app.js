@@ -477,6 +477,62 @@ function closeCustomModal(isConfirmed) {
 window.showCustomModal = showCustomModal;
 window.closeCustomModal = closeCustomModal;
 
+// Form Validation System for visual errors (asterisk & red borders)
+function validateForm(formId) {
+  const form = document.getElementById(formId);
+  if (!form) return true;
+  
+  let isValid = true;
+  const requiredInputs = form.querySelectorAll('[required]');
+  
+  requiredInputs.forEach(input => {
+    if (input.type === 'checkbox') {
+      const parentLabel = input.closest('label') || input.parentElement;
+      if (!input.checked) {
+        isValid = false;
+        parentLabel.classList.add('checkbox-invalid');
+      } else {
+        parentLabel.classList.remove('checkbox-invalid');
+      }
+    } else {
+      if (!input.value.trim()) {
+        isValid = false;
+        input.classList.add('is-invalid');
+      } else {
+        input.classList.remove('is-invalid');
+      }
+      
+      if (!input.hasInputListener) {
+        input.hasInputListener = true;
+        input.addEventListener('input', () => {
+          if (input.value.trim()) {
+            input.classList.remove('is-invalid');
+          }
+        });
+      }
+    }
+  });
+  
+  requiredInputs.forEach(input => {
+    if (input.type === 'checkbox' && !input.hasChangeListener) {
+      input.hasChangeListener = true;
+      input.addEventListener('change', () => {
+        const parentLabel = input.closest('label') || input.parentElement;
+        if (input.checked) {
+          parentLabel.classList.remove('checkbox-invalid');
+        }
+      });
+    }
+  });
+
+  if (!isValid) {
+    toast('Required Fields', 'Please complete all highlighted required fields.', 'error');
+  }
+  
+  return isValid;
+}
+window.validateForm = validateForm;
+
 // Brand Monogram SVG Header Generator
 function getLoginHeaderHtml(title, subtitle) {
   return `
@@ -524,13 +580,13 @@ function renderLogin() {
         <div class="auth-card">
           ${getLoginHeaderHtml('Client Portal Login', 'Enter your assigned Client ID and passcode to access your accounts.')}
           <div class="auth-card-body">
-            <form id="login-form" onsubmit="handleLogin(event)">
+            <form id="login-form" novalidate onsubmit="handleLogin(event)">
               <div class="form-group">
-                <label class="form-label">Client Account ID</label>
+                <label class="form-label">Client Account ID <span style="color:#dc2626;">*</span></label>
                 <input id="f-uid" type="text" class="form-input" placeholder="Client ID" autocomplete="username" required>
               </div>
               <div class="form-group">
-                <label class="form-label">Secure Passcode</label>
+                <label class="form-label">Secure Passcode <span style="color:#dc2626;">*</span></label>
                 <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
@@ -552,14 +608,14 @@ function renderLogin() {
         <div class="auth-card">
           ${getLoginHeaderHtml('Reset Secure Passcode', 'Provide your account credentials to request a passcode override link.')}
           <div class="auth-card-body">
-            <form id="forgot-form" onsubmit="handleForgotSubmit(event)">
+            <form id="forgot-form" novalidate onsubmit="handleForgotSubmit(event)">
               <div class="form-group">
-                <label class="form-label">Client Account ID</label>
+                <label class="form-label">Client Account ID <span style="color:#dc2626;">*</span></label>
                 <input id="fg-uid" type="text" class="form-input" placeholder="Client ID" required>
               </div>
               <div class="form-group">
-                <label class="form-label">Registered Email Address</label>
-                <input id="fg-email" type="email" class="form-input" placeholder="email@example.com" required>
+                <label class="form-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
+                <input id="fg-email" type="email" class="form-input" placeholder="Email Address" required>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Request Reset Link</button>
             </form>
@@ -579,10 +635,10 @@ function renderLogin() {
         <div class="auth-card">
           ${getLoginHeaderHtml('Sign In with Secure Link', 'Enter your registered email. We will send a one-click session authorization link.')}
           <div class="auth-card-body">
-            <form id="link-login-form" onsubmit="handleLinkLoginSubmit(event)">
+            <form id="link-login-form" novalidate onsubmit="handleLinkLoginSubmit(event)">
               <div class="form-group">
-                <label class="form-label">Registered Email Address</label>
-                <input id="lk-email" type="email" class="form-input" placeholder="email@example.com" required>
+                <label class="form-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
+                <input id="lk-email" type="email" class="form-input" placeholder="Email Address" required>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Send Sign-In Link</button>
             </form>
@@ -607,6 +663,9 @@ window.switchLoginView = switchLoginView;
 
 function handleForgotSubmit(e) {
   e.preventDefault();
+  if (!validateForm('forgot-form')) {
+    return;
+  }
   const uid = document.getElementById('fg-uid').value;
   const email = document.getElementById('fg-email').value;
   
@@ -626,6 +685,9 @@ window.handleForgotSubmit = handleForgotSubmit;
 
 function handleLinkLoginSubmit(e) {
   e.preventDefault();
+  if (!validateForm('link-login-form')) {
+    return;
+  }
   const email = document.getElementById('lk-email').value;
   
   showLoader('Generating Link', 'Authenticating device signature and encoding session token...');
@@ -660,7 +722,7 @@ function initRegData() {
       lastName: '',
       dob: '',
       email: '',
-      phone: '',
+      phone: '+1 ',
       ssn: '',
       address: '',
       addressUnit: '',
@@ -744,12 +806,10 @@ window.nextRegStep = nextRegStep;
 
 function saveStep4Data(e) {
   e.preventDefault();
-  initRegData();
-  
-  if (!document.getElementById('r-citizen').checked) {
-    toast('Citizenship Requirement', 'You must confirm U.S. citizenship or residency to proceed.', 'error');
+  if (!validateForm('reg-form-step4')) {
     return;
   }
+  initRegData();
   
   state.regData.citizenshipConfirmed = true;
   state.regData.firstName = document.getElementById('r-fname').value;
@@ -765,6 +825,9 @@ window.saveStep4Data = saveStep4Data;
 
 async function handleRegisterSubmitWizard(e) {
   e.preventDefault();
+  if (!validateForm('reg-form-step5')) {
+    return;
+  }
   initRegData();
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent = 'Submitting…';
@@ -1050,39 +1113,39 @@ function renderRegister() {
           <div class="auth-card-body">
             ${getProgressBarHtml(4)}
 
-            <form id="reg-form-step4" onsubmit="saveStep4Data(event)">
+            <form id="reg-form-step4" novalidate onsubmit="saveStep4Data(event)">
               <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
                 We are only able to open accounts for U.S. citizens and current U.S. residents. We also require a U.S. residential street address to complete the application.
               </p>
 
               <label style="display:flex; align-items:flex-start; gap:10px; font-size:13.5px; cursor:pointer; background:#f8fafc; border:1px solid var(--border); padding:14px; border-radius:6px; margin-bottom:20px; line-height:1.4;">
                 <input type="checkbox" id="r-citizen" ${d.citizenshipConfirmed ? 'checked' : ''} style="width:18px; height:18px; margin-top:1px;" required>
-                <span>I'm a U.S. citizen or currently residing in the U.S.</span>
+                <span>I'm a U.S. citizen or currently residing in the U.S. <span style="color:#dc2626;">*</span></span>
               </label>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">First Name</label>
+                  <label class="form-label">First Name <span style="color:#dc2626;">*</span></label>
                   <input id="r-fname" type="text" class="form-input" placeholder="First Name" value="${d.firstName || ''}" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Last Name</label>
+                  <label class="form-label">Last Name <span style="color:#dc2626;">*</span></label>
                   <input id="r-lname" type="text" class="form-input" placeholder="Last Name" value="${d.lastName || ''}" required>
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Date of Birth (MM/DD/YYYY)</label>
+                <label class="form-label">Date of Birth (MM/DD/YYYY) <span style="color:#dc2626;">*</span></label>
                 <input id="r-dob" type="text" class="form-input" placeholder="MM/DD/YYYY" value="${d.dob || ''}" required>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Email Address</label>
+                <label class="form-label">Email Address <span style="color:#dc2626;">*</span></label>
                 <input id="r-email" type="email" class="form-input" placeholder="Email Address" value="${d.email || ''}" required>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Phone Number</label>
+                <label class="form-label">Phone Number <span style="color:#dc2626;">*</span></label>
                 <input id="r-phone" type="tel" class="form-input" placeholder="Phone Number" value="${d.phone || ''}" required>
               </div>
 
@@ -1104,18 +1167,18 @@ function renderRegister() {
           <div class="auth-card-body">
             ${getProgressBarHtml(5)}
 
-            <form id="reg-form-step5" onsubmit="handleRegisterSubmitWizard(event)">
+            <form id="reg-form-step5" novalidate onsubmit="handleRegisterSubmitWizard(event)">
               <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
                 Enter your tax identification and U.S. residential street address details below.
               </p>
 
               <div class="form-group">
-                <label class="form-label">Social Security Number (SSN) / ITIN</label>
+                <label class="form-label">Social Security Number (SSN) / ITIN <span style="color:#dc2626;">*</span></label>
                 <input id="r-ssn" type="password" class="form-input" placeholder="Tax ID / SSN" style="letter-spacing:2px; font-family:monospace;" required>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Residential Address (no P.O. Boxes)</label>
+                <label class="form-label">Residential Address (no P.O. Boxes) <span style="color:#dc2626;">*</span></label>
                 <input id="r-address" type="text" class="form-input" placeholder="Residential Street Address" value="${d.address || ''}" required>
               </div>
 
@@ -1125,17 +1188,17 @@ function renderRegister() {
               </div>
 
               <div class="form-group">
-                <label class="form-label">City</label>
+                <label class="form-label">City <span style="color:#dc2626;">*</span></label>
                 <input id="r-city" type="text" class="form-input" placeholder="City" value="${d.city || ''}" required>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">State</label>
+                  <label class="form-label">State <span style="color:#dc2626;">*</span></label>
                   <input id="r-state" type="text" class="form-input" placeholder="State" value="${d.state || ''}" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">ZIP Code</label>
+                  <label class="form-label">ZIP Code <span style="color:#dc2626;">*</span></label>
                   <input id="r-zip" type="text" class="form-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
                 </div>
               </div>
@@ -1666,6 +1729,9 @@ async function loadSend() {
 
 async function handleLogin(e) {
   e.preventDefault();
+  if (!validateForm('login-form')) {
+    return;
+  }
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true; btn.textContent = 'Connecting…';
   
