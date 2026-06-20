@@ -32,6 +32,7 @@ const routeLoaderMessages = {
   '#/portal/digital-banking/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
   '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
   '#/portal/digital-banking/currency-exchange':  ['Loading FX Exchange', 'Connecting to interbank currency conversion engine…'],
+  '#/portal/digital-banking/transaction-history': ['Retrieving Transaction Ledger', 'Querying historical statements and computing analytics…'],
 };
 
 let _routeTimer = null;
@@ -41,18 +42,24 @@ function route() {
   const h = window.location.hash || '#';
 
   const publicRoutes  = ['#', '#/', '#/portal/client-auth/login', '#/portal/client-onboarding/apply'];
-  const privateRoutes = ['#/portal/digital-banking/dashboard', '#/portal/digital-banking/wire-transfer', '#/portal/digital-banking/currency-exchange'];
+  const privateRoutes = [
+    '#/portal/digital-banking/dashboard', 
+    '#/portal/digital-banking/wire-transfer', 
+    '#/portal/digital-banking/currency-exchange',
+    '#/portal/digital-banking/transaction-history'
+  ];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/portal/client-auth/login'); return; }
   if ((h === '#/portal/client-auth/login' || h === '#/portal/client-onboarding/apply') && state.user) { nav('#/portal/digital-banking/dashboard'); return; }
 
   // Redirect old page routes to landing (content is now inline)
-  if (['#/products','#/services','#/legal','#/about','#/login','#/register','#/dashboard','#/send','#/exchange'].includes(h)) {
+  if (['#/products','#/services','#/legal','#/about','#/login','#/register','#/dashboard','#/send','#/exchange','#/history'].includes(h)) {
     if (h === '#/login') { nav('#/portal/client-auth/login'); return; }
     if (h === '#/register') { nav('#/portal/client-onboarding/apply'); return; }
     if (h === '#/dashboard') { nav('#/portal/digital-banking/dashboard'); return; }
     if (h === '#/send') { nav('#/portal/digital-banking/wire-transfer'); return; }
     if (h === '#/exchange') { nav('#/portal/digital-banking/currency-exchange'); return; }
+    if (h === '#/history') { nav('#/portal/digital-banking/transaction-history'); return; }
     nav('#');
     return;
   }
@@ -76,6 +83,7 @@ function route() {
       case '#/portal/digital-banking/dashboard': loadDashboard(); break;
       case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
       case '#/portal/digital-banking/currency-exchange':  loadExchange(); break;
+      case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -96,6 +104,7 @@ function renderNav() {
   if (state.user) {
     el.innerHTML = `
       <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Statement & History</button>
       <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
       <button class="nav-link ${h==='#/portal/digital-banking/currency-exchange'?'active':''}"  onclick="nav('#/portal/digital-banking/currency-exchange')">FX Exchange</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
@@ -1354,6 +1363,34 @@ function renderDashboard() {
     `;
   }).join('<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">');
 
+  // Compute real-time dashboard metrics (Income, Outcome, Asset, Expenditure)
+  let netAssets = 0;
+  state.accounts.forEach(a => {
+    netAssets += parseFloat(a.balance) || 0;
+  });
+
+  let totalInflow = 0;
+  let totalOutflow = 0;
+  let currentMonthOutflow = 0;
+
+  // Real-time calculation based on transactions
+  const now = new Date();
+  const currentYear = 2026; // system date year
+  const currentMonth = 5;   // June is 5 (0-indexed)
+
+  state.transactions.forEach(t => {
+    const amt = parseFloat(t.amount) || 0;
+    const txDate = new Date(t.date);
+    if (t.type === 'DEPOSIT') {
+      totalInflow += amt;
+    } else {
+      totalOutflow += amt;
+      if (txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth) {
+        currentMonthOutflow += amt;
+      }
+    }
+  });
+
   setRoot(`
     <div class="app-container">
       <div class="page-header">
@@ -1373,11 +1410,43 @@ function renderDashboard() {
       <!-- Account Balances -->
       <div class="accounts-row">${accTiles || '<p style="color:var(--text-muted);font-size:13px;">No accounts found.</p>'}</div>
 
+      <!-- Real-time Metrics Row -->
+      <div class="metric-row">
+        <div class="metric-card glass">
+          <div>
+            <span class="metric-label">Net Assets</span>
+            <div class="metric-value">${fmtMoney(netAssets, 'USD')}</div>
+          </div>
+          <span class="metric-trend positive">${icons.check} Active Portfolio</span>
+        </div>
+        <div class="metric-card glass">
+          <div>
+            <span class="metric-label">Total Inflow (Income)</span>
+            <div class="metric-value">${fmtMoney(totalInflow, 'USD')}</div>
+          </div>
+          <span class="metric-trend positive">↑ Seeded Asset Growth</span>
+        </div>
+        <div class="metric-card glass">
+          <div>
+            <span class="metric-label">Total Outflow (Outcome)</span>
+            <div class="metric-value">${fmtMoney(totalOutflow, 'USD')}</div>
+          </div>
+          <span class="metric-trend negative">↓ Capital Expenditures</span>
+        </div>
+        <div class="metric-card glass">
+          <div>
+            <span class="metric-label">Monthly Expenditure</span>
+            <div class="metric-value">${fmtMoney(currentMonthOutflow, 'USD')}</div>
+          </div>
+          <span class="metric-trend negative">↓ June Outflow Volume</span>
+        </div>
+      </div>
+
       <!-- Quick Actions -->
       <div class="quick-actions">
         <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/wire-transfer')" style="grid-column: span 2;">
           <div class="quick-action-icon">${icons.send}</div>
-          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Transfer USD, EUR, or GBP to global bank accounts instantly</div></div>
+          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
         </button>
       </div>
 
@@ -1389,7 +1458,7 @@ function renderDashboard() {
         <div class="panel-body" style="padding:24px; display:grid; grid-template-columns: 280px 1fr; gap:32px;">
           <!-- Donut chart -->
           <div style="display:flex; flex-direction:column; align-items:center; border-right:1px solid var(--border); padding-right:32px;">
-            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Currency Allocation</h4>
+            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Account Allocation</h4>
             <div style="position:relative; width:170px; height:170px;">
               <canvas id="chart-donut" width="170" height="170"></canvas>
               <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
@@ -1399,14 +1468,15 @@ function renderDashboard() {
             </div>
             <!-- Legend labels -->
             <div style="display:flex; justify-content:center; gap:12px; margin-top:14px; flex-wrap:wrap; font-size:11px; font-weight:600;">
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#002C77; border-radius:2px;"></span>USD</span>
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0066CC; border-radius:2px;"></span>EUR</span>
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0099D6; border-radius:2px;"></span>GBP</span>
+              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#002C77; border-radius:2px;"></span>Checking</span>
+              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0066CC; border-radius:2px;"></span>Savings</span>
+              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0099D6; border-radius:2px;"></span>Money Market</span>
+              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#b5a25e; border-radius:2px;"></span>CDs</span>
             </div>
           </div>
           <!-- Trend line chart -->
           <div style="display:flex; flex-direction:column; justify-content:center;">
-            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Offshore Balance Trends</h4>
+            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Offshore Balance Trends (Last 6 Months)</h4>
             <div style="position:relative; width:100%; height:170px;">
               <canvas id="chart-trends" style="width:100%; height:170px;"></canvas>
             </div>
@@ -1418,8 +1488,11 @@ function renderDashboard() {
         <!-- Transactions -->
         <div>
           <div class="panel">
-            <div class="panel-header">
+            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
               <span class="panel-title">Transaction Ledger</span>
+              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size:11px; font-weight:600;">
+                Statement & History
+              </button>
             </div>
             <div style="overflow-x:auto;">
               <table class="txn-table">
@@ -1467,15 +1540,18 @@ function drawDashboardCharts() {
 
   // ── Calculate Totals (USD equivalents) ──
   let totalUSD = 0;
-  let usdBal = 0;
-  let eurBal = 0;
-  let gbpBal = 0;
+  let checkingBal = 0;
+  let savingsBal = 0;
+  let marketBal = 0;
+  let cdBal = 0;
 
   state.accounts.forEach(a => {
     let bal = parseFloat(a.balance) || 0;
-    if (a.currency === 'USD') { usdBal += bal; totalUSD += bal; }
-    else if (a.currency === 'EUR') { eurBal += bal; totalUSD += bal * 1.1; }
-    else if (a.currency === 'GBP') { gbpBal += bal; totalUSD += bal * 1.3; }
+    totalUSD += bal;
+    if (a.type === 'checking') checkingBal += bal;
+    else if (a.type === 'savings') savingsBal += bal;
+    else if (a.type === 'market') marketBal += bal;
+    else if (a.type === 'cd') cdBal += bal;
   });
 
   document.getElementById('chart-portfolio-total').textContent = fmtMoney(totalUSD, 'USD');
@@ -1485,9 +1561,10 @@ function drawDashboardCharts() {
   dct.clearRect(0, 0, 170, 170);
   
   const segments = [
-    { value: usdBal, color: '#002C77' }, // USD Navy
-    { value: eurBal * 1.1, color: '#0066CC' }, // EUR Blue
-    { value: gbpBal * 1.3, color: '#0099D6' }  // GBP Light Blue
+    { value: checkingBal, color: '#002C77' }, // Checking Navy
+    { value: savingsBal, color: '#0066CC' }, // Savings Blue
+    { value: marketBal, color: '#0099D6' }, // Money Market Light Blue
+    { value: cdBal, color: '#b5a25e' } // CD Gold
   ];
   
   const grandTotal = segments.reduce((sum, seg) => sum + seg.value, 0) || 1;
@@ -1527,20 +1604,30 @@ function drawDashboardCharts() {
 
   // Reconstruct portfolio balance at points in time using transaction history
   const points = [];
-  const days = 6;
-  const now = new Date();
+  const now = new Date('2026-06-20T16:16:30+03:00'); // Use June 20, 2026 as reference time
   
-  // Create 6 datapoints for the last 6 months
-  for (let i = days; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(now.getMonth() - i);
-    const dateStr = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  // Sort transactions descending (newest first)
+  const txSorted = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Create 6 datapoints for the last 6 months (chronological order)
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
     
-    // Simulate realistic historical growth of private placement yields
-    const simulatedGrowthFactor = 1.0 - (i * 0.015) + (Math.sin(i) * 0.008);
-    const pointBal = totalUSD * simulatedGrowthFactor;
-    
-    points.push({ label: dateStr, value: pointBal });
+    let balAtEnd = totalUSD;
+    txSorted.forEach(tx => {
+      const txDate = new Date(tx.date);
+      if (txDate > endOfMonth) {
+        if (tx.type === 'DEPOSIT') {
+          balAtEnd -= parseFloat(tx.amount) || 0;
+        } else {
+          balAtEnd += parseFloat(tx.amount) || 0;
+        }
+      }
+    });
+
+    const labelStr = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    points.push({ label: labelStr, value: balAtEnd });
   }
 
   // Chart configs
@@ -2488,6 +2575,579 @@ async function api(path, body) {
   if (!res.ok) throw new Error(data.error || 'An unexpected error occurred.');
   return data;
 }
+
+// ── Transaction History statements Page ───────────────────────────────────────
+function resolveAccountLabel(accId) {
+  const acc = state.accounts.find(a => a.id === accId);
+  if (!acc) return 'Account';
+  return acc.type.charAt(0).toUpperCase() + acc.type.slice(1);
+}
+
+async function loadTransactionHistory() {
+  setRoot(`<div style="padding:60px;text-align:center;color:var(--text-muted);font-size:14px;">Loading statement and transaction ledger…</div>`);
+  try {
+    if (!state.accounts.length) {
+      const accounts = await api(`/api/accounts?userId=${state.user.id}`);
+      state.accounts = accounts;
+    }
+    // Always fetch latest transactions to ensure real-time accuracy
+    const transactions = await api(`/api/transactions?userId=${state.user.id}`);
+    state.transactions = transactions;
+    
+    renderTransactionHistory();
+  } catch (e) {
+    toast('Load Failed', 'Could not retrieve transaction history. Please refresh.', 'error');
+  }
+}
+
+function renderTransactionHistory() {
+  if (!state.historyFilter) {
+    state.historyFilter = {
+      accountId: 'all',
+      type: 'all',
+      search: '',
+      startDate: '2023-06-20',
+      endDate: '2026-06-20',
+      page: 1,
+      pageSize: 15,
+      chartGrouping: 'month'
+    };
+  }
+
+  const accOptions = state.accounts.map(a => 
+    `<option value="${a.id}">${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account (••${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, 'USD')}</option>`
+  ).join('');
+
+  setRoot(`
+    <div class="app-container">
+      <div class="page-header">
+        <div class="page-header-inner">
+          <div>
+            <h2 class="page-greeting">Account Statement & History</h2>
+            <p class="page-subtext">Filter, query, and print high-value transaction journals across all USD holdings.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-secondary btn-sm" onclick="exportHistoryCSV()">
+              Export CSV Ledger
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="exportHistoryPDF()">
+              Print Statement
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Panel -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <span class="panel-title">Filters & Search</span>
+        </div>
+        <div class="panel-body" style="padding:20px;">
+          <div class="form-row" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">Select Account</label>
+              <select id="hist-account" class="form-select" onchange="updateHistoryFilter()">
+                <option value="all">All USD Accounts</option>
+                ${accOptions}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">Transaction Type</label>
+              <select id="hist-type" class="form-select" onchange="updateHistoryFilter()">
+                <option value="all">All Types</option>
+                <option value="DEPOSIT">Inflows (Deposits)</option>
+                <option value="TRANSFER_OUT">Outflows (Transfers/Debits)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">Start Date</label>
+              <input id="hist-start-date" type="date" class="form-input" value="${state.historyFilter.startDate}" onchange="updateHistoryFilter()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">End Date</label>
+              <input id="hist-end-date" type="date" class="form-input" value="${state.historyFilter.endDate}" onchange="updateHistoryFilter()">
+            </div>
+          </div>
+          <div class="form-row" style="display:grid; grid-template-columns: 2fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">Search Description / Counterparty</label>
+              <input id="hist-search" type="text" class="form-input" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:11px;">Chart Period Grouping</label>
+              <select id="hist-grouping" class="form-select" onchange="updateHistoryFilter()">
+                <option value="month">Group by Month</option>
+                <option value="year">Group by Year</option>
+                <option value="day">Group by Day</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph Panel -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <span class="panel-title">Transaction Volume Chart</span>
+        </div>
+        <div class="panel-body" style="padding:24px;">
+          <div style="position:relative; width:100%; height:220px;">
+            <canvas id="chart-history-trends" style="width:100%; height:220px;"></canvas>
+          </div>
+          <div style="display:flex; justify-content:center; gap:24px; margin-top:12px; font-size:12px; font-weight:600;">
+            <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#10b981; border-radius:2px;"></span>Inflow (Deposits)</span>
+            <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#ef4444; border-radius:2px;"></span>Outflow (Transfers/Debits)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ledger Panel -->
+      <div class="panel">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="panel-title">Transaction Ledger Statements</span>
+          <span id="hist-count" style="font-size:12px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="txn-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Description</th>
+                <th>Account</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="hist-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div id="hist-pagination" class="panel-body" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding:16px 24px;">
+          <!-- Pagination rendered dynamically -->
+        </div>
+      </div>
+    </div>
+  `);
+
+  applyHistoryFiltersAndRender();
+}
+
+function applyHistoryFiltersAndRender() {
+  const filter = state.historyFilter;
+  if (!filter) return;
+
+  const accountEl = document.getElementById('hist-account');
+  const typeEl = document.getElementById('hist-type');
+  const startEl = document.getElementById('hist-start-date');
+  const endEl = document.getElementById('hist-end-date');
+  const searchEl = document.getElementById('hist-search');
+  const groupingEl = document.getElementById('hist-grouping');
+
+  if (accountEl) filter.accountId = accountEl.value;
+  if (typeEl) filter.type = typeEl.value;
+  if (startEl) filter.startDate = startEl.value;
+  if (endEl) filter.endDate = endEl.value;
+  if (searchEl) filter.search = searchEl.value;
+  if (groupingEl) filter.chartGrouping = groupingEl.value;
+
+  const startMs = new Date(filter.startDate).getTime();
+  const endMs = new Date(filter.endDate + 'T23:59:59Z').getTime();
+
+  const filtered = state.transactions.filter(t => {
+    if (filter.accountId !== 'all' && t.accountId !== filter.accountId) return false;
+    
+    if (filter.type !== 'all') {
+      if (filter.type === 'DEPOSIT' && t.type !== 'DEPOSIT') return false;
+      if (filter.type === 'TRANSFER_OUT' && t.type === 'DEPOSIT') return false;
+    }
+
+    const txMs = new Date(t.date).getTime();
+    if (txMs < startMs || txMs > endMs) return false;
+
+    if (filter.search.trim()) {
+      const q = filter.search.toLowerCase();
+      const descMatch = t.description?.toLowerCase().includes(q);
+      const partnerMatch = t.counterparty?.toLowerCase().includes(q);
+      const idMatch = t.id?.toLowerCase().includes(q);
+      if (!descMatch && !partnerMatch && !idMatch) return false;
+    }
+
+    return true;
+  });
+
+  // Sort filtered transactions chronologically (newest first)
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  state.filteredTransactions = filtered;
+
+  const countEl = document.getElementById('hist-count');
+  if (countEl) {
+    countEl.textContent = `Showing ${filtered.length} records`;
+  }
+
+  const tableBody = document.getElementById('hist-table-body');
+  const paginationEl = document.getElementById('hist-pagination');
+
+  if (tableBody && paginationEl) {
+    const total = filtered.length;
+    const pageCount = Math.ceil(total / filter.pageSize) || 1;
+    filter.page = Math.min(filter.page, pageCount);
+    const startIdx = (filter.page - 1) * filter.pageSize;
+    const endIdx = Math.min(startIdx + filter.pageSize, total);
+
+    const pageTxs = filtered.slice(startIdx, endIdx);
+
+    tableBody.innerHTML = pageTxs.length ? pageTxs.map(t => {
+      const isCredit = t.type === 'DEPOSIT';
+      const accLabel = resolveAccountLabel(t.accountId);
+      return `
+        <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-interactive">
+          <td style="width:44px;">
+            <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
+          </td>
+          <td>
+            <div class="txn-desc">${t.description}</div>
+            <div class="txn-party">${t.counterparty}</div>
+          </td>
+          <td>
+            <span style="font-weight:600;font-size:12px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
+          </td>
+          <td class="txn-date">${fmtDate(t.date)}</td>
+          <td>
+            <span class="status-pill ${t.status}">${t.status}</span>
+          </td>
+          <td class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+            ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+          </td>
+        </tr>
+      `;
+    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</td></tr>`;
+
+    paginationEl.innerHTML = `
+      <div style="font-size:12px; color:var(--text-muted); font-weight:500;">
+        Showing ${total ? startIdx + 1 : 0}–${endIdx} of ${total} records
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-ghost btn-xs" ${filter.page === 1 ? 'disabled' : ''} onclick="changeHistoryPage(-1)" style="padding: 4px 10px;">Previous</button>
+        <button class="btn btn-ghost btn-xs" ${filter.page === pageCount ? 'disabled' : ''} onclick="changeHistoryPage(1)" style="padding: 4px 10px;">Next</button>
+      </div>
+    `;
+  }
+
+  drawHistoryChart(filtered);
+}
+
+function drawHistoryChart(txs) {
+  const canvas = document.getElementById('chart-history-trends');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dWidth = canvas.clientWidth || 800;
+  const dHeight = 220;
+  canvas.width = dWidth;
+  canvas.height = dHeight;
+  ctx.clearRect(0, 0, dWidth, dHeight);
+
+  const filter = state.historyFilter;
+  const grouping = filter.chartGrouping;
+  const start = new Date(filter.startDate);
+  const end = new Date(filter.endDate);
+  const groups = [];
+
+  if (grouping === 'year') {
+    let currYear = start.getFullYear();
+    const endYear = end.getFullYear();
+    while (currYear <= endYear) {
+      groups.push({ key: `${currYear}`, label: `${currYear}`, inflow: 0, outflow: 0 });
+      currYear++;
+    }
+  } else if (grouping === 'month') {
+    let curr = new Date(start.getFullYear(), start.getMonth(), 1);
+    const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+    while (curr <= endMonth) {
+      const label = curr.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      const key = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
+      groups.push({ key, label, inflow: 0, outflow: 0 });
+      curr.setMonth(curr.getMonth() + 1);
+    }
+  } else {
+    let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    let dayCount = 0;
+    while (curr <= endDay && dayCount < 90) {
+      const label = curr.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const key = curr.toISOString().split('T')[0];
+      groups.push({ key, label, inflow: 0, outflow: 0 });
+      curr.setDate(curr.getDate() + 1);
+      dayCount++;
+    }
+  }
+
+  txs.forEach(t => {
+    const d = new Date(t.date);
+    let key = '';
+    if (grouping === 'year') {
+      key = `${d.getFullYear()}`;
+    } else if (grouping === 'month') {
+      key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    } else {
+      key = d.toISOString().split('T')[0];
+    }
+
+    const grp = groups.find(g => g.key === key);
+    if (grp) {
+      const amt = parseFloat(t.amount) || 0;
+      if (t.type === 'DEPOSIT') {
+        grp.inflow += amt;
+      } else {
+        grp.outflow += amt;
+      }
+    }
+  });
+
+  const paddingLeft = 70;
+  const paddingRight = 20;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+
+  const graphWidth = dWidth - paddingLeft - paddingRight;
+  const graphHeight = dHeight - paddingTop - paddingBottom;
+
+  const maxVal = Math.max(...groups.map(g => Math.max(g.inflow, g.outflow))) || 100000;
+  
+  ctx.strokeStyle = '#f1f5f9';
+  ctx.lineWidth = 1.5;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '500 10px "DM Sans", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  const gridSteps = 4;
+  for (let i = 0; i <= gridSteps; i++) {
+    const yVal = (maxVal * i) / gridSteps;
+    const yPos = dHeight - paddingBottom - (graphHeight * i) / gridSteps;
+
+    ctx.beginPath();
+    ctx.moveTo(paddingLeft, yPos);
+    ctx.lineTo(dWidth - paddingRight, yPos);
+    ctx.stroke();
+
+    let labelText = '';
+    if (yVal >= 1000000) labelText = '$' + (yVal / 1000000).toFixed(1) + 'M';
+    else if (yVal >= 1000) labelText = '$' + (yVal / 1000).toFixed(0) + 'k';
+    else labelText = '$' + yVal.toFixed(0);
+    ctx.fillText(labelText, paddingLeft - 10, yPos);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const labelInterval = Math.max(1, Math.ceil(groups.length / 12));
+  groups.forEach((g, idx) => {
+    if (idx % labelInterval === 0) {
+      const xPos = paddingLeft + (graphWidth * idx) / Math.max(1, groups.length - 1) + (graphWidth / groups.length) / 2;
+      ctx.fillText(g.label, xPos, dHeight - paddingBottom + 8);
+    }
+  });
+
+  const grpWidth = graphWidth / Math.max(1, groups.length);
+  const barSpacing = grpWidth * 0.1;
+  const barWidth = (grpWidth - barSpacing * 3) / 2;
+
+  groups.forEach((g, idx) => {
+    const grpX = paddingLeft + idx * grpWidth + barSpacing;
+    
+    if (g.inflow > 0) {
+      const hInflow = (g.inflow / maxVal) * graphHeight;
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.roundRect(grpX, dHeight - paddingBottom - hInflow, barWidth, hInflow, [3, 3, 0, 0]);
+      ctx.fill();
+    }
+
+    if (g.outflow > 0) {
+      const hOutflow = (g.outflow / maxVal) * graphHeight;
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.roundRect(grpX + barWidth + barSpacing, dHeight - paddingBottom - hOutflow, barWidth, hOutflow, [3, 3, 0, 0]);
+      ctx.fill();
+    }
+  });
+}
+
+window.changeHistoryPage = function(delta) {
+  if (state.historyFilter) {
+    state.historyFilter.page += delta;
+    applyHistoryFiltersAndRender();
+  }
+};
+
+window.updateHistoryFilter = function() {
+  const accountEl = document.getElementById('hist-account');
+  const typeEl = document.getElementById('hist-type');
+  const startEl = document.getElementById('hist-start-date');
+  const endEl = document.getElementById('hist-end-date');
+  const searchEl = document.getElementById('hist-search');
+  const groupingEl = document.getElementById('hist-grouping');
+
+  if (state.historyFilter) {
+    if (accountEl) state.historyFilter.accountId = accountEl.value;
+    if (typeEl) state.historyFilter.type = typeEl.value;
+    if (startEl) state.historyFilter.startDate = startEl.value;
+    if (endEl) state.historyFilter.endDate = endEl.value;
+    if (searchEl) state.historyFilter.search = searchEl.value;
+    if (groupingEl) state.historyFilter.chartGrouping = groupingEl.value;
+    state.historyFilter.page = 1;
+    applyHistoryFiltersAndRender();
+  }
+};
+
+window.exportHistoryCSV = function() {
+  const txs = state.filteredTransactions || [];
+  if (!txs.length) {
+    toast('No Records', 'There are no transactions to export.', 'warning');
+    return;
+  }
+  let csv = 'Transaction ID,Account ID,Type,Description,Counterparty,Date,Status,Amount (USD)\n';
+  txs.forEach(t => {
+    const amtStr = (t.type === 'DEPOSIT' ? '' : '-') + t.amount.toFixed(2);
+    csv += `"${t.id}","${t.accountId}","${t.type}","${t.description.replace(/"/g, '""')}","${t.counterparty.replace(/"/g, '""')}","${t.date}","${t.status}",${amtStr}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', `MTB_Statement_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  toast('Export Successful', 'Your statement has been downloaded as a CSV.', 'success');
+};
+
+window.exportHistoryPDF = function() {
+  const txs = state.filteredTransactions || [];
+  if (!txs.length) {
+    toast('No Records', 'There are no transactions to print.', 'warning');
+    return;
+  }
+  const client = state.user;
+  const printWindow = window.open('', '_blank', 'width=900,height=800');
+  
+  let totalDeposits = 0;
+  let totalWithdrawals = 0;
+  txs.forEach(t => {
+    if (t.type === 'DEPOSIT') totalDeposits += t.amount;
+    else totalWithdrawals += t.amount;
+  });
+
+  const rowsHTML = txs.map(t => `
+    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 12px;">
+      <td style="padding: 10px 0;">${new Date(t.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
+      <td style="padding: 10px 0;"><strong>${t.description}</strong><br><span style="color:#64748b; font-size:11px;">${t.counterparty}</span></td>
+      <td style="padding: 10px 0;">${t.id}</td>
+      <td style="padding: 10px 0;">${t.accountId.split('-').pop()}</td>
+      <td style="padding: 10px 0; text-align: right; color: ${t.type === 'DEPOSIT' ? '#10b981' : '#ef4444'}; font-weight: 600;">
+        ${t.type === 'DEPOSIT' ? '+' : '−'}${fmtMoney(t.amount, 'USD')}
+      </td>
+    </tr>
+  `).join('');
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Official Bank Statement - Meridian Trust Bank</title>
+        <style>
+          body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #0f172a; padding: 40px; margin: 0; line-height: 1.5; }
+          .header { display: flex; justify-content: space-between; border-bottom: 2px solid #002C77; padding-bottom: 20px; margin-bottom: 30px; }
+          .brand { color: #002C77; }
+          .brand h1 { margin: 0; font-size: 24px; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; }
+          .brand p { margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; color: #a47c14; letter-spacing: 1.5px; font-weight: 700; }
+          .meta-details { display: flex; justify-content: space-between; margin-bottom: 40px; font-size: 13px; }
+          .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+          .summary-item { display: flex; flex-direction: column; }
+          .summary-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; }
+          .summary-value { font-size: 18px; font-weight: 700; color: #002C77; }
+          .statement-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          .statement-table th { border-bottom: 2px solid #cbd5e1; text-align: left; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; }
+          .footer { margin-top: 50px; font-size: 11px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="brand">
+            <h1>MERIDIAN TRUST BANK</h1>
+            <p>International Private Banking</p>
+          </div>
+          <div style="text-align: right; font-size: 12px; color: #64748b;">
+            <strong>OFFICIAL TRANSACTION STATEMENT</strong><br>
+            Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+        </div>
+
+        <div class="meta-details">
+          <div>
+            <strong>PREPARED FOR:</strong><br>
+            ${client.name}<br>
+            ${client.address || ''}<br>
+            ${client.state || ''} ${client.zip || ''}
+          </div>
+          <div style="text-align: right;">
+            <strong>CLIENT PROFILE:</strong><br>
+            Client ID: ${client.id}<br>
+            Email: ${client.email}<br>
+            Statement Period: ${new Date(state.historyFilter.startDate).toLocaleDateString()} - ${new Date(state.historyFilter.endDate).toLocaleDateString()}
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-item">
+            <span class="summary-label">Total Deposits</span>
+            <span class="summary-value" style="color:#10b981;">+${fmtMoney(totalDeposits, 'USD')}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Withdrawals</span>
+            <span class="summary-value" style="color:#ef4444;">-${fmtMoney(totalWithdrawals, 'USD')}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Net Flow</span>
+            <span class="summary-value">${totalDeposits >= totalWithdrawals ? '+' : '−'}${fmtMoney(Math.abs(totalDeposits - totalWithdrawals), 'USD')}</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 14px; color: #002C77; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Account Ledger Activity</h3>
+        <table class="statement-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Reference ID</th>
+              <th>Account</th>
+              <th style="text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHTML}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Meridian Trust Bank Ltd. &nbsp;|&nbsp; Licensed Offshore Institution &nbsp;|&nbsp; Full-Reserve Custody &nbsp;|&nbsp; Confidential Client Document
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+};
 
 // ── DOM Value Helper ──────────────────────────────────────────────────────────
 function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }

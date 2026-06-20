@@ -172,14 +172,14 @@ async function dbInit() {
       // Julian Mercer
       await queryPG(`
         INSERT INTO users (id, name, email, password, account_type, kyc_status, must_change_password, created_at)
-        VALUES ('MTB-553210', 'Julian Mercer', 'j.mercer@mercerasset.com', 'password123', 'personal', 'APPROVED', false, '2026-01-10T12:00:00.000Z')
+        VALUES ('MTB-553210', 'Julian Mercer', 'j.mercer@mercerasset.com', 'password123', 'personal', 'APPROVED', false, '2023-06-20T12:00:00.000Z')
       `);
       await queryPG(`
         INSERT INTO accounts (id, user_id, type, currency, balance, account_number, routing_number)
         VALUES 
-          ('ACC-553210-CHK', 'MTB-553210', 'checking', 'USD', 1314750.00, '0388921102', 'MTBUSD2X'),
-          ('ACC-553210-SAV', 'MTB-553210', 'savings', 'EUR', 512000.00, '0388921115', 'MTBEUR2X'),
-          ('ACC-553210-MKT', 'MTB-553210', 'market', 'GBP', 175500.00, '0388921128', 'MTBGBP2X')
+          ('ACC-553210-CHK', 'MTB-553210', 'checking', 'USD', 5000000.00, '0388921102', 'MTBUSD2X'),
+          ('ACC-553210-SAV', 'MTB-553210', 'savings', 'USD', 5000000.00, '0388921115', 'MTBUSD2X'),
+          ('ACC-553210-MKT', 'MTB-553210', 'market', 'USD', 5000000.00, '0388921128', 'MTBUSD2X')
       `);
       await queryPG(`
         INSERT INTO cards (id, user_id, card_number, cardholder_name, expiry, cvv, status, type)
@@ -189,26 +189,30 @@ async function dbInit() {
           ('CRD-107956', 'MTB-553210', '4847172290757421', 'JULIAN MERCER', '09/31', '887', 'ACTIVE', 'VIRTUAL'),
           ('CRD-515400', 'MTB-553210', '4807737568304500', 'JULIAN MERCER', '09/31', '468', 'ACTIVE', 'VIRTUAL')
       `);
-      await queryPG(`
-        INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
-        VALUES
-          ('TXN-001', 'ACC-553210-CHK', 'MTB-553210', 'DEPOSIT', 'International wire receipt — Mercer Asset Management Ltd', 300000.00, 'USD', '2026-01-12T10:00:00.000Z', 'COMPLETED', 'Mercer Asset Management Ltd'),
-          ('TXN-002', 'ACC-553210-CHK', 'MTB-553210', 'TRANSFER_OUT', 'Q1 advisory retainer — Pemberton & Cross LLP', 15250.00, 'USD', '2026-03-15T16:20:00.000Z', 'COMPLETED', 'Pemberton & Cross LLP'),
-          ('TXN-003', 'ACC-553210-CHK', 'MTB-553210', 'TRANSFER_OUT', 'Private equity capital call — Hartwell Capital Fund III', 50000.00, 'USD', '2026-04-02T09:15:00.000Z', 'COMPLETED', 'Hartwell Capital Fund III'),
-          ('TXN-004', 'ACC-553210-SAV', 'MTB-553210', 'DEPOSIT', 'FX conversion receipt — EUR treasury rebalance', 512000.00, 'EUR', '2026-02-20T14:00:00.000Z', 'COMPLETED', 'Meridian Trust FX Desk')
-      `);
+      
+      const jmTxs = [
+        ...generateHighValueTransactions('ACC-553210-CHK', 'MTB-553210', 5000000.00),
+        ...generateHighValueTransactions('ACC-553210-SAV', 'MTB-553210', 5000000.00),
+        ...generateHighValueTransactions('ACC-553210-MKT', 'MTB-553210', 5000000.00)
+      ];
+      for (const tx of jmTxs) {
+        await queryPG(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [tx.id, tx.accountId, tx.userId, tx.type, tx.description, tx.amount, tx.currency, tx.date, tx.status, tx.counterparty]);
+      }
 
       // Aetheron Global Technologies LLC
       await queryPG(`
         INSERT INTO users (id, name, email, password, account_type, kyc_status, must_change_password, created_at)
-        VALUES ('MTB-889021', 'Aetheron Global Technologies LLC', 'treasury@aetheron.global', 'password123', 'business', 'APPROVED', false, '2026-02-15T08:30:00.000Z')
+        VALUES ('MTB-889021', 'Aetheron Global Technologies LLC', 'treasury@aetheron.global', 'password123', 'business', 'APPROVED', false, '2023-06-20T08:30:00.000Z')
       `);
       await queryPG(`
         INSERT INTO accounts (id, user_id, type, currency, balance, account_number, routing_number)
         VALUES 
-          ('ACC-889021-CHK', 'MTB-889021', 'checking', 'USD', 1450000.00, '0744931089', 'MTBUSD2X'),
-          ('ACC-889021-SAV', 'MTB-889021', 'savings', 'EUR', 875000.00, '0744931092', 'MTBEUR2X'),
-          ('ACC-889021-MKT', 'MTB-889021', 'market', 'GBP', 620000.00, '0744931103', 'MTBGBP2X')
+          ('ACC-889021-CHK', 'MTB-889021', 'checking', 'USD', 5000000.00, '0744931089', 'MTBUSD2X'),
+          ('ACC-889021-SAV', 'MTB-889021', 'savings', 'USD', 5000000.00, '0744931092', 'MTBUSD2X'),
+          ('ACC-889021-MKT', 'MTB-889021', 'market', 'USD', 5000000.00, '0744931103', 'MTBUSD2X')
       `);
       await queryPG(`
         INSERT INTO cards (id, user_id, card_number, cardholder_name, expiry, cvv, status, type)
@@ -216,15 +220,18 @@ async function dbInit() {
           ('CRD-003', 'MTB-889021', '4888999900001111', 'AETHERON GLOBAL', '04/31', '552', 'ACTIVE', 'DEBIT'),
           ('CRD-004', 'MTB-889021', '4999000011112222', 'AETHERON GLOBAL', '09/28', '781', 'FROZEN', 'VIRTUAL')
       `);
-      await queryPG(`
-        INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
-        VALUES
-          ('TXN-005', 'ACC-889021-CHK', 'MTB-889021', 'DEPOSIT', 'Series B institutional funding — Apex Ventures Fund IV', 1500000.00, 'USD', '2026-02-20T09:00:00.000Z', 'COMPLETED', 'Apex Ventures Fund IV'),
-          ('TXN-006', 'ACC-889021-CHK', 'MTB-889021', 'TRANSFER_OUT', 'Cloud infrastructure annual contract — AWS Enterprise', 50000.00, 'USD', '2026-04-10T11:00:00.000Z', 'COMPLETED', 'Amazon Web Services'),
-          ('TXN-007', 'ACC-889021-SAV', 'MTB-889021', 'DEPOSIT', 'Corporate treasury rebalance — EUR allocation', 875000.00, 'EUR', '2026-03-05T14:00:00.000Z', 'COMPLETED', 'Aetheron Treasury Operations'),
-          ('TXN-008', 'ACC-889021-MKT', 'MTB-889021', 'DEPOSIT', 'Sterling reserve placement — London clearing', 620000.00, 'GBP', '2026-03-22T10:30:00.000Z', 'COMPLETED', 'Meridian Trust GBP Clearing'),
-          ('TXN-009', 'ACC-889021-CHK', 'MTB-889021', 'TRANSFER_OUT', 'Legal compliance audit — Blackstone & Partners', 28500.00, 'USD', '2026-05-14T13:45:00.000Z', 'COMPLETED', 'Blackstone & Partners')
-      `);
+      
+      const aeTxs = [
+        ...generateHighValueTransactions('ACC-889021-CHK', 'MTB-889021', 5000000.00),
+        ...generateHighValueTransactions('ACC-889021-SAV', 'MTB-889021', 5000000.00),
+        ...generateHighValueTransactions('ACC-889021-MKT', 'MTB-889021', 5000000.00)
+      ];
+      for (const tx of aeTxs) {
+        await queryPG(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [tx.id, tx.accountId, tx.userId, tx.type, tx.description, tx.amount, tx.currency, tx.date, tx.status, tx.counterparty]);
+      }
 
       // Sophia Laurent
       await queryPG(`
@@ -233,8 +240,15 @@ async function dbInit() {
       `);
       await queryPG(`
         INSERT INTO accounts (id, user_id, type, currency, balance, account_number, routing_number)
-        VALUES ('ACC-112233-CHK', 'MTB-112233', 'checking', 'USD', 48200.00, '0811902231', 'MTBUSD2X')
+        VALUES ('ACC-112233-CHK', 'MTB-112233', 'checking', 'USD', 5000000.00, '0811902231', 'MTBUSD2X')
       `);
+      const slTxs = generateHighValueTransactions('ACC-112233-CHK', 'MTB-112233', 5000000.00);
+      for (const tx of slTxs) {
+        await queryPG(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [tx.id, tx.accountId, tx.userId, tx.type, tx.description, tx.amount, tx.currency, tx.date, tx.status, tx.counterparty]);
+      }
     }
   } else {
     // Local JSON DB seed verification
@@ -242,30 +256,20 @@ async function dbInit() {
     if (!db.users || db.users.length === 0) {
       const freshSeed = {
         users: [
-          { id: "MTB-553210", name: "Julian Mercer", email: "j.mercer@mercerasset.com", password: "password123", accountType: "personal", kycStatus: "APPROVED", createdAt: "2026-01-10T12:00:00.000Z" },
-          { id: "MTB-889021", name: "Aetheron Global Technologies LLC", email: "treasury@aetheron.global", password: "password123", accountType: "business", kycStatus: "APPROVED", createdAt: "2026-02-15T08:30:00.000Z" },
+          { id: "MTB-553210", name: "Julian Mercer", email: "j.mercer@mercerasset.com", password: "password123", accountType: "personal", kycStatus: "APPROVED", createdAt: "2023-06-20T12:00:00.000Z" },
+          { id: "MTB-889021", name: "Aetheron Global Technologies LLC", email: "treasury@aetheron.global", password: "password123", accountType: "business", kycStatus: "APPROVED", createdAt: "2023-06-20T08:30:00.000Z" },
           { id: "MTB-112233", name: "Sophia Laurent", email: "s.laurent@laurentcapital.ch", password: "password123", accountType: "personal", kycStatus: "PENDING", createdAt: "2026-06-01T14:45:00.000Z" }
         ],
         accounts: [
-          { id: "ACC-553210-CHK", userId: "MTB-553210", type: "checking", currency: "USD", balance: 1314750.00, accountNumber: "0388921102", routingNumber: "MTBUSD2X" },
-          { id: "ACC-553210-SAV", userId: "MTB-553210", type: "savings", currency: "EUR", balance: 512000.00, accountNumber: "0388921115", routingNumber: "MTBEUR2X" },
-          { id: "ACC-553210-MKT", userId: "MTB-553210", type: "market", currency: "GBP", balance: 175500.00, accountNumber: "0388921128", routingNumber: "MTBGBP2X" },
-          { id: "ACC-889021-CHK", userId: "MTB-889021", type: "checking", currency: "USD", balance: 1450000.00, accountNumber: "0744931089", routingNumber: "MTBUSD2X" },
-          { id: "ACC-889021-SAV", userId: "MTB-889021", type: "savings", currency: "EUR", balance: 875000.00, accountNumber: "0744931092", routingNumber: "MTBEUR2X" },
-          { id: "ACC-889021-MKT", userId: "MTB-889021", type: "market", currency: "GBP", balance: 620000.00, accountNumber: "0744931103", routingNumber: "MTBGBP2X" },
-          { id: "ACC-112233-CHK", userId: "MTB-112233", type: "checking", currency: "USD", balance: 48200.00, accountNumber: "0811902231", routingNumber: "MTBUSD2X" }
+          { id: "ACC-553210-CHK", userId: "MTB-553210", type: "checking", currency: "USD", balance: 5000000.00, accountNumber: "0388921102", routingNumber: "MTBUSD2X" },
+          { id: "ACC-553210-SAV", userId: "MTB-553210", type: "savings", currency: "USD", balance: 5000000.00, accountNumber: "0388921115", routingNumber: "MTBUSD2X" },
+          { id: "ACC-553210-MKT", userId: "MTB-553210", type: "market", currency: "USD", balance: 5000000.00, accountNumber: "0388921128", routingNumber: "MTBUSD2X" },
+          { id: "ACC-889021-CHK", userId: "MTB-889021", type: "checking", currency: "USD", balance: 5000000.00, accountNumber: "0744931089", routingNumber: "MTBUSD2X" },
+          { id: "ACC-889021-SAV", userId: "MTB-889021", type: "savings", currency: "USD", balance: 5000000.00, accountNumber: "0744931092", routingNumber: "MTBUSD2X" },
+          { id: "ACC-889021-MKT", userId: "MTB-889021", type: "market", currency: "USD", balance: 5000000.00, accountNumber: "0744931103", routingNumber: "MTBUSD2X" },
+          { id: "ACC-112233-CHK", userId: "MTB-112233", type: "checking", currency: "USD", balance: 5000000.00, accountNumber: "0811902231", routingNumber: "MTBUSD2X" }
         ],
-        transactions: [
-          { id: "TXN-001", accountId: "ACC-553210-CHK", userId: "MTB-553210", type: "DEPOSIT", description: "International wire receipt — Mercer Asset Management Ltd", amount: 300000.00, currency: "USD", date: "2026-01-12T10:00:00.000Z", status: "COMPLETED", counterparty: "Mercer Asset Management Ltd" },
-          { id: "TXN-002", accountId: "ACC-553210-CHK", userId: "MTB-553210", type: "TRANSFER_OUT", description: "Q1 advisory retainer — Pemberton & Cross LLP", amount: 15250.00, currency: "USD", date: "2026-03-15T16:20:00.000Z", status: "COMPLETED", counterparty: "Pemberton & Cross LLP" },
-          { id: "TXN-003", accountId: "ACC-553210-CHK", userId: "MTB-553210", type: "TRANSFER_OUT", description: "Private equity capital call — Hartwell Capital Fund III", amount: 50000.00, currency: "USD", date: "2026-04-02T09:15:00.000Z", status: "COMPLETED", counterparty: "Hartwell Capital Fund III" },
-          { id: "TXN-004", accountId: "ACC-553210-SAV", userId: "MTB-553210", type: "DEPOSIT", description: "FX conversion receipt — EUR treasury rebalance", amount: 512000.00, currency: "EUR", date: "2026-02-20T14:00:00.000Z", status: "COMPLETED", counterparty: "Meridian Trust FX Desk" },
-          { id: "TXN-005", accountId: "ACC-889021-CHK", userId: "MTB-889021", type: "DEPOSIT", description: "Series B institutional funding — Apex Ventures Fund IV", amount: 1500000.00, currency: "USD", date: "2026-02-20T09:00:00.000Z", status: "COMPLETED", counterparty: "Apex Ventures Fund IV" },
-          { id: "TXN-006", accountId: "ACC-889021-CHK", userId: "MTB-889021", type: "TRANSFER_OUT", description: "Cloud infrastructure annual contract — AWS Enterprise", amount: 50000.00, currency: "USD", date: "2026-04-10T11:00:00.000Z", status: "COMPLETED", counterparty: "Amazon Web Services" },
-          { id: "TXN-007", accountId: "ACC-889021-SAV", userId: "MTB-889021", type: "DEPOSIT", description: "Corporate treasury rebalance — EUR allocation", amount: 875000.00, currency: "EUR", date: "2026-03-05T14:00:00.000Z", status: "COMPLETED", counterparty: "Aetheron Treasury Operations" },
-          { id: "TXN-008", accountId: "ACC-889021-MKT", userId: "MTB-889021", type: "DEPOSIT", description: "Sterling reserve placement — London clearing", amount: 620000.00, currency: "GBP", date: "2026-03-22T10:30:00.000Z", status: "COMPLETED", counterparty: "Meridian Trust GBP Clearing" },
-          { id: "TXN-009", accountId: "ACC-889021-CHK", userId: "MTB-889021", type: "TRANSFER_OUT", description: "Legal compliance audit — Blackstone & Partners", amount: 28500.00, currency: "USD", date: "2026-05-14T13:45:00.000Z", status: "COMPLETED", counterparty: "Blackstone & Partners" }
-        ],
+        transactions: [],
         cards: [
           { id: "CRD-001", userId: "MTB-553210", cardNumber: "4111222233334444", cardholderName: "JULIAN MERCER", expiry: "12/30", cvv: "392", status: "ACTIVE", type: "DEBIT" },
           { id: "CRD-002", userId: "MTB-553210", cardNumber: "4222333344445555", cardholderName: "JULIAN MERCER", expiry: "06/29", cvv: "109", status: "ACTIVE", type: "VIRTUAL" },
@@ -277,6 +281,10 @@ async function dbInit() {
         applications: [],
         pendingVerifications: {}
       };
+      freshSeed.accounts.forEach(acc => {
+        const accTxs = generateHighValueTransactions(acc.id, acc.userId, 5000000.00);
+        freshSeed.transactions = freshSeed.transactions.concat(accTxs);
+      });
       writeJSONDB(freshSeed);
     }
   }
@@ -684,6 +692,84 @@ function randomDigits(n) {
   let s = '';
   for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
   return s;
+}
+
+function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5000000.00) {
+  const txs = [];
+  const txTemplates = [
+    { desc: 'Offshore Institutional Assets Settlement', partner: 'Laurent Capital Trust', type: 'DEPOSIT' },
+    { desc: 'Capital Retainer Placement', partner: 'Pemberton Advisory Partners', type: 'TRANSFER_OUT' },
+    { desc: 'Advisory Retainer Clearance Credit', partner: 'Apex Group Corporate Solutions', type: 'DEPOSIT' },
+    { desc: 'Q3 Dividend Yield Credit', partner: 'Meridian Global Securities Desk', type: 'DEPOSIT' },
+    { desc: 'Sovereign Treasury Bond Allocation', partner: 'Federal Yield Clearance', type: 'TRANSFER_OUT' },
+    { desc: 'Commercial Real Estate Yield Inflow', partner: 'Hudson Development Syndicate', type: 'DEPOSIT' },
+    { desc: 'Capital Gain Inflow Distribution', partner: 'Vanguard Private Ledger', type: 'DEPOSIT' },
+    { desc: 'Corporate Retainer Service Fees', partner: 'Blackstone Wealth Audit', type: 'TRANSFER_OUT' },
+    { desc: 'Offshore Equity Liquidation Credit', partner: 'Chubb Asset Holding Group', type: 'DEPOSIT' },
+    { desc: 'Private Equity Capital Retainer Payment', partner: 'Crosslands Capital Partners', type: 'TRANSFER_OUT' },
+    { desc: 'Q1 Advisory Clearance Credit', partner: 'Goldman Wealth Desk', type: 'DEPOSIT' },
+    { desc: 'Venture Capital Dividend Return Inflow', partner: 'Blue Ridge Ventures Group', type: 'DEPOSIT' },
+    { desc: 'International Business Wire Receipt', partner: 'Mercer Asset Management Ltd', type: 'DEPOSIT' },
+    { desc: 'Treasury Portfolio Rebalance Inflow', partner: 'Meridian Trust FX Desk', type: 'DEPOSIT' },
+    { desc: 'Series B Institutional Funding Inflow', partner: 'Apex Ventures Fund IV', type: 'DEPOSIT' },
+    { desc: 'Cloud Infrastructure Contract Payment', partner: 'Amazon Web Services', type: 'TRANSFER_OUT' },
+    { desc: 'Corporate Treasury Rebalance Settlement', partner: 'Aetheron Treasury Operations', type: 'DEPOSIT' },
+    { desc: 'Sterling Reserve Placement Inflow', partner: 'Meridian Trust GBP Clearing', type: 'DEPOSIT' },
+    { desc: 'Legal Compliance Audit Fee Payment', partner: 'Blackstone & Partners', type: 'TRANSFER_OUT' }
+  ];
+  
+  const startDate = new Date('2023-06-20T00:00:00Z').getTime();
+  const endDate = new Date('2026-06-20T00:00:00Z').getTime();
+  
+  let currentSum = 0;
+  const count = 40;
+  
+  for (let i = 0; i < count - 1; i++) {
+    const temp = txTemplates[i % txTemplates.length];
+    const amount = Math.floor(10 + Math.random() * 170) * 10000;
+    
+    const randTime = startDate + (i / count) * (endDate - startDate) + (Math.random() * 6 * 24 * 3600 * 1000 - 3 * 24 * 3600 * 1000);
+    const dateStr = new Date(Math.max(startDate, Math.min(endDate - 24 * 3600 * 1000, randTime))).toISOString();
+    
+    txs.push({
+      id: `TXN-${100000 + Math.floor(Math.random() * 900000)}`,
+      accountId,
+      userId,
+      type: temp.type,
+      description: temp.desc,
+      amount,
+      currency: 'USD',
+      date: dateStr,
+      status: 'COMPLETED',
+      counterparty: temp.partner
+    });
+    
+    if (temp.type === 'DEPOSIT') {
+      currentSum += amount;
+    } else {
+      currentSum -= amount;
+    }
+  }
+  
+  const diff = targetFinalBalance - currentSum;
+  const finalType = diff >= 0 ? 'DEPOSIT' : 'TRANSFER_OUT';
+  const finalAmount = Math.abs(diff);
+  
+  txs.push({
+    id: `TXN-${100000 + Math.floor(Math.random() * 900000)}`,
+    accountId,
+    userId,
+    type: finalType,
+    description: finalType === 'DEPOSIT' ? 'Initial Capital Seeding Inflow' : 'Institutional Outbound Clearing Settlement',
+    amount: Math.round(finalAmount * 100) / 100,
+    currency: 'USD',
+    date: new Date(endDate - 12 * 3600 * 1000).toISOString(),
+    status: 'COMPLETED',
+    counterparty: 'Meridian Capital Custody'
+  });
+  
+  txs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return txs;
 }
 
 function generateAlphanumericPassword(length = 8) {
@@ -1330,106 +1416,59 @@ app.post('/api/admin/approve', async (req, res) => {
     const selected = appDetails.selectedAccounts || ['checking', 'savings', 'market'];
     const accountsSeed = [];
 
-    // Distribute 5 million dollars overall: checking = $2,500,000.00, savings = $1,500,000.00, market = $1,000,000.00 (in respective currency approximations)
+    // All accounts in USD, each seeded with exactly $5,000,000.00
     if (selected.includes('checking')) {
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'checking',
         currency: 'USD',
-        balance: 2500000.00,
+        balance: 5000000.00,
         accountNumber: `0${randomDigits(9)}`,
         routingNumber: 'MTBUSD2X'
       });
     }
 
     if (selected.includes('savings')) {
-      // $1.5M equivalent in EUR: 1,500,000 / 1.1 = 1,363,636.36
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'savings',
-        currency: 'EUR',
-        balance: 1363636.36,
+        currency: 'USD',
+        balance: 5000000.00,
         accountNumber: `0${randomDigits(9)}`,
-        routingNumber: 'MTBEUR2X'
+        routingNumber: 'MTBUSD2X'
       });
     }
 
     if (selected.includes('market')) {
-      // $1M equivalent in GBP: 1,000,000 / 1.3 = 769,230.77
       accountsSeed.push({
         id: `ACC-${randomDigits(8)}`,
         userId,
         type: 'market',
-        currency: 'GBP',
-        balance: 769230.77,
+        currency: 'USD',
+        balance: 5000000.00,
         accountNumber: `0${randomDigits(9)}`,
-        routingNumber: 'MTBGBP2X'
+        routingNumber: 'MTBUSD2X'
       });
     }
 
-    const txsSeed = [];
-    
-    // Generate realistic transactions from 2021 to current date
-    const transactionTemplates = [
-      { type: 'DEPOSIT', desc: 'Offshore Assets Settlement', partner: 'Laurent Capital Trust', baseUSD: 850000.00 },
-      { type: 'TRANSFER_OUT', desc: 'Capital Retainer Placement', partner: 'Pemberton Advisory Partners', baseUSD: 45000.00 },
-      { type: 'DEPOSIT', desc: 'Advisory Retainer Clearance', partner: 'Apex Group Corporate Solutions', baseUSD: 125000.00 },
-      { type: 'DEPOSIT', desc: 'Q3 Dividend Yield Credit', partner: 'Meridian Global Securities Desk', baseUSD: 78500.00 },
-      { type: 'TRANSFER_OUT', desc: 'Sovereign Bond Allocation', partner: 'Federal Yield Clearance', baseUSD: 250000.00 },
-      { type: 'DEPOSIT', desc: 'Commercial Real Estate Return', partner: 'Hudson Development Syndicate', baseUSD: 310000.00 },
-      { type: 'DEPOSIT', desc: 'Capital Gain Distributions', partner: 'Vanguard Private Ledger', baseUSD: 94000.00 },
-      { type: 'TRANSFER_OUT', desc: 'Corporate Retainer Service Fees', partner: 'Blackstone Wealth Audit', baseUSD: 18400.00 },
-      { type: 'DEPOSIT', desc: 'Offshore Equity Liquidation', partner: 'Chubb Asset Holding Group', baseUSD: 620000.00 },
-      { type: 'TRANSFER_OUT', desc: 'Private Equity Retainer Payment', partner: 'Crosslands Capital Partners', baseUSD: 80000.00 },
-      { type: 'DEPOSIT', desc: 'Q1 Advisory Clearance Credit', partner: 'Goldman Wealth Desk', baseUSD: 140000.00 },
-      { type: 'DEPOSIT', desc: 'Venture Capital Dividend Return', partner: 'Blue Ridge Ventures Group', baseUSD: 112000.00 }
-    ];
-
-    accountsSeed.forEach(acc => {
-      let multiplier = 1.0;
-      if (acc.currency === 'EUR') multiplier = 0.909;
-      if (acc.currency === 'GBP') multiplier = 0.769;
-
-      // Seed core deposit opening
-      txsSeed.push({
-        id: `TXN-${randomDigits(6)}`,
-        accountId: acc.id,
+    if (selected.includes('cd')) {
+      accountsSeed.push({
+        id: `ACC-${randomDigits(8)}`,
         userId,
-        type: 'DEPOSIT',
-        description: 'Account opening — Meridian Trust clearing credit',
-        amount: acc.balance,
-        currency: acc.currency,
-        date: new Date().toISOString(),
-        status: 'COMPLETED',
-        counterparty: 'Meridian Trust Clearing'
+        type: 'cd',
+        currency: 'USD',
+        balance: 5000000.00,
+        accountNumber: `0${randomDigits(9)}`,
+        routingNumber: 'MTBUSD2X'
       });
+    }
 
-      // Generate randomized transactions back to 2021
-      const count = 6 + Math.floor(Math.random() * 4); // 6 to 9 transactions per account
-      for (let i = 0; i < count; i++) {
-        const temp = transactionTemplates[Math.floor(Math.random() * transactionTemplates.length)];
-        const amount = Math.round((temp.baseUSD * (0.8 + Math.random() * 0.4)) * multiplier * 100) / 100;
-        
-        // Random date between Jan 2021 and Dec 2025
-        const start = new Date('2021-01-15T00:00:00Z').getTime();
-        const end = new Date('2025-12-15T00:00:00Z').getTime();
-        const randDate = new Date(start + Math.random() * (end - start)).toISOString();
-
-        txsSeed.push({
-          id: `TXN-${randomDigits(6)}`,
-          accountId: acc.id,
-          userId,
-          type: temp.type,
-          description: temp.desc,
-          amount,
-          currency: acc.currency,
-          date: randDate,
-          status: 'COMPLETED',
-          counterparty: temp.partner
-        });
-      }
+    let txsSeed = [];
+    accountsSeed.forEach(acc => {
+      const accTxs = generateHighValueTransactions(acc.id, userId, 5000000.00);
+      txsSeed = txsSeed.concat(accTxs);
     });
 
     const cardSeed = {

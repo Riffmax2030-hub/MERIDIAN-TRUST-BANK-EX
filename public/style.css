@@ -2248,3 +2248,59 @@ label.checkbox-invalid {
   background-color: #fef2f2 !important;
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1) !important;
 }
+
+/* Real-time Dashboard Metrics Row */
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.metric-card.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 44, 119, 0.02);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+.metric-card.glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 44, 119, 0.05);
+}
+.metric-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--citi-navy);
+  font-family: 'Roboto Condensed', 'Inter', sans-serif;
+}
+.metric-trend {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.metric-trend.positive { color: #10b981; }
+.metric-trend.negative { color: #ef4444; }
+
+@media (max-width: 992px) {
+  .metric-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 576px) {
+  .metric-row {
+    grid-template-columns: 1fr !important;
+  }
+}
