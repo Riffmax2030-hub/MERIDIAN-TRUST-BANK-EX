@@ -67,11 +67,13 @@ body {
 }
 
 .logo-main {
-  font-family: 'Roboto Condensed', sans-serif;
-  font-size: 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  line-height: 1.0;
 }
 
 .logo-sub {

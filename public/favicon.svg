@@ -1,8 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none">
-  <!-- Outer circle and grid lines -->
-  <circle cx="14" cy="14" r="12" stroke="#002C77" stroke-width="1.5" opacity="0.2"/>
-  <path d="M14 2 L14 26 M2 14 L26 14" stroke="#002C77" stroke-width="0.8" opacity="0.15"/>
-  <!-- Primary brand mark (The M/Arch structure) -->
-  <path d="M7 10 L14 17 L21 10" stroke="#0066CC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="7" y1="20" x2="21" y2="20" stroke="#0066CC" stroke-width="2.8" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <!-- Metallic gold gradient for the monogram & inner strokes -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E5AB" />
+      <stop offset="30%" stop-color="#D4AF37" />
+      <stop offset="70%" stop-color="#AA7C11" />
+      <stop offset="100%" stop-color="#8C620A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Shield Crest -->
+  <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.2" fill="#002C77" fill-opacity="0.05"/>
+  <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>
+
+  <!-- Meridian Lines (Spherical Trust) -->
+  <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+  <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+  <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4" fill="none"/>
+  <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+  <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.4" opacity="0.4"/>
+
+  <!-- Monogram M and T Interlocked -->
+  <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)"/>
+  <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)"/>
+
+  <!-- Diamond / Compass Star Emblem at center intersection -->
+  <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
 </svg>
