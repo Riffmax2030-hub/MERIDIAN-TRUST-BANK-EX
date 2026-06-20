@@ -31,7 +31,6 @@ const routeLoaderMessages = {
   '#/portal/client-onboarding/apply':  ['Loading Application Portal', 'Initializing US account onboarding compliance module…'],
   '#/portal/digital-banking/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
   '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
-  '#/portal/digital-banking/currency-exchange':  ['Loading FX Exchange', 'Connecting to interbank currency conversion engine…'],
   '#/portal/digital-banking/transaction-history': ['Retrieving Transaction Ledger', 'Querying historical statements and computing analytics…'],
 };
 
@@ -45,7 +44,6 @@ function route() {
   const privateRoutes = [
     '#/portal/digital-banking/dashboard', 
     '#/portal/digital-banking/wire-transfer', 
-    '#/portal/digital-banking/currency-exchange',
     '#/portal/digital-banking/transaction-history'
   ];
 
@@ -53,12 +51,11 @@ function route() {
   if ((h === '#/portal/client-auth/login' || h === '#/portal/client-onboarding/apply') && state.user) { nav('#/portal/digital-banking/dashboard'); return; }
 
   // Redirect old page routes to landing (content is now inline)
-  if (['#/products','#/services','#/legal','#/about','#/login','#/register','#/dashboard','#/send','#/exchange','#/history'].includes(h)) {
+  if (['#/products','#/services','#/legal','#/about','#/login','#/register','#/dashboard','#/send','#/history'].includes(h)) {
     if (h === '#/login') { nav('#/portal/client-auth/login'); return; }
     if (h === '#/register') { nav('#/portal/client-onboarding/apply'); return; }
     if (h === '#/dashboard') { nav('#/portal/digital-banking/dashboard'); return; }
     if (h === '#/send') { nav('#/portal/digital-banking/wire-transfer'); return; }
-    if (h === '#/exchange') { nav('#/portal/digital-banking/currency-exchange'); return; }
     if (h === '#/history') { nav('#/portal/digital-banking/transaction-history'); return; }
     nav('#');
     return;
@@ -82,7 +79,6 @@ function route() {
       case '#/portal/client-onboarding/apply': renderRegister(); break;
       case '#/portal/digital-banking/dashboard': loadDashboard(); break;
       case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
-      case '#/portal/digital-banking/currency-exchange':  loadExchange(); break;
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       default: renderLanding();
     }
@@ -106,7 +102,6 @@ function renderNav() {
       <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
       <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Statement & History</button>
       <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/currency-exchange'?'active':''}"  onclick="nav('#/portal/digital-banking/currency-exchange')">FX Exchange</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
   } else {
@@ -220,7 +215,7 @@ function renderLanding() {
             International Banking<br>Built for <span class="w3-highlight">Global Commerce</span>
           </h1>
           <p class="w3-hero-subtitle">
-            Open multi-currency accounts in USD, EUR, and GBP. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
+            Open offshore private placement treasury accounts in USD. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
           </p>
           <div class="w3-hero-cta">
             <button class="w3-btn-primary" onclick="nav('#/portal/client-onboarding/apply')">Open an Account</button>
@@ -272,8 +267,8 @@ function renderLanding() {
           <div class="w3-features-grid">
             <div class="w3-feature-card">
               <div class="w3-feature-icon">${icons.globe}</div>
-              <h3 class="w3-feature-title">Multi-Currency Accounts</h3>
-              <p class="w3-feature-desc">Maintain separate ledger balances in US Dollars, Euros, and British Pounds. Switch between currencies in real time with interbank-rate FX conversions.</p>
+              <h3 class="w3-feature-title">Full-Reserve USD Accounts</h3>
+              <p class="w3-feature-desc">Maintain checking, savings, and market treasury accounts in USD. Every dollar is backed 100% by cash or short-term U.S. treasury instruments.</p>
             </div>
             <div class="w3-feature-card">
               <div class="w3-feature-icon">${icons.send}</div>
@@ -373,7 +368,7 @@ function renderLanding() {
               <span class="w3-section-tag-line"></span>
             </div>
             <h2 class="w3-section-title">Comprehensive Offshore Banking Solutions</h2>
-            <p class="w3-section-desc">From international wire routing to real-time currency exchange, every tool you need for global financial operations.</p>
+            <p class="w3-section-desc">From international wire routing to real-time asset audits, every tool you need for global financial operations.</p>
           </div>
 
           <div class="w3-services-list">
@@ -387,8 +382,8 @@ function renderLanding() {
             <div class="w3-service-card">
               <div class="w3-service-num">02</div>
               <div>
-                <h3 class="w3-service-title">Interbank FX Conversion</h3>
-                <p class="w3-service-desc">Exchange balances across USD, EUR, and GBP immediately at estimated wholesale conversion values, allowing real-time currency reallocation.</p>
+                <h3 class="w3-service-title">Treasury Asset Management</h3>
+                <p class="w3-service-desc">Allocate surplus capital to yielding treasury assets. Enjoy sovereign protection under full-reserve regulatory compliance with immediate liquidity.</p>
               </div>
             </div>
             <div class="w3-service-card">
@@ -2235,7 +2230,7 @@ function showTransactionDetails(txnId) {
   if (isWire && txn.status === 'COMPLETED') {
     pdfButtonHtml = `
       <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="downloadWirePDF('${txn.id}')">
-        📥 Download SWIFT MT103 Advice PDF
+        📥 Download Receipt
       </button>
     `;
   } else if (isWire && txn.status === 'PENDING') {
@@ -2289,13 +2284,27 @@ function downloadWirePDF(txnId) {
 
   optEl.innerHTML = `
     <!-- Header -->
-    <div style="border-bottom:3px solid #002C77; padding-bottom:20px; display:flex; justify-content:between; align-items:center;">
-      <div>
-        <h1 style="color:#002C77; margin:0; font-size:24px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
-        <div style="font-size:10px; color:#0099D6; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Licensed Offshore Digital Financial Institution</div>
+    <div style="border-bottom:3px solid #002C77; padding-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center;">
+        <svg viewBox="0 0 32 32" width="40" height="40" fill="none" style="margin-right:12px; display:inline-block; vertical-align:middle;">
+          <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="#D4AF37" stroke-width="1.2" fill="#002C77" fill-opacity="0.05"/>
+          <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="#D4AF37" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>
+          <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="#D4AF37" stroke-width="0.4" fill="none"/>
+          <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="#D4AF37" stroke-width="0.4" fill="none"/>
+          <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="#D4AF37" stroke-width="0.4" fill="none"/>
+          <path d="M7 16.5 H25" stroke="#D4AF37" stroke-width="0.4"/>
+          <path d="M16 5 V26.2" stroke="#D4AF37" stroke-width="0.4"/>
+          <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="#D4AF37"/>
+          <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="#D4AF37"/>
+          <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
+        </svg>
+        <div>
+          <h1 style="color:#002C77; margin:0; font-size:22px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
+          <div style="font-size:10px; color:#a47c14; text-transform:uppercase; letter-spacing:1px; margin-top:2px; font-weight:700;">International Private Banking</div>
+        </div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase;">SWIFT MT103 ADVICE</div>
+        <div style="font-size:11px; font-weight:700; color:#555; text-transform:uppercase;">Official Wire Receipt</div>
         <div style="font-size:12px; font-family:monospace; font-weight:600; color:#002C77; margin-top:3px;">REF: ${txn.id}</div>
       </div>
     </div>
@@ -2310,7 +2319,7 @@ function downloadWirePDF(txnId) {
     <table style="width:100%; border-collapse:collapse; font-size:15.5px; line-height:1.9;">
       <tr><td style="width:35%; padding:4px 0; color:#555;">Value Date:</td><td style="padding:4px 0; font-weight:600;">${new Date(txn.date).toUTCString()}</td></tr>
       <tr><td style="padding:4px 0; color:#555;">Ordering Customer ID:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
-      <tr><td style="padding:4px 0; color:#555;">Sending Account:</td><td style="padding:4px 0; font-weight:600;">Offshore Private Placement Treasury (USD/EUR/GBP equivalent)</td></tr>
+      <tr><td style="padding:4px 0; color:#555;">Sending Account:</td><td style="padding:4px 0; font-weight:600;">Offshore Private Placement Treasury (USD equivalent)</td></tr>
       <tr><td style="padding:4px 0; color:#555;">Memo / Reference:</td><td style="padding:4px 0; font-weight:600;">${txn.description}</td></tr>
       <tr><td style="padding:4px 0; color:#555;">Settled Net Amount:</td><td style="padding:4px 0; font-weight:700; font-size:19px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
     </table>
@@ -2327,21 +2336,26 @@ function downloadWirePDF(txnId) {
     </table>
 
     <!-- Sign-off / Compliance Seals -->
-    <div style="margin-top:48px; border-top:1px solid #e2e8f0; padding-top:24px; display:flex; justify-content:space-between; align-items:center;">
+    <div style="margin-top:36px; border-top:1px solid #e2e8f0; padding-top:20px; display:flex; justify-content:space-between; align-items:center;">
       <div>
         <div style="font-size:11px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
         <div style="font-size:10px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:11px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & CLEANED</div>
+        <div style="font-size:11px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & AUDITED</div>
         <div style="font-size:10px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
       </div>
+    </div>
+
+    <!-- Reporting & Cancellation Support Desk -->
+    <div style="margin-top:24px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:16px; font-size:11.5px; color:#475569; line-height:1.5;">
+      <strong>Support & Cancellation Operations Desk:</strong> For wire retroactive inquiries, reporting unauthorized movements, or requesting wire cancellations, please email us immediately at <a href="mailto:operations@meridiantrust.com" style="color:#0066CC; text-decoration:none; font-weight:600;">operations@meridiantrust.com</a>. Wire cancellation requests must be filed with our compliance desk within 1 hour of the transfer value date/time.
     </div>
   `;
 
   const opt = {
     margin:       [0.4, 0.4, 0.4, 0.4],
-    filename:     `Meridian_Trust_Wire_Advice_${txn.id}.pdf`,
+    filename:     `Meridian_Trust_Wire_Receipt_${txn.id}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { scale: 2, useCORS: true },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -2551,10 +2565,10 @@ function renderProducts() {
             ⚠️ Simulated System Notice: The ledger account systems, credit limits, card placements, and balances presented here are part of a private banking digital simulation. No real funds are held or processed.
           </div>
           
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Multi-Currency Checking Programs</h3>
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Checking Programs</h3>
           <p style="margin-bottom:20px;font-size:14px;color:#475569;">Our flagship checking program is designed for private corporate entities and high-net-worth individuals requiring immediate global liquidity. Key features include:</p>
           <ul style="padding-left:20px;margin-bottom:24px;font-size:13.5px;color:#475569;line-height:1.8;">
-            <li style="margin-bottom:6px;"><strong>Ledger Currency Splitting:</strong> Maintain independent balances in USD, EUR, and GBP within a single profile.</li>
+            <li style="margin-bottom:6px;"><strong>Full-Reserve Auditing:</strong> Checking balances are verified and credited manually via secure ledger operators.</li>
             <li style="margin-bottom:6px;"><strong>SWIFT Settlement Routing:</strong> Seamless processing parameters matching international routing codes.</li>
             <li style="margin-bottom:6px;"><strong>Real-Time Ledger Audits:</strong> Instant balance adjustments and manual deposit credits via secure operators.</li>
           </ul>
@@ -2592,8 +2606,8 @@ function renderServices() {
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Interbank FX Conversion</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Exchange balances across USD, EUR, and GBP immediately at estimated wholesale conversion values, allowing real-time currency reallocation.</p>
+          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Treasury Asset Management</h3>
+          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Allocate surplus capital to yielding treasury assets. Enjoy sovereign protection under full-reserve regulatory compliance with immediate liquidity.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
