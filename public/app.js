@@ -2405,11 +2405,15 @@ function downloadWirePDF(txnId) {
   const isWire = txn.type === 'TRANSFER_OUT';
   const swift = txn.swiftDetails || {};
   const optEl = document.createElement('div');
+  optEl.style.position = 'fixed';
+  optEl.style.left = '-9999px';
+  optEl.style.top = '0';
   optEl.style.width = '7.5in';
   optEl.style.padding = '30px';
   optEl.style.background = '#ffffff';
   optEl.style.color = '#0c1a30';
   optEl.style.fontFamily = "'DM Sans', sans-serif";
+  document.body.appendChild(optEl);
 
   // Format date and time
   const txnDate = new Date(txn.date);
@@ -2518,7 +2522,11 @@ function downloadWirePDF(txnId) {
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(optEl).save();
+  html2pdf().set(opt).from(optEl).save().then(() => {
+    optEl.remove();
+  }).catch(() => {
+    optEl.remove();
+  });
 }
 
 async function handleSend(e) {
