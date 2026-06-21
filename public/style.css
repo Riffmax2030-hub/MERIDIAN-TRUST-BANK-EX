@@ -928,8 +928,30 @@ a:hover { text-decoration: underline; }
 }
 
 .card-visual.active.diamond {
-  background: linear-gradient(145deg, #f0f0f5 0%, #dcdfe6 15%, #c8cdd6 35%, #b0b8c4 55%, #cdd3dc 75%, #e8ecf2 100%);
-  color: #1a1a2e;
+  background: linear-gradient(145deg, #2b2b2b 0%, #1e1e1e 30%, #0f0f0f 70%, #050505 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.card-visual.active.diamond .card-network {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.card-visual.active.diamond .card-tier-label {
+  color: #c5a880; /* Premium bronze/champagne gold color for luxury branding */
+}
+
+.card-visual.active.diamond .card-number-display {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.card-visual.active.diamond .card-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.card-visual.active.diamond .card-value {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .card-visual.frozen {
