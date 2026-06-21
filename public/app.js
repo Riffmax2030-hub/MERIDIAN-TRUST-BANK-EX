@@ -1430,7 +1430,7 @@ function renderDashboard() {
       <div class="page-header" style="margin-bottom:0;">
         <div class="page-header-inner">
           <div style="flex:1;">
-            <h2 class="page-greeting">Good day, ${u.name}</h2>
+            <h2 class="page-greeting">Welcome, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
             <p class="page-subtext">Client ID: ${u.id} &nbsp;·&nbsp; ${u.accountType === 'business' ? 'Corporate Account' : 'Personal Account'} &nbsp;·&nbsp; ${u.email}</p>
 
             <!-- Inline Net Balance with eye toggle -->
