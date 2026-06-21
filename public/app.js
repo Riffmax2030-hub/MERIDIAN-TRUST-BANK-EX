@@ -1484,8 +1484,8 @@ function renderDashboard() {
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
         </td>
         <td>
-          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
-          <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
+          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id}</div>
+          <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
         </td>
         <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
         <td>
@@ -2752,7 +2752,16 @@ function showTransactionDetails(txnId) {
   }
 
   const txnDateObj = new Date(txn.date);
-  const displayTxnId = `MTB-TRX-${txn.id.split('-')[0]?.toUpperCase()}-${txnDateObj.getTime().toString().slice(-6)}`;
+  
+  // Deterministically generate an MN reference ID based on the transaction ID if not explicitly provided
+  let refId = txn.swiftDetails?.referenceId;
+  if (!refId) {
+    let hash = 0;
+    for(let i=0; i<txn.id.length; i++) hash = (Math.imul(31, hash) + txn.id.charCodeAt(i)) | 0;
+    const baseNum = Math.abs(hash).toString().padStart(10, '0');
+    const timeNum = txnDateObj.getTime().toString().slice(-4);
+    refId = `MN${baseNum}${timeNum}`;
+  }
 
   modal.innerHTML = `
     <div class="modal-header">
@@ -2761,8 +2770,8 @@ function showTransactionDetails(txnId) {
     </div>
     <div class="modal-body" style="padding-top:12px;">
       <table style="width:100%; font-size: 16px; border-collapse:collapse; margin-bottom:18px;">
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${displayTxnId}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Original Ref:</td><td style="padding:12px 0; font-weight:500; text-align:right; font-family:monospace; font-size: 16px; color:#888;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace; color:var(--citi-navy); font-size:14px;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:600; text-align:right; font-family:monospace; font-size:15px; color:#555;">${refId}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
@@ -3394,8 +3403,8 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           </td>
           <td>
-            <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id.toUpperCase()}</div>
-            <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
+            <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id}</div>
+            <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </td>
           <td>
             <span style="font-weight:600;font-size: 14px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
@@ -3425,8 +3434,8 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-mobile-left" style="gap:10px;">
               <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
               <div class="txn-mobile-info">
-                <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
-                <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
+                <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id}</div>
+                <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
               </div>
             </div>
             <div class="txn-mobile-right">
