@@ -1864,12 +1864,20 @@ app.post('/api/admin/wires/approve', async (req, res) => {
       }
     } else {
       const db = readJSONDB();
-      const tx = db.transactions.find(t => t.id === transactionId);
-      if (tx) {
-        usrId = tx.userId;
-        amt = tx.amount;
-        curr = tx.currency;
-      }
+      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
+      if (!tx) return res.status(404).json({ error: 'Pending transaction not found in ledger.' });
+
+      const accIdx = db.accounts.findIndex(a => a.id === tx.accountId);
+      if (accIdx === -1) return res.status(404).json({ error: 'Associated account not found.' });
+
+      db.accounts[accIdx].balance = parseFloat((db.accounts[accIdx].balance - tx.amount).toFixed(2));
+      tx.status = 'COMPLETED';
+
+      writeJSONDB(db);
+
+      usrId = tx.userId;
+      amt = tx.amount;
+      curr = tx.currency;
     }
     await dbAddAuditLog('WIRE_APPROVED', `Outbound wire ${transactionId} of ${curr} ${amt} for Client ${usrId} approved and processed.`);
 
@@ -1901,12 +1909,15 @@ app.post('/api/admin/wires/decline', async (req, res) => {
       }
     } else {
       const db = readJSONDB();
-      const tx = db.transactions.find(t => t.id === transactionId);
-      if (tx) {
-        usrId = tx.userId;
-        amt = tx.amount;
-        curr = tx.currency;
-      }
+      const tx = db.transactions.find(t => t.id === transactionId && t.status === 'PENDING');
+      if (!tx) return res.status(404).json({ error: 'Pending transaction not found in ledger.' });
+      
+      tx.status = 'DECLINED';
+      writeJSONDB(db);
+
+      usrId = tx.userId;
+      amt = tx.amount;
+      curr = tx.currency;
     }
     await dbAddAuditLog('WIRE_DECLINED', `Outbound wire ${transactionId} of ${curr} ${amt} for Client ${usrId} declined and cancelled.`);
 
