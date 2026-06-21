@@ -438,8 +438,12 @@ async function dbGetTransactions(userId) {
 
   // Intercept and normalize legacy transaction IDs to uppercase TRX format
   txns.forEach(t => {
-    if (t.id && t.id.startsWith('trx')) {
-      t.id = 'TRX' + t.id.substring(3);
+    if (t.id) {
+      if (t.id.startsWith('trx')) {
+        t.id = 'TRX' + t.id.substring(3).padEnd(10, '0');
+      } else if (t.id.startsWith('TXN-')) {
+        t.id = 'TRX' + t.id.substring(4).padEnd(10, '0');
+      }
     }
   });
 
