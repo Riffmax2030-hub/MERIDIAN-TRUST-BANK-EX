@@ -436,13 +436,26 @@ async function dbGetTransactions(userId) {
     txns.sort((a, b) => new Date(b.date) - new Date(a.date));
   }
 
+  // Helper: deterministic pseudo-random 4-digit hash based on original ID
+  const getPad = (s) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h).toString().padEnd(4, '7').substring(0, 4);
+  };
+
   // Intercept and normalize legacy transaction IDs to uppercase TRX format
   txns.forEach(t => {
     if (t.id) {
       if (t.id.startsWith('trx')) {
-        t.id = 'TRX' + t.id.substring(3).padEnd(10, '0');
+        const numPart = t.id.substring(3);
+        const padNeeded = Math.max(0, 10 - numPart.length);
+        t.id = 'TRX' + numPart + (padNeeded > 0 ? getPad(t.id).substring(0, padNeeded) : '');
       } else if (t.id.startsWith('TXN-')) {
-        t.id = 'TRX' + t.id.substring(4).padEnd(10, '0');
+        const numPart = t.id.substring(4);
+        const padNeeded = Math.max(0, 10 - numPart.length);
+        t.id = 'TRX' + numPart + (padNeeded > 0 ? getPad(t.id).substring(0, padNeeded) : '');
       }
     }
   });
