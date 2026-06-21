@@ -110,21 +110,21 @@ function renderNav() {
   if (mNav) {
     if (state.user) {
       mNav.innerHTML = `
-        <button class="mobile-nav-item ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">
+        <button class="mobile-nav-item-modern ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Home</span>
+          <span class="mobile-nav-label-modern">Home</span>
         </button>
-        <button class="mobile-nav-item ${h==='#/portal/digital-banking/wire-transfer' || h==='#/portal/digital-banking/intrabank-transfer' ?'active':''}" onclick="nav('#/portal/digital-banking/wire-transfer')">
+        <button class="mobile-nav-item-modern ${h==='#/portal/digital-banking/wire-transfer' || h==='#/portal/digital-banking/intrabank-transfer' ?'active':''}" onclick="nav('#/portal/digital-banking/wire-transfer')">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          <span>Transfer</span>
+          <span class="mobile-nav-label-modern">Transfer</span>
         </button>
-        <button class="mobile-nav-item ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">
+        <button class="mobile-nav-item-modern ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          <span>History</span>
+          <span class="mobile-nav-label-modern">History</span>
         </button>
-        <button class="mobile-nav-item" onclick="logout()">
+        <button class="mobile-nav-item-modern" onclick="logout()">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span>Sign Out</span>
+          <span class="mobile-nav-label-modern">Logout</span>
         </button>
       `;
     } else {
@@ -1529,40 +1529,48 @@ function renderDashboard() {
   const recent = state.transactions.slice(0, 8);
   const txRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
+    const iconClass = isCredit ? 'deposit' : 'withdrawal';
+    const iconSvg = isCredit ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
     return `
-      <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-interactive">
-        <td>
-          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
-          <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
+      <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-modern">
+        <td style="display:flex; align-items:center; border:none;">
+          <div class="txn-icon ${iconClass}">${iconSvg}</div>
+          <div>
+            <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:var(--font-mono); color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
+            <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
+          </div>
         </td>
         <td class="txn-date" style="font-size:13px; color:var(--text-secondary);">${fmtDateTime(t.date)}</td>
         <td>
-          <span class="status-pill ${t.status}" style="font-size:11px; padding:2px 8px;">${t.status}</span>
+          <span class="status-pill-modern ${t.status}">${t.status}</span>
         </td>
         <td class="txn-amount" style="font-size:15px; font-weight:600; color:var(--text-primary);">
           ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
         </td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transactions on record.</td></tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transactions on record.</td></tr>`;
 
   const txMobileRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
+    const iconClass = isCredit ? 'deposit' : 'withdrawal';
+    const iconSvg = isCredit ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
     return `
-      <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')" style="padding:10px 14px;">
-        <div class="txn-mobile-left" style="gap:10px;">
+      <div class="txn-mobile-item txn-row-modern" onclick="showTransactionDetails('${t.id}')" style="padding:12px 14px; border-bottom:1px solid var(--border);">
+        <div class="txn-mobile-left" style="gap:10px; display:flex; align-items:center;">
+          <div class="txn-icon ${iconClass}" style="width:32px; height:32px; margin-right:4px;">${iconSvg}</div>
           <div class="txn-mobile-info">
-            <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
+            <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:var(--font-mono); color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
             <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </div>
         </div>
-        <div class="txn-mobile-right">
-          <div class="txn-amount" style="font-size:14px; margin-bottom:2px; font-weight:600; color:var(--text-primary);">
+        <div class="txn-mobile-right" style="text-align:right;">
+          <div class="txn-amount" style="font-size:14px; margin-bottom:4px; font-weight:600; color:var(--text-primary);">
             ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="status-pill ${t.status}">${t.status}</span>
-            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
+          <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+            <span class="status-pill-modern ${t.status}" style="font-size:9px; padding:2px 6px;">${t.status}</span>
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px; display:inline-flex;" title="Download Receipt">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             </button>
           </div>
@@ -1575,33 +1583,40 @@ function renderDashboard() {
   const cardPanels = state.cards.map(c => {
     const frozen = c.status === 'FROZEN';
     const isDiamond = c.type === 'DIAMOND';
-    const tierClass = isDiamond ? 'diamond' : '';
+    const tierClass = isDiamond ? 'diamond' : (c.type === 'PLATINUM' ? 'platinum' : 'standard');
     const tierLabel = c.type === 'DIAMOND' ? 'Diamond' : (c.type === 'PLATINUM' ? 'Platinum' : 'Standard');
     return `
-      <div class="card-item-container">
-        <div class="card-visual ${frozen ? 'frozen' : 'active'} ${tierClass}">
+      <div class="card-item-container" style="margin-bottom: 24px; perspective: 1000px;">
+        <div class="card-visual-3d ${tierClass}" style="${frozen ? 'filter: grayscale(1); opacity: 0.8;' : ''}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div class="card-chip"></div>
-            <div>
-              <div class="card-network">Meridian Trust</div>
-              <div class="card-tier-label">${tierLabel}</div>
+            <div class="card-chip-3d"></div>
+            <div style="text-align:right;">
+              <div class="card-network" style="font-weight:700; letter-spacing:1px; font-size:14px; text-transform:uppercase;">Meridian Trust</div>
+              <div class="card-tier-label" style="font-size:11px; opacity:0.8; text-transform:uppercase; letter-spacing:2px;">${tierLabel}</div>
             </div>
           </div>
-          <div>
-            <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;${c.cardNumber.slice(-4)}</div>
+          <div style="margin-top:16px;">
+            <div class="card-number-3d">•••• •••• •••• ${c.cardNumber.slice(-4)}</div>
           </div>
-          <div style="display:flex;justify-content:flex-end;align-items:flex-end;">
-            <div style="text-align:right;"><div class="card-label">Expires</div><div class="card-value">${c.expiry}</div></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end; margin-top:12px;">
+            <div style="text-transform:uppercase; font-size:11px; opacity:0.8;">
+              <div style="font-size:9px;">Cardholder</div>
+              <div style="font-weight:600; font-size:13px; text-transform:uppercase;">${u.name}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:9px; text-transform:uppercase; opacity:0.8;">Expires</div>
+              <div style="font-weight:600; font-family:var(--font-mono); font-size:14px;">${c.expiry}</div>
+            </div>
           </div>
         </div>
-        ${frozen ? `<div class="frozen-label" style="margin-bottom:8px;">Card Frozen</div>` : ''}
-        <div class="card-actions">
-          <button class="btn btn-ghost btn-sm" onclick="toggleCard('${c.id}')">${frozen ? 'Unfreeze Card' : 'Freeze Card'}</button>
-          <button class="btn btn-ghost btn-sm" onclick="showCardAuthModal('${c.id}')">View Details</button>
+        ${frozen ? `<div class="frozen-label" style="margin-top:12px; color:var(--red); font-weight:600; text-align:center; font-size:13px;">Card Frozen</div>` : ''}
+        <div class="card-actions" style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" style="flex:1; border-radius:20px;" onclick="toggleCard('${c.id}')">${frozen ? 'Unfreeze' : 'Freeze'} Card</button>
+          <button class="btn btn-outline btn-sm" style="flex:1; border-radius:20px;" onclick="showCardAuthModal('${c.id}')">Details</button>
         </div>
       </div>
     `;
-  }).join('<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">');
+  }).join('');
 
   const firstName = u.name ? u.name.split(' ')[0] : 'Client';
   let dynamicGreeting = `Welcome back, ${firstName}`;
@@ -1622,21 +1637,21 @@ function renderDashboard() {
 
   setRoot(`
     <div class="app-container">
-      <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(16px, 5vw, 40px); border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
-        <div style="position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius:50%;"></div>
-        <div style="position:absolute; bottom:-30%; left:-10%; width:400px; height:400px; background:radial-gradient(circle, rgba(165,117,15,0.1) 0%, transparent 70%); border-radius:50%;"></div>
+      <div class="glass-panel" style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(24px, 5vw, 40px); margin-bottom: 30px; position: relative; overflow: hidden; border:none;">
+        <div style="position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius:50%;"></div>
+        <div style="position:absolute; bottom:-30%; left:-10%; width:400px; height:400px; background:radial-gradient(circle, rgba(165,117,15,0.15) 0%, transparent 70%); border-radius:50%;"></div>
         <div style="position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:32px;">
           
           <div style="flex: 1 1 100%; min-width: 0;">
-            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:8px;">Meridian Trust Private Client</div>
-            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(24px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">${dynamicGreeting}</h2>
+            <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.7); margin-bottom:8px;">Meridian Trust Private Client</div>
+            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(28px, 6vw, 42px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">${dynamicGreeting}</h2>
           </div>
 
           <div style="flex: 1 1 100%; min-width: 0;">
-            <div style="font-size: 13px; text-transform:uppercase; color:rgba(255,255,255,0.6); font-weight:600; letter-spacing:0.08em; margin-bottom:8px;">Total Net Assets</div>
-            <div style="display:flex; align-items:center; gap:16px;">
-              <div style="font-size: clamp(28px, 8vw, 46px); font-weight:800; font-family:var(--font-sans); line-height:1; letter-spacing:-0.02em; word-break: break-word;">${maskBalance(netAssets, 'USD')}</div>
-              <button onclick="toggleBalanceVisibility()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); cursor:pointer; color:#fff; padding:10px; border-radius:50%; transition:all 0.2s ease; flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
+            <div style="font-size: 13px; text-transform:uppercase; color:rgba(255,255,255,0.7); font-weight:600; letter-spacing:0.08em; margin-bottom:8px;">Total Net Assets</div>
+            <div class="hero-balance-container">
+              <div style="font-size: clamp(32px, 8vw, 52px); font-weight:800; font-family:'Outfit', var(--font-sans); line-height:1; letter-spacing:-0.02em; word-break: break-word;">${maskBalance(netAssets, 'USD')}</div>
+              <button onclick="toggleBalanceVisibility()" style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); cursor:pointer; color:#fff; padding:12px; border-radius:50%; transition:all 0.3s ease; flex-shrink:0; backdrop-filter:blur(4px);" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
                 ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
               </button>
             </div>
@@ -1652,10 +1667,10 @@ function renderDashboard() {
             <div onclick="selectAccount('${a.id}')" style="padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px); cursor:pointer; display:flex; align-items:center; gap: clamp(10px, 3vw, 16px); border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
               <div style="width:12px; height:12px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
               <div style="flex:1;">
-                <div style="font-weight:700; color:var(--text-primary); font-size: 16px;">${a.type === 'market' ? 'Money Market' : (a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : '')}</div>
-                <div style="font-size: 13px; color:var(--text-muted); font-family:monospace; margin-top:2px;">Account *${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
+                <div style="font-weight:700; color:var(--text-primary); font-size: 16px; font-family:'Outfit', sans-serif;">${a.type === 'market' ? 'Money Market' : (a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : '')}</div>
+                <div style="font-size: 13px; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">Account *${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
               </div>
-              <div style="font-weight:800; color:var(--citi-navy); font-size: clamp(14px, 4vw, 16px);">${maskBalance(a.balance, a.currency)}</div>
+              <div style="font-weight:800; color:var(--citi-navy); font-size: clamp(14px, 4vw, 16px); font-family:'Outfit', sans-serif;">${maskBalance(a.balance, a.currency)}</div>
             </div>
           `).join('');
 
@@ -1663,22 +1678,22 @@ function renderDashboard() {
             <div style="position:relative; width:100%; font-family:var(--font-sans);">
               <div style="font-size: 14px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; letter-spacing:0.05em;">Active Funding Account</div>
               
-              <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:clamp(12px, 4vw, 20px); cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.12); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,44,119,0.2)'" onmouseout="this.style.boxShadow='0 6px 16px rgba(0,44,119,0.12)'">
+              <div onclick="toggleAccountSelector()" class="hero-glass-selector">
                 <div style="display:flex; align-items:center; gap:16px;">
                   <div style="width:clamp(40px, 10vw, 54px); height:clamp(40px, 10vw, 54px); border-radius:12px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy); flex-shrink:0;">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                   </div>
                   <div>
-                    <div style="font-size: clamp(15px, 4vw, 17px); font-weight:800; color:var(--citi-navy); line-height:1.2; margin-bottom:4px;">${selectedAcc.type === 'market' ? 'Money Market' : (selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : '')} <span style="color:var(--text-muted); font-size: clamp(12px, 3.5vw, 14px); font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
-                    <div style="font-size: clamp(18px, 5vw, 22px); font-weight:800; color:var(--text-primary); font-family:var(--font-sans); margin-top:2px; line-height:1;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
+                    <div style="font-size: clamp(15px, 4vw, 17px); font-weight:800; color:var(--citi-navy); line-height:1.2; margin-bottom:4px; font-family:'Outfit', sans-serif;">${selectedAcc.type === 'market' ? 'Money Market' : (selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : '')} <span style="color:var(--text-muted); font-size: clamp(12px, 3.5vw, 14px); font-family:var(--font-mono); font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
+                    <div style="font-size: clamp(18px, 5vw, 22px); font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif; margin-top:2px; line-height:1;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
                   </div>
                 </div>
-                <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding: clamp(4px, 1vw, 8px); border-radius:50%; flex-shrink:0; margin-left: 8px;">
+                <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding: clamp(6px, 1.5vw, 10px); border-radius:50%; flex-shrink:0; margin-left: 8px;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
               </div>
 
-              <div id="acc-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:10px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
+              <div id="acc-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:10px; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
                 ${dropdownItems}
               </div>
             </div>
@@ -1687,36 +1702,56 @@ function renderDashboard() {
       </div>
 
       <!-- Quick Actions -->
-      <div class="quick-actions" style="margin-top:20px;">
-        <button class="quick-action-btn quick-action-span-2" onclick="nav('#/portal/digital-banking/wire-transfer')">
-          <div class="quick-action-icon">${icons.send}</div>
-          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size: 16px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
-        </button>
+      <div class="quick-actions-grid">
+        <div class="quick-action-card" onclick="nav('#/portal/digital-banking/wire-transfer')">
+          <div class="icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </div>
+          <div class="quick-action-title">Wire Transfer</div>
+        </div>
+        <div class="quick-action-card" onclick="toast('Coming Soon', 'Internal transfers will be available shortly.', 'info')">
+          <div class="icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </div>
+          <div class="quick-action-title">Internal Transfer</div>
+        </div>
+        <div class="quick-action-card" onclick="toast('Statements Generating', 'Your statements are currently being compiled.', 'info')">
+          <div class="icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div class="quick-action-title">Statements</div>
+        </div>
+        <div class="quick-action-card" onclick="toast('Support', 'Connecting to concierge...', 'info')">
+          <div class="icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          </div>
+          <div class="quick-action-title">Concierge</div>
+        </div>
       </div>
 
-      <div class="dash-grid">
+      <div class="dash-grid" style="margin-top: 32px;">
         <!-- Transactions -->
         <div>
-          <div class="panel">
-            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="panel-title" style="font-size: 16px;">Transaction Ledger</span>
-              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size: 12px; font-weight:600;">
-                View All Transactions
+          <div class="panel" style="box-shadow:var(--shadow-md); border-radius:16px; border:1px solid var(--border);">
+            <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px;">
+              <span class="panel-title" style="font-size: 18px; font-family:'Outfit', sans-serif;">Transaction Ledger</span>
+              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 6px 12px; font-size: 13px; font-weight:600; border-radius:20px; background:var(--bg-muted);">
+                View All
               </button>
             </div>
             <div style="overflow-x:auto;">
-              <table class="txn-table">
+              <table class="txn-table" style="width:100%; border-collapse:collapse;">
                 <thead>
-                  <tr>
-                    <th style="font-size: 13px;">Description</th>
-                    <th style="font-size: 13px;">Date & Time</th>
-                    <th style="font-size: 13px;">Status</th>
-                    <th style="text-align:right; font-size: 13px;">Amount</th>
+                  <tr style="border-bottom:1px solid var(--border);">
+                    <th style="font-size: 12px; text-transform:uppercase; color:var(--text-muted); padding:12px 16px; font-weight:600; text-align:left;">Description</th>
+                    <th style="font-size: 12px; text-transform:uppercase; color:var(--text-muted); padding:12px 16px; font-weight:600; text-align:left;">Date & Time</th>
+                    <th style="font-size: 12px; text-transform:uppercase; color:var(--text-muted); padding:12px 16px; font-weight:600; text-align:left;">Status</th>
+                    <th style="font-size: 12px; text-transform:uppercase; color:var(--text-muted); padding:12px 16px; font-weight:600; text-align:right;">Amount</th>
                   </tr>
                 </thead>
                 <tbody>${txRows}</tbody>
               </table>
-              <div class="txn-list-mobile">
+              <div class="txn-list-mobile" style="display:none;">
                 ${txMobileRows}
               </div>
             </div>
@@ -1725,13 +1760,13 @@ function renderDashboard() {
 
         <!-- Cards & Actions -->
         <div>
-          <div class="panel" style="margin-bottom:20px;">
-            <div class="panel-header">
-              <span class="panel-title" style="font-size: 16px;">Payment Cards</span>
+          <div class="panel" style="margin-bottom:20px; background:transparent; box-shadow:none; padding:0;">
+            <div class="panel-header" style="margin-bottom:16px;">
+              <span class="panel-title" style="font-size: 18px; font-family:'Outfit', sans-serif; color:var(--text-primary);">Payment Cards</span>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="padding:0;">
               ${state.cards.length ? cardPanels : '<p style="color:var(--text-muted);font-size: 15px;">No cards on file.</p>'}
-              <button class="btn btn-secondary btn-full btn-sm" style="margin-top:16px;" onclick="issueVirtualCard()">
+              <button class="btn btn-secondary btn-full" style="margin-top:16px; border-radius:12px; padding:14px; font-weight:600; font-size:15px; background:#fff; color:var(--citi-navy); border:2px dashed var(--border-strong); box-shadow:none;" onclick="issueVirtualCard()">
                 ${icons.card} &nbsp; Issue New Virtual Card
               </button>
             </div>
