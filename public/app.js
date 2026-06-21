@@ -1670,36 +1670,7 @@ function renderWireTransfer() {
   `;
 
   // Step wizard progress indicator
-  const stepsDef = [
-    { num: 1, label: 'Amount' },
-    { num: 2, label: 'Beneficiary' },
-    { num: 3, label: 'Bank Details' },
-    { num: 4, label: 'Authorize' },
-    { num: 5, label: 'Verify' },
-    { num: 6, label: 'Success' }
-  ];
-
-  const progressHtml = `
-    <div class="wire-progress-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; position:relative; background:var(--bg-card); padding:16px; border-radius:12px; border:1px solid var(--border);">
-      <div style="position:absolute; top:50%; left:40px; right:40px; height:2px; background:var(--border); z-index:1; transform:translateY(-50%);"></div>
-      <div style="position:absolute; top:50%; left:40px; width:${((state.wireStep - 1) / 5) * 100}%; height:2px; background:#002C77; z-index:1; transform:translateY(-50%); transition: width 0.3s ease;"></div>
-      ${stepsDef.map(s => {
-        const isActive = state.wireStep === s.num;
-        const isDone = state.wireStep > s.num;
-        const bg = isDone ? '#002C77' : isActive ? 'var(--citi-blue, #0066CC)' : 'var(--border)';
-        const color = isDone || isActive ? '#ffffff' : 'var(--text-muted)';
-        const textWeight = isActive ? '700' : '500';
-        return `
-          <div style="display:flex; flex-direction:column; align-items:center; z-index:2; position:relative; width:60px;">
-            <div style="width:28px; height:28px; border-radius:50%; background:${bg}; color:${color}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; transition:all 0.3s ease;">
-              ${isDone ? '✔' : s.num}
-            </div>
-            <span style="font-size:10px; margin-top:6px; font-weight:${textWeight}; color:${isActive ? 'var(--citi-navy)' : 'var(--text-muted)'}; text-align:center; white-space:nowrap;">${s.label}</span>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+  const progressHtml = '';
 
   let currentStepFormHtml = '';
 
