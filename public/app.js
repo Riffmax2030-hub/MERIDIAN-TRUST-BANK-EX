@@ -585,6 +585,28 @@ window.showCardDetails = (id) => {
   showCustomModal('Virtual Card Secure Details', b, null, null, 'Close Details');
 };
 
+window.showCardAuthModal = (id) => {
+  const b = `
+    <div style="margin-bottom:16px; font-size:15px; color:var(--text-secondary); line-height:1.5;">
+      For your security, please enter your portal login password to reveal sensitive card information (CVV and Full Number).
+    </div>
+    <input type="password" id="card-auth-pwd" class="form-input" placeholder="Enter Password" style="width:100%; font-size:16px; padding:12px;">
+  `;
+  
+  showCustomModal('Security Verification', b, () => {
+    const pwd = document.getElementById('card-auth-pwd').value;
+    if (pwd && pwd.length > 0) {
+      showLoader('Authenticating', 'Verifying secure credentials...');
+      setTimeout(() => {
+        hideLoader();
+        showCardDetails(id);
+      }, 1200);
+    } else {
+      toast('Verification Failed', 'Password is required to view secure details.', 'error');
+    }
+  }, null, 'Unlock Details', 'Cancel');
+};
+
 // Form Validation System for visual errors (asterisk & red borders)
 function validateForm(formId) {
   const form = document.getElementById(formId);
@@ -1550,7 +1572,7 @@ function renderDashboard() {
         ${frozen ? `<div class="frozen-label" style="margin-bottom:8px;">Card Frozen</div>` : ''}
         <div class="card-actions">
           <button class="btn btn-ghost btn-sm" onclick="toggleCard('${c.id}')">${frozen ? 'Unfreeze Card' : 'Freeze Card'}</button>
-          <button class="btn btn-ghost btn-sm" onclick="showCardDetails('${c.id}')">View Details</button>
+          <button class="btn btn-ghost btn-sm" onclick="showCardAuthModal('${c.id}')">View Details</button>
         </div>
       </div>
     `;
@@ -1665,7 +1687,7 @@ function renderDashboard() {
         <div>
           <div class="panel" style="margin-bottom:20px;">
             <div class="panel-header">
-              <span class="panel-title">Payment Cards</span>
+              <span class="panel-title" style="font-size: 16px;">Payment Cards</span>
             </div>
             <div class="panel-body">
               ${state.cards.length ? cardPanels : '<p style="color:var(--text-muted);font-size: 15px;">No cards on file.</p>'}
