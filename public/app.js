@@ -2112,41 +2112,6 @@ window.submitWireTransfer = async function() {
     toast('Transfer Failed', err.message, 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Authorize & Submit Transfer'; }
   }
-};rimary btn-full" style="margin-top:16px;">Transmit International Wire</button>
-        </form>
-      </div>
-    </div>
-  `;
-
-  setRoot(`
-    <div class="app-container transfer-shell">
-      <div class="page-header" style="margin-bottom:20px;">
-        <div>
-          <h2 class="page-greeting">SWIFT Wire Transfer Center</h2>
-          <p class="page-subtext">Manage outbound international wires or view incoming transfer routing instructions.</p>
-        </div>
-      </div>
-
-      <!-- Tab Toggle buttons group -->
-      <div style="display:flex; gap:10px; margin-bottom:24px;">
-        <button id="btn-tab-send" class="btn ${currentWireTab === 'send' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('send')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
-          Send Wire Transfer
-        </button>
-        <button id="btn-tab-details" class="btn ${currentWireTab === 'details' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('details')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
-          Incoming Wire Details
-        </button>
-      </div>
-
-      <div id="wire-tab-content">
-        ${currentWireTab === 'send' ? formHtml : detailsHtml}
-      </div>
-    </div>
-  `);
-}
-
-window.setWireTab = function(tab) {
-  currentWireTab = tab;
-  renderWireTransfer();
 };
 
 // ── Intrabank Account Transfer Module ──────────────────────────────────────────
