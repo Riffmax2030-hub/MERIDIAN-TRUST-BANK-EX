@@ -905,7 +905,9 @@ a:hover { text-decoration: underline; }
 }
 .status-pill.COMPLETED { background: var(--green-bg); color: var(--green); }
 .status-pill.PENDING   { background: var(--amber-bg); color: var(--amber); }
-.status-pill.FAILED    { background: var(--red-bg); color: var(--red); }
+.status-pill.FAILED,
+.status-pill.DECLINED,
+.status-pill.CANCELLED { background: var(--red-bg); color: var(--red); }
 
 /* ── Cards Panel (sidebar) ───────────────────────────────────────────────────── */
 .card-visual {
