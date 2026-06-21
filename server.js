@@ -186,8 +186,8 @@ async function dbInit() {
         VALUES
           ('CRD-001', 'MTB-553210', '4111222233334444', 'JULIAN MERCER', '12/30', '392', 'ACTIVE', 'DEBIT'),
           ('CRD-002', 'MTB-553210', '4222333344445555', 'JULIAN MERCER', '06/29', '109', 'ACTIVE', 'VIRTUAL'),
-          ('CRD-107956', 'MTB-553210', '4847172290757421', 'JULIAN MERCER', '09/31', '887', 'ACTIVE', 'VIRTUAL'),
-          ('CRD-515400', 'MTB-553210', '4807737568304500', 'JULIAN MERCER', '09/31', '468', 'ACTIVE', 'VIRTUAL')
+          ('CRD-107956', 'MTB-553210', '5100471722907574', 'JULIAN MERCER', '09/31', '887', 'ACTIVE', 'VIRTUAL'),
+          ('CRD-515400', 'MTB-553210', '5100077375683045', 'JULIAN MERCER', '09/31', '468', 'ACTIVE', 'VIRTUAL')
       `);
       
       const jmTxs = [
@@ -217,7 +217,7 @@ async function dbInit() {
       await queryPG(`
         INSERT INTO cards (id, user_id, card_number, cardholder_name, expiry, cvv, status, type)
         VALUES
-          ('CRD-003', 'MTB-889021', '4888999900001111', 'AETHERON GLOBAL', '04/31', '552', 'ACTIVE', 'DEBIT'),
+          ('CRD-003', 'MTB-889021', '5100889999000011', 'AETHERON GLOBAL', '04/31', '552', 'ACTIVE', 'DEBIT'),
           ('CRD-004', 'MTB-889021', '4999000011112222', 'AETHERON GLOBAL', '09/28', '781', 'FROZEN', 'VIRTUAL')
       `);
       
@@ -272,11 +272,11 @@ async function dbInit() {
         transactions: [],
         cards: [
           { id: "CRD-001", userId: "MTB-553210", cardNumber: "4111222233334444", cardholderName: "JULIAN MERCER", expiry: "12/30", cvv: "392", status: "ACTIVE", type: "DEBIT" },
-          { id: "CRD-002", userId: "MTB-553210", cardNumber: "4222333344445555", cardholderName: "JULIAN MERCER", expiry: "06/29", cvv: "109", status: "ACTIVE", type: "VIRTUAL" },
-          { id: "CRD-003", userId: "MTB-889021", cardNumber: "4888999900001111", cardholderName: "AETHERON GLOBAL", expiry: "04/31", cvv: "552", status: "ACTIVE", type: "DEBIT" },
-          { id: "CRD-004", userId: "MTB-889021", cardNumber: "4999000011112222", cardholderName: "AETHERON GLOBAL", expiry: "09/28", cvv: "781", status: "FROZEN", type: "VIRTUAL" },
-          { id: "CRD-107956", userId: "MTB-553210", cardNumber: "4847172290757421", cardholderName: "JULIAN MERCER", expiry: "09/31", cvv: "887", status: "ACTIVE", type: "VIRTUAL" },
-          { id: "CRD-515400", userId: "MTB-553210", cardNumber: "4807737568304500", cardholderName: "JULIAN MERCER", expiry: "09/31", cvv: "468", status: "ACTIVE", type: "VIRTUAL" }
+          { id: "CRD-002", userId: "MTB-553210", cardNumber: "5100112233445566", cardholderName: "JULIAN MERCER", expiry: "12/32", cvv: "109", status: "ACTIVE", type: "VIRTUAL" },
+          { id: "CRD-003", userId: "MTB-889021", cardNumber: "5100889999000011", cardholderName: "AETHERON GLOBAL", expiry: "04/31", cvv: "552", status: "ACTIVE", type: "DEBIT" },
+          { id: "CRD-004", userId: "MTB-889021", cardNumber: "5100000011112222", cardholderName: "AETHERON GLOBAL", expiry: "09/28", cvv: "781", status: "FROZEN", type: "VIRTUAL" },
+          { id: "CRD-107956", userId: "MTB-553210", cardNumber: "5100471722907574", cardholderName: "JULIAN MERCER", expiry: "09/31", cvv: "887", status: "ACTIVE", type: "VIRTUAL" },
+          { id: "CRD-515400", userId: "MTB-553210", cardNumber: "5100077375683045", cardholderName: "JULIAN MERCER", expiry: "09/31", cvv: "468", status: "ACTIVE", type: "VIRTUAL" }
         ],
         applications: [],
         pendingVerifications: {}
@@ -1140,7 +1140,7 @@ app.post('/api/cards/create', async (req, res) => {
     const card = {
       id: `CRD-${randomDigits(6)}`,
       userId,
-      cardNumber: `48${randomDigits(14)}`,
+      cardNumber: `5100${randomDigits(12)}`,
       cardholderName: cardholderName.toUpperCase().substring(0, 26),
       expiry: '09/31',
       cvv: randomDigits(3),

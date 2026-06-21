@@ -548,6 +548,43 @@ function closeCustomModal(isConfirmed) {
 window.showCustomModal = showCustomModal;
 window.closeCustomModal = closeCustomModal;
 
+window.showCardDetails = (id) => {
+  const c = state.cards.find(x => x.id === id);
+  if (!c) return;
+  
+  const spacedNumber = c.cardNumber.replace(/(.{4})/g, '$1 ').trim();
+  const b = `
+    <div style="font-family:'Inter', sans-serif; font-size:16px; margin-bottom:8px;">
+      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;">Network</div>
+          <div style="font-weight:700; color:var(--citi-navy); font-size:15px;">Mastercard Debit</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;">Card Number</div>
+          <div style="font-weight:700; color:var(--text-primary); font-size:16px; font-family:'Roboto Condensed', monospace; letter-spacing:1px;">${spacedNumber}</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;">Cardholder</div>
+          <div style="font-weight:700; color:var(--text-primary); font-size:15px;">${c.cardholderName}</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;">Expiry Date</div>
+          <div style="font-weight:700; color:var(--text-primary); font-size:15px;">${c.expiry}</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:600; color:var(--text-muted); font-size:13px; text-transform:uppercase; letter-spacing:0.05em;">VBV / Security Code (CVV)</div>
+          <div style="font-weight:800; color:#000; font-size:16px; background:#e2e8f0; padding:4px 10px; border-radius:6px; letter-spacing:2px; font-family:monospace;">${c.cvv}</div>
+        </div>
+      </div>
+      <div style="font-size:14px; color:var(--text-muted); line-height:1.5;">
+        This Mastercard is currently <span style="font-weight:700; color:${c.status === 'ACTIVE' ? 'var(--success)' : 'var(--danger)'};">${c.status}</span>. Use these verified details for online transactions, telephone purchases, or manual terminal entry.
+      </div>
+    </div>
+  `;
+  showCustomModal('Virtual Card Secure Details', b, null, null, 'Close Details');
+};
+
 // Form Validation System for visual errors (asterisk & red borders)
 function validateForm(formId) {
   const form = document.getElementById(formId);
@@ -1404,6 +1441,13 @@ window.selectAccount = (id) => {
   }
 };
 
+window.showCardDetails = (id) => {
+  const card = state.cards.find(c => c.id === id);
+  if (card) {
+    alert(`Card Details:\nNumber: ${card.cardNumber}\nExpiry: ${card.expiry}\nCVV: ${card.cvv}`);
+  }
+};
+
 function renderDashboard() {
   const u = state.user;
   
@@ -1440,35 +1484,33 @@ function renderDashboard() {
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
         </td>
         <td>
-          <div class="txn-desc">${t.description}</div>
-          <div class="txn-party">${t.counterparty}</div>
+          <div class="txn-desc" style="font-size:14px;">${t.description}</div>
+          <div class="txn-party" style="font-size:12px; color:var(--text-muted); font-family:monospace;">TRX-${t.id.slice(0, 8).toUpperCase()}</div>
         </td>
-        <td class="txn-date">${fmtDateTime(t.date)}</td>
+        <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
         <td>
-          <span class="status-pill ${t.status}">${t.status}</span>
+          <span class="status-pill ${t.status}" style="font-size:11px; padding:2px 8px;">${t.status}</span>
         </td>
-        <td class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+        <td class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:15px;">
           ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
         </td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 15px;">No transactions on record.</td></tr>`;
+  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transactions on record.</td></tr>`;
 
   const txMobileRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
-    const accLabel = resolveAccountLabel(t.accountId);
     return `
-      <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')">
-        <div class="txn-mobile-left">
-          <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
+      <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')" style="padding:10px 14px;">
+        <div class="txn-mobile-left" style="gap:10px;">
+          <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           <div class="txn-mobile-info">
-            <div class="txn-desc">${t.description}</div>
-            <div class="txn-party">${t.counterparty} <span style="font-size: 14px; color:var(--text-muted);">(${accLabel})</span></div>
-            <div class="txn-date">${fmtDateTime(t.date)}</div>
+            <div class="txn-desc" style="font-size:13px; font-weight:600; margin-bottom:2px;">${t.description}</div>
+            <div class="txn-party" style="font-size:11px; color:var(--text-muted); font-family:monospace;">TRX-${t.id.slice(0, 8).toUpperCase()}</div>
           </div>
         </div>
         <div class="txn-mobile-right">
-          <div class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+          <div class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:14px; margin-bottom:2px;">
             ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
@@ -1508,7 +1550,7 @@ function renderDashboard() {
         ${frozen ? `<div class="frozen-label" style="margin-bottom:8px;">Card Frozen</div>` : ''}
         <div class="card-actions">
           <button class="btn btn-ghost btn-sm" onclick="toggleCard('${c.id}')">${frozen ? 'Unfreeze Card' : 'Freeze Card'}</button>
-          <button class="btn btn-ghost btn-sm" disabled style="opacity:0.4;">View Details</button>
+          <button class="btn btn-ghost btn-sm" onclick="showCardDetails('${c.id}')">View Details</button>
         </div>
       </div>
     `;
@@ -1575,7 +1617,7 @@ function renderDashboard() {
           </div>
           <div>
             <span class="kyc-badge ${u.kycStatus}">
-              ${icons.check} KYC ${u.kycStatus}
+              ${icons.check} KYC ${u.kycStatus === 'approved' ? 'Verified' : u.kycStatus}
             </span>
           </div>
         </div>
@@ -2205,14 +2247,57 @@ async function loadIntrabankTransfer() {
   renderIntrabankTransfer();
 }
 
-function renderIntrabankTransfer() {
-  const fromOpts = state.accounts.map(a =>
-    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`
-  ).join('');
+window.toggleIntrabankFrom = () => {
+  const dd = document.getElementById('intra-from-dropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+};
 
-  const toOpts = state.accounts.map(a =>
-    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`
-  ).join('');
+window.toggleIntrabankTo = () => {
+  const dd = document.getElementById('intra-to-dropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+};
+
+window.selectIntrabankFrom = (id) => {
+  state.intraFromId = id;
+  if (state.intraToId === id) state.intraToId = null;
+  renderIntrabankTransfer();
+};
+
+window.selectIntrabankTo = (id) => {
+  state.intraToId = id;
+  renderIntrabankTransfer();
+};
+
+function renderIntrabankTransfer() {
+  if (!state.intraFromId && state.accounts.length > 0) state.intraFromId = state.accounts[0].id;
+  
+  const fromAcc = state.accounts.find(a => a.id === state.intraFromId) || state.accounts[0] || {};
+  const toAccounts = state.accounts.filter(a => a.id !== state.intraFromId);
+  
+  if (!state.intraToId && toAccounts.length > 0) state.intraToId = toAccounts[0].id;
+  const toAcc = state.accounts.find(a => a.id === state.intraToId) || toAccounts[0] || {};
+
+  const fromDropdownItems = state.accounts.map(a => `
+    <div onclick="selectIntrabankFrom('${a.id}')" style="padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+      <div style="width:10px; height:10px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
+      <div style="flex:1;">
+        <div style="font-weight:700; color:var(--text-primary); font-size:18px;">${a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : ''} Account</div>
+        <div style="font-size:15px; color:var(--text-muted); font-family:monospace;">*${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
+      </div>
+      <div style="font-weight:800; color:var(--citi-navy); font-size:18px;">${fmtMoney(a.balance, a.currency)}</div>
+    </div>
+  `).join('');
+
+  const toDropdownItems = toAccounts.map(a => `
+    <div onclick="selectIntrabankTo('${a.id}')" style="padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+      <div style="width:10px; height:10px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
+      <div style="flex:1;">
+        <div style="font-weight:700; color:var(--text-primary); font-size:18px;">${a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : ''} Account</div>
+        <div style="font-size:15px; color:var(--text-muted); font-family:monospace;">*${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
+      </div>
+      <div style="font-weight:800; color:var(--citi-navy); font-size:18px;">${fmtMoney(a.balance, a.currency)}</div>
+    </div>
+  `).join('');
 
   setRoot(`
     <div class="app-container">
@@ -2230,22 +2315,55 @@ function renderIntrabankTransfer() {
           <div class="panel-header"><span class="panel-title">Transfer Parameters</span></div>
           <div class="panel-body" style="padding:24px;">
             <form id="intrabank-form" onsubmit="handleIntrabankTransfer(event)">
-              <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer From (Source Account)</label>
-                <select id="t-from-acc" class="form-select" onchange="updateIntrabankToOptions()" style="width:100%;">${fromOpts}</select>
+              
+              <div class="form-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
+                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer From (Source Account)</label>
+                <div onclick="toggleIntrabankFrom()" style="background:#fff; border:2px solid var(--citi-navy); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 12px rgba(0,44,119,0.08); transition:all 0.2s;">
+                  <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:48px; height:48px; border-radius:10px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy);">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size:18px; font-weight:800; color:var(--citi-navy);">${fromAcc.type ? (fromAcc.type.charAt(0).toUpperCase() + fromAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:14px; font-family:monospace; font-weight:600;">(*${fromAcc.accountNumber ? fromAcc.accountNumber.slice(-4) : ''})</span></div>
+                      <div style="font-size:22px; font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif;">${fmtMoney(fromAcc.balance, fromAcc.currency)}</div>
+                    </div>
+                  </div>
+                  <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:6px; border-radius:50%;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+                <div id="intra-from-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:8px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
+                  ${fromDropdownItems}
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer To (Destination Account)</label>
-                <select id="t-to-acc" class="form-select" style="width:100%;">${toOpts}</select>
+              <div class="form-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
+                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer To (Destination Account)</label>
+                <div onclick="toggleIntrabankTo()" style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all 0.2s;">
+                  <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:48px; height:48px; border-radius:10px; background:rgba(0,102,204,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-blue);">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size:18px; font-weight:800; color:var(--text-primary);">${toAcc.type ? (toAcc.type.charAt(0).toUpperCase() + toAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:14px; font-family:monospace; font-weight:600;">(*${toAcc.accountNumber ? toAcc.accountNumber.slice(-4) : ''})</span></div>
+                      <div style="font-size:16px; font-weight:600; color:var(--text-muted); font-family:'Outfit', sans-serif;">Balance: ${fmtMoney(toAcc.balance, toAcc.currency)}</div>
+                    </div>
+                  </div>
+                  <div style="color:var(--text-muted); background:rgba(0,0,0,0.04); padding:6px; border-radius:50%;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+                <div id="intra-to-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:8px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
+                  ${toDropdownItems}
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 24px;">
+              <div class="form-group" style="margin-bottom: 30px;">
                 <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer Amount (USD)</label>
-                <input id="t-amount" type="number" step="0.01" min="0.01" class="form-input" placeholder="0.00" required style="width:100%;">
+                <input id="t-amount" type="number" step="0.01" min="0.01" class="form-input" placeholder="0.00" required style="width:100%; font-size:24px; padding:16px; font-weight:700;">
               </div>
 
-              <button type="submit" class="btn btn-primary btn-full" style="padding:12px; font-weight:600; font-size: 16px; width:100%;">
+              <button type="submit" class="btn btn-primary btn-full" style="padding:16px; font-weight:700; font-size: 18px; width:100%; letter-spacing:0.5px;">
                 Execute Instant Transfer
               </button>
             </form>
@@ -2254,34 +2372,18 @@ function renderIntrabankTransfer() {
       </div>
     </div>
   `);
-
-  updateIntrabankToOptions();
 }
 
-window.updateIntrabankToOptions = function() {
-  const fromSelect = document.getElementById('t-from-acc');
-  const toSelect = document.getElementById('t-to-acc');
-  if (!fromSelect || !toSelect) return;
-  const selectedFrom = fromSelect.value;
-  
-  const currentToVal = toSelect.value;
-  toSelect.innerHTML = state.accounts
-    .filter(a => a.id !== selectedFrom)
-    .map(a => `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`)
-    .join('');
-  
-  if (currentToVal && currentToVal !== selectedFrom) {
-    toSelect.value = currentToVal;
-  }
-};
+window.updateIntrabankToOptions = function() {}; // stubbed out since we replaced it
 
 async function handleIntrabankTransfer(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
+
   btn.disabled = true; btn.textContent = 'Processing…';
 
-  const fromAccId = v('t-from-acc');
-  const toAccId   = v('t-to-acc');
+  const fromAccId = state.intraFromId;
+  const toAccId   = state.intraToId;
   const amt       = parseFloat(v('t-amount'));
 
   const fromAcc = state.accounts.find(a => a.id === fromAccId);
