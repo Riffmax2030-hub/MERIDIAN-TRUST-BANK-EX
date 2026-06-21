@@ -3678,7 +3678,10 @@ function drawHistoryChart(txs) {
 window.changeHistoryPage = function(delta) {
   if (state.historyFilter) {
     state.historyFilter.page += delta;
-    applyHistoryFiltersAndRender();
+    showLoader('Loading Records...', 1000);
+    setTimeout(() => {
+      applyHistoryFiltersAndRender();
+    }, 1000);
   }
 };
 
