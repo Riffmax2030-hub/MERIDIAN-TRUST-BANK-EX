@@ -2393,3 +2393,45 @@ label.checkbox-invalid {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Mobile Transaction History Optimization */
+@media (max-width: 640px) {
+  .txn-table th {
+    padding: 10px 8px;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  .txn-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+  .txn-icon {
+    width: 26px;
+    height: 26px;
+  }
+  .txn-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+  .txn-desc {
+    font-size: 12.5px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  .txn-party {
+    font-size: 11px;
+    margin-top: 1px;
+  }
+  .txn-date {
+    font-size: 11px;
+  }
+  .txn-amount {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .status-pill {
+    font-size: 9px;
+    padding: 2px 5px;
+    letter-spacing: 0.02em;
+  }
+}

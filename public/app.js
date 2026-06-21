@@ -3128,10 +3128,29 @@ function drawHistoryChart(txs) {
   const canvas = document.getElementById('chart-history-trends');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dWidth = canvas.clientWidth || 800;
+  
+  // Resolve width from parent element to prevent layout spill on mobile
+  const parentEl = canvas.parentElement;
+  const dWidth = parentEl ? parentEl.clientWidth : (canvas.clientWidth || 350);
   const dHeight = 220;
+  
   canvas.width = dWidth;
   canvas.height = dHeight;
+  
+  // Attach resize redraw event listener once
+  if (!window._chartResizeListenerAttached) {
+    window._chartResizeListenerAttached = true;
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const activeCanvas = document.getElementById('chart-history-trends');
+        if (activeCanvas && state.filteredTransactions) {
+          drawHistoryChart(state.filteredTransactions);
+        }
+      }, 150);
+    });
+  }
   ctx.clearRect(0, 0, dWidth, dHeight);
 
   const filter = state.historyFilter;
