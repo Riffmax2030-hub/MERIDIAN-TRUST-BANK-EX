@@ -2723,6 +2723,14 @@ function closeWire2FAModal() {
 }
 
 function showTransactionDetails(txnId) {
+  showLoader('Fetching Secure Details', 'Retrieving encrypted receipt data...');
+  setTimeout(() => {
+    hideLoader();
+    renderTransactionDetailsModal(txnId);
+  }, 1200);
+}
+
+function renderTransactionDetailsModal(txnId) {
   const txn = state.transactions.find(t => t.id === txnId);
   if (!txn) return;
 

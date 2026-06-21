@@ -1252,25 +1252,28 @@ a:hover { text-decoration: underline; }
   z-index: 910;
   width: 90%;
   max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-white);
   border: 1px solid var(--border);
   border-top: 4px solid var(--citi-navy);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  display: none;
 }
 
-.modal-box.show { display: block; }
+.modal-box.show { display: flex; }
 .modal-header {
   padding: 22px 28px 16px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 .modal-title { font-size: 17px; }
-.modal-body { padding: 22px 28px; }
-.modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+.modal-body { padding: 22px 28px; overflow-y: auto; }
+.modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
 
 /* ── Footer ──────────────────────────────────────────────────────────────────── */
 .main-footer {
