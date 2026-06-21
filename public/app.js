@@ -3339,8 +3339,7 @@ function renderTransactionHistory() {
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" style="font-size: 15px;">Search Description / Counterparty</label>
-              <input id="hist-search" type="text" class="form-input" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
+              <input id="hist-search" type="text" class="form-input" style="padding:14px; font-size:15px; border-radius:12px; border:1.5px solid var(--border);" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
             </div>
           </div>
         </div>
@@ -3674,7 +3673,10 @@ function drawHistoryChart(txs) {
 window.changeHistoryPage = function(delta) {
   if (state.historyFilter) {
     state.historyFilter.page += delta;
-    applyHistoryFiltersAndRender();
+    showLoader('Retrieving Archive...', 5000);
+    setTimeout(() => {
+      applyHistoryFiltersAndRender();
+    }, 5000);
   }
 };
 
