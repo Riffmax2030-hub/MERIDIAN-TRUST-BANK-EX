@@ -1605,20 +1605,20 @@ function renderDashboard() {
 
   setRoot(`
     <div class="app-container">
-      <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(24px, 5vw, 40px); border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(16px, 5vw, 40px); border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
         <div style="position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius:50%;"></div>
         <div style="position:absolute; bottom:-30%; left:-10%; width:400px; height:400px; background:radial-gradient(circle, rgba(165,117,15,0.1) 0%, transparent 70%); border-radius:50%;"></div>
         <div style="position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:32px;">
           
-          <div style="flex: 1 1 280px;">
+          <div style="flex: 1 1 100%; min-width: 0;">
             <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:8px;">Meridian Trust Private Client</div>
-            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(28px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
+            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(24px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
           </div>
 
-          <div style="flex: 1 1 280px;">
+          <div style="flex: 1 1 100%; min-width: 0;">
             <div style="font-size: 13px; text-transform:uppercase; color:rgba(255,255,255,0.6); font-weight:600; letter-spacing:0.08em; margin-bottom:8px;">Total Net Assets</div>
             <div style="display:flex; align-items:center; gap:16px;">
-              <div style="font-size: clamp(34px, 8vw, 46px); font-weight:800; font-family:var(--font-sans); line-height:1; letter-spacing:-0.02em;">${maskBalance(netAssets, 'USD')}</div>
+              <div style="font-size: clamp(28px, 8vw, 46px); font-weight:800; font-family:var(--font-sans); line-height:1; letter-spacing:-0.02em; word-break: break-word;">${maskBalance(netAssets, 'USD')}</div>
               <button onclick="toggleBalanceVisibility()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); cursor:pointer; color:#fff; padding:10px; border-radius:50%; transition:all 0.2s ease; flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
                 ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
               </button>
@@ -1632,13 +1632,13 @@ function renderDashboard() {
         ${(() => {
           const selectedAcc = state.accounts.find(a => a.id === state.selectedAccountId) || state.accounts[0] || {};
           const dropdownItems = state.accounts.map(a => `
-            <div onclick="selectAccount('${a.id}')" style="padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+            <div onclick="selectAccount('${a.id}')" style="padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px); cursor:pointer; display:flex; align-items:center; gap: clamp(10px, 3vw, 16px); border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
               <div style="width:12px; height:12px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
               <div style="flex:1;">
                 <div style="font-weight:700; color:var(--text-primary); font-size: 16px;">${a.type === 'market' ? 'Money Market' : (a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : '')}</div>
                 <div style="font-size: 13px; color:var(--text-muted); font-family:monospace; margin-top:2px;">Account *${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
               </div>
-              <div style="font-weight:800; color:var(--citi-navy); font-size: 16px;">${maskBalance(a.balance, a.currency)}</div>
+              <div style="font-weight:800; color:var(--citi-navy); font-size: clamp(14px, 4vw, 16px);">${maskBalance(a.balance, a.currency)}</div>
             </div>
           `).join('');
 
@@ -1646,18 +1646,18 @@ function renderDashboard() {
             <div style="position:relative; width:100%; font-family:var(--font-sans);">
               <div style="font-size: 14px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; letter-spacing:0.05em;">Active Funding Account</div>
               
-              <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:20px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.12); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,44,119,0.2)'" onmouseout="this.style.boxShadow='0 6px 16px rgba(0,44,119,0.12)'">
+              <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:clamp(12px, 4vw, 20px); cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.12); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,44,119,0.2)'" onmouseout="this.style.boxShadow='0 6px 16px rgba(0,44,119,0.12)'">
                 <div style="display:flex; align-items:center; gap:16px;">
-                  <div style="width:54px; height:54px; border-radius:12px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy);">
+                  <div style="width:clamp(40px, 10vw, 54px); height:clamp(40px, 10vw, 54px); border-radius:12px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy); flex-shrink:0;">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                   </div>
                   <div>
-                    <div style="font-size: 17px; font-weight:800; color:var(--citi-navy);">${selectedAcc.type === 'market' ? 'Money Market' : (selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : '')} <span style="color:var(--text-muted); font-size: 14px; font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
-                    <div style="font-size: 22px; font-weight:800; color:var(--text-primary); font-family:var(--font-sans); margin-top:2px;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
+                    <div style="font-size: clamp(15px, 4vw, 17px); font-weight:800; color:var(--citi-navy); line-height:1.2; margin-bottom:4px;">${selectedAcc.type === 'market' ? 'Money Market' : (selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : '')} <span style="color:var(--text-muted); font-size: clamp(12px, 3.5vw, 14px); font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
+                    <div style="font-size: clamp(18px, 5vw, 22px); font-weight:800; color:var(--text-primary); font-family:var(--font-sans); margin-top:2px; line-height:1;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
                   </div>
                 </div>
-                <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:8px; border-radius:50%;">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding: clamp(4px, 1vw, 8px); border-radius:50%; flex-shrink:0; margin-left: 8px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
               </div>
 

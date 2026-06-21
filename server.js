@@ -910,6 +910,7 @@ async function boot() {
   } catch (err) {
     if (usePostgres) {
       console.warn('[!] PostgreSQL initialization failed during boot. Falling back to local JSON database storage.');
+      console.error(err);
       usePostgres = false;
     }
   }
