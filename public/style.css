@@ -923,72 +923,108 @@ a:hover { text-decoration: underline; }
 }
 
 .card-visual.active {
-  background: linear-gradient(145deg, #e8e8e8 0%, #d1d5db 20%, #c0c5cc 40%, #b8bcc4 60%, #d4d8de 80%, #eaedf1 100%);
-  color: #1a1a2e;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 15%, #d1d5db 30%, #9ca3af 45%, #d1d5db 55%, #f3f4f6 75%, #e5e7eb 90%, #9ca3af 100%);
+  color: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1),
+    0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 .card-visual.active.diamond {
-  background: linear-gradient(145deg, #2b2b2b 0%, #1e1e1e 30%, #0f0f0f 70%, #050505 100%);
+  background: linear-gradient(135deg, #374151 0%, #1f2937 15%, #111827 30%, #030712 45%, #111827 55%, #1f2937 75%, #111827 90%, #030712 100%);
   color: #ffffff;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 30px rgba(0, 0, 0, 0.4);
 }
 
 .card-visual.active.diamond .card-network {
   color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
 .card-visual.active.diamond .card-tier-label {
-  color: #c5a880; /* Premium bronze/champagne gold color for luxury branding */
+  color: #d9b48f;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
 .card-visual.active.diamond .card-number-display {
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  color: #f9fafb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .card-visual.active.diamond .card-label {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .card-visual.active.diamond .card-value {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
 .card-visual.frozen {
-  background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #4b5563 100%);
-  filter: saturate(0.5);
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 50%, #4b5563 100%);
+  filter: saturate(0.4) brightness(0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Photorealistic reflective overlay */
 .card-visual::after {
   content: '';
   position: absolute;
-  top: -60%;
-  right: -30%;
-  width: 90%;
-  height: 160%;
-  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 55%);
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.18) 42%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(-10deg);
   pointer-events: none;
+  z-index: 2;
 }
 
+/* Brushed metal fine grain texture */
 .card-visual::before {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    rgba(255, 255, 255, 0) 2px,
+    rgba(255, 255, 255, 0) 3px
+  );
   pointer-events: none;
+  mix-blend-mode: overlay;
   z-index: 1;
+  opacity: 0.85;
 }
 
 .card-chip {
   width: 38px;
   height: 28px;
-  background: linear-gradient(135deg, #D4AF37 0%, #c9a82c 40%, #b8960b 100%);
-  border-radius: 5px;
+  background: linear-gradient(135deg, #ffe57f 0%, #ffd54f 25%, #ffb300 50%, #ff8f00 75%, #ffb300 100%);
+  border-radius: 6px;
   position: relative;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+    0 2px 5px rgba(0, 0, 0, 0.25);
+  border: 0.5px solid rgba(0, 0, 0, 0.15);
+  z-index: 3;
 }
 .card-chip::before {
   content: '';
