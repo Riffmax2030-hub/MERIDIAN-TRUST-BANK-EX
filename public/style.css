@@ -907,18 +907,17 @@ a:hover { text-decoration: underline; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 14.5px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 3px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: var(--text-muted);
 }
-.status-pill.COMPLETED { background: var(--green-bg); color: var(--green); }
-.status-pill.PENDING   { background: var(--amber-bg); color: var(--amber); }
+.status-pill.COMPLETED { color: var(--text-muted); }
+.status-pill.PENDING   { color: var(--amber); }
 .status-pill.FAILED,
 .status-pill.DECLINED,
-.status-pill.CANCELLED { background: var(--red-bg); color: var(--red); }
+.status-pill.CANCELLED { color: var(--red); }
 
 /* ── Cards Panel (sidebar) ───────────────────────────────────────────────────── */
 .card-visual {
