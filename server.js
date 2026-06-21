@@ -423,18 +423,27 @@ async function dbGetAccounts(userId) {
 
 // ── GET TRANSACTIONS FOR CLIENT ──────────────────────────────────────────────
 async function dbGetTransactions(userId) {
+  let txns = [];
   if (usePostgres) {
     const res = await queryPG('SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC', [userId]);
-    return res.rows.map(r => ({
+    txns = res.rows.map(r => ({
       id: r.id, accountId: r.account_id, userId: r.user_id, type: r.type,
       description: r.description, amount: parseFloat(r.amount), currency: r.currency,
       date: r.date, status: r.status, counterparty: r.counterparty, swiftDetails: r.swift_details
     }));
   } else {
-    const txns = readJSONDB().transactions.filter(t => t.userId === userId);
+    txns = readJSONDB().transactions.filter(t => t.userId === userId);
     txns.sort((a, b) => new Date(b.date) - new Date(a.date));
-    return txns;
   }
+
+  // Intercept and normalize legacy transaction IDs to uppercase TRX format
+  txns.forEach(t => {
+    if (t.id && t.id.startsWith('trx')) {
+      t.id = 'TRX' + t.id.substring(3);
+    }
+  });
+
+  return txns;
 }
 
 // ── GET CARDS FOR CLIENT ─────────────────────────────────────────────────────
