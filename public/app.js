@@ -501,7 +501,7 @@ function showCustomModal(title, bodyText, confirmCallback, cancelCallback, confi
   
   let cancelBtnHtml = '';
   if (cancelLabel) {
-    cancelBtnHtml = `<button class="btn btn-ghost" style="padding:10px 20px; font-size:14px; font-weight:700;" onclick="closeCustomModal(false)">${cancelLabel}</button>`;
+    cancelBtnHtml = `<button class="btn btn-ghost" style="padding:10px 20px; font-size: 20px; font-weight:700;" onclick="closeCustomModal(false)">${cancelLabel}</button>`;
   }
   
   modal.innerHTML = `
@@ -516,7 +516,7 @@ function showCustomModal(title, bodyText, confirmCallback, cancelCallback, confi
     </div>
     <div class="w3-confirm-modal-actions">
       ${cancelBtnHtml}
-      <button class="btn btn-primary" style="padding:10px 24px; font-size:14px; font-weight:700;" onclick="closeCustomModal(true)">${confirmLabel}</button>
+      <button class="btn btn-primary" style="padding:10px 24px; font-size: 20px; font-weight:700;" onclick="closeCustomModal(true)">${confirmLabel}</button>
     </div>
   `;
   
@@ -636,7 +636,7 @@ function getLoginHeaderHtml(title, subtitle) {
           <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
           <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
         </svg>
-        <span style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);">Meridian Trust</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size: 26px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);">Meridian Trust</span>
       </div>
       <h1 class="auth-title" style="margin-top:8px;">${title}</h1>
       <p class="auth-subtitle">${subtitle}</p>
@@ -670,7 +670,7 @@ function renderLogin() {
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Authenticate Session</button>
             </form>
-            <div style="display:flex; justify-content:space-between; margin-top:16px; font-size:13px; font-weight:600;">
+            <div style="display:flex; justify-content:space-between; margin-top:16px; font-size: 19px; font-weight:600;">
               <a onclick="switchLoginView('forgot')">Forgot Passcode?</a>
               <a onclick="switchLoginView('link')">Sign In with Email Link</a>
             </div>
@@ -698,7 +698,7 @@ function renderLogin() {
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Request Reset Link</button>
             </form>
-            <div style="text-align:center; margin-top:16px; font-size:13px; font-weight:600;">
+            <div style="text-align:center; margin-top:16px; font-size: 19px; font-weight:600;">
               <a onclick="switchLoginView('password')">Return to Password Sign In</a>
             </div>
           </div>
@@ -721,7 +721,7 @@ function renderLogin() {
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Send Sign-In Link</button>
             </form>
-            <div style="text-align:center; margin-top:16px; font-size:13px; font-weight:600;">
+            <div style="text-align:center; margin-top:16px; font-size: 19px; font-weight:600;">
               <a onclick="switchLoginView('password')">Return to Password Sign In</a>
             </div>
           </div>
@@ -994,7 +994,7 @@ function renderRegister() {
             ${getProgressBarHtml(1)}
             
             <div style="margin-bottom:24px;">
-              <h3 style="font-size:15px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Select Account Type</h3>
+              <h3 style="font-size: 19px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Select Account Type</h3>
               <div class="w3-radio-option-list">
                 <div class="w3-radio-option-card ${isClass('individual')}" onclick="setRegClass('individual')">
                   <div class="w3-radio-circle"><div class="w3-radio-inner-dot"></div></div>
@@ -1020,7 +1020,7 @@ function renderRegister() {
             </div>
 
             <div style="margin-bottom:24px;">
-              <h3 style="font-size:15px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Accounts to Open (Select at least one)</h3>
+              <h3 style="font-size: 19px; font-weight:700; color:var(--citi-navy); margin-bottom:12px;">Accounts to Open (Select at least one)</h3>
               <div class="w3-choice-cards-grid">
                 
                 <div class="w3-choice-card ${isSel('checking')}" onclick="toggleRegProgram('checking')">
@@ -1092,7 +1092,7 @@ function renderRegister() {
           <div class="auth-card-body">
             ${getProgressBarHtml(2)}
             
-            <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
+            <p style="font-size: 19.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
               Select complementary features for your new offshore banking account below.
             </p>
 
@@ -1171,7 +1171,7 @@ function renderRegister() {
           <div class="auth-card-body">
             ${getProgressBarHtml(3)}
             
-            <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:16px;">
+            <p style="font-size: 19.5px; color:var(--text-secondary); margin-bottom:16px;">
               Here are the accounts you've selected so far. Review your selections and add any other accounts you want to open.
             </p>
 
@@ -1182,8 +1182,8 @@ function renderRegister() {
             <button class="btn btn-ghost btn-full" onclick="prevRegStep(1)" style="margin-bottom:24px; font-weight:700;">+ Add Another Account</button>
 
             <div style="border:1px solid var(--border); padding:16px; border-radius:6px; background:#fcfcfc; margin-bottom:20px;">
-              <h4 style="font-size:12px; text-transform:uppercase; color:var(--citi-navy); letter-spacing:0.05em; margin:0 0 8px 0; font-weight:700;">Important Information About Opening a New Account</h4>
-              <p style="font-size:11.5px; color:var(--text-secondary); line-height:1.5; margin:0;">
+              <h4 style="font-size: 18px; text-transform:uppercase; color:var(--citi-navy); letter-spacing:0.05em; margin:0 0 8px 0; font-weight:700;">Important Information About Opening a New Account</h4>
+              <p style="font-size: 17.5px; color:var(--text-secondary); line-height:1.5; margin:0;">
                 To help the U.S. government fight terrorism and money laundering, federal law requires us to obtain, verify, and record information identifying each person opening an account. We may ask to see your driver's license or other identifying documents.
               </p>
             </div>
@@ -1206,11 +1206,11 @@ function renderRegister() {
             ${getProgressBarHtml(4)}
 
             <form id="reg-form-step4" novalidate onsubmit="saveStep4Data(event)">
-              <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
+              <p style="font-size: 19.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
                 We are only able to open accounts for U.S. citizens and current U.S. residents. We also require a U.S. residential street address to complete the application.
               </p>
 
-              <label style="display:flex; align-items:flex-start; gap:10px; font-size:13.5px; cursor:pointer; background:#f8fafc; border:1px solid var(--border); padding:14px; border-radius:6px; margin-bottom:20px; line-height:1.4;">
+              <label style="display:flex; align-items:flex-start; gap:10px; font-size: 19.5px; cursor:pointer; background:#f8fafc; border:1px solid var(--border); padding:14px; border-radius:6px; margin-bottom:20px; line-height:1.4;">
                 <input type="checkbox" id="r-citizen" ${d.citizenshipConfirmed ? 'checked' : ''} style="width:18px; height:18px; margin-top:1px;" required>
                 <span>I'm a U.S. citizen or currently residing in the U.S. <span style="color:#dc2626;">*</span></span>
               </label>
@@ -1267,7 +1267,7 @@ function renderRegister() {
             ${getProgressBarHtml(5)}
 
             <form id="reg-form-step5" novalidate onsubmit="handleRegisterSubmitWizard(event)">
-              <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
+              <p style="font-size: 19.5px; color:var(--text-secondary); margin-bottom:18px; line-height:1.5;">
                 Enter your tax identification and U.S. residential street address details below.
               </p>
 
@@ -1347,18 +1347,18 @@ function renderRegistrationSuccess(email) {
               <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
               <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
             </svg>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);margin-top:12px;">Meridian Trust</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size: 28px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);margin-top:12px;">Meridian Trust</div>
           </div>
           <h1 class="auth-title">Application Submitted</h1>
           <p class="auth-subtitle">Your Meridian Trust offshore account application is under review.</p>
         </div>
         <div class="auth-card-body">
-          <div style="background-color:#F4F6F9;border-left:4px solid #002C77;padding:16px;margin-bottom:24px;font-size:13.5px;color:#333;line-height:1.6;border-radius:0 4px 4px 0;">
+          <div style="background-color:#F4F6F9;border-left:4px solid #002C77;padding:16px;margin-bottom:24px;font-size: 19.5px;color:#333;line-height:1.6;border-radius:0 4px 4px 0;">
             <strong>📋 Compliance Review Status: PENDING</strong><br>
             Federal banking regulations require our verification team to review identity documents and tax designations (SSN/ITIN) before credentials can be activated.
           </div>
           
-          <p style="font-size:14.5px;line-height:1.6;color:#555;margin-bottom:24px;text-align:center;font-weight:500;">
+          <p style="font-size: 20.5px;line-height:1.6;color:#555;margin-bottom:24px;text-align:center;font-weight:500;">
             Your application has been submitted. Please check your email for confirmations.
           </p>
 
@@ -1371,7 +1371,7 @@ function renderRegistrationSuccess(email) {
 
 // Dashboard
 async function loadDashboard() {
-  setRoot(`<div style="padding:60px;text-align:center;color:var(--text-muted);font-size:14px;">Loading your account data…</div>`);
+  setRoot(`<div style="padding:60px;text-align:center;color:var(--text-muted);font-size: 20px;">Loading your account data…</div>`);
   try {
     const [accounts, transactions, cards] = await Promise.all([
       api(`/api/accounts?userId=${state.user.id}`),
@@ -1427,7 +1427,7 @@ function renderDashboard() {
         </td>
       </tr>
     `;
-  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transactions on record.</td></tr>`;
+  }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transactions on record.</td></tr>`;
 
   const txMobileRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
@@ -1438,7 +1438,7 @@ function renderDashboard() {
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           <div class="txn-mobile-info">
             <div class="txn-desc">${t.description}</div>
-            <div class="txn-party">${t.counterparty} <span style="font-size:10px; color:var(--text-muted);">(${accLabel})</span></div>
+            <div class="txn-party">${t.counterparty} <span style="font-size: 16px; color:var(--text-muted);">(${accLabel})</span></div>
             <div class="txn-date">${fmtDateTime(t.date)}</div>
           </div>
         </div>
@@ -1455,7 +1455,7 @@ function renderDashboard() {
         </div>
       </div>
     `;
-  }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transactions on record.</div>`;
+  }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transactions on record.</div>`;
 
   // Card panels (first 2) — Platinum & Diamond luxury design
   const cardPanels = state.cards.slice(0, 2).map((c, idx) => {
@@ -1500,8 +1500,8 @@ function renderDashboard() {
             <!-- Inline Net Balance with eye toggle -->
             <div style="margin-top:16px; display:flex; align-items:center; gap:10px;">
               <div>
-                <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em;">Total Balance</div>
-                <div style="font-size:28px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2;">${maskBalance(netAssets, 'USD')}</div>
+                <div style="font-size: 17px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em;">Total Balance</div>
+                <div style="font-size: 30px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2;">${maskBalance(netAssets, 'USD')}</div>
               </div>
               <button onclick="toggleBalanceVisibility()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:50%; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(0,44,119,0.08)'" onmouseout="this.style.background='none'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
                 ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
@@ -1514,8 +1514,8 @@ function renderDashboard() {
                 <div style="display:flex; align-items:center; gap:8px; background:var(--bg-card, #f8fafc); border:1px solid var(--border); border-radius:8px; padding:8px 14px; min-width:200px;">
                   <div style="width:6px; height:6px; border-radius:50%; flex-shrink:0; background:${a.type === 'checking' ? '#002C77' : a.type === 'savings' ? '#0066CC' : a.type === 'market' ? '#0099D6' : '#b5a25e'};"></div>
                   <div style="flex:1; min-width:0;">
-                    <div style="font-size:11px; color:var(--text-muted); font-weight:600; text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type}</div>
-                    <div style="font-size:15px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
+                    <div style="font-size: 17px; color:var(--text-muted); font-weight:600; text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type}</div>
+                    <div style="font-size: 19px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
                   </div>
                 </div>
               `).join('')}
@@ -1533,7 +1533,7 @@ function renderDashboard() {
       <div class="quick-actions" style="margin-top:20px;">
         <button class="quick-action-btn quick-action-span-2" onclick="nav('#/portal/digital-banking/wire-transfer')">
           <div class="quick-action-icon">${icons.send}</div>
-          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
+          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size: 18px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
         </button>
       </div>
 
@@ -1543,7 +1543,7 @@ function renderDashboard() {
           <div class="panel">
             <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
               <span class="panel-title">Transaction Ledger</span>
-              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size:11px; font-weight:600;">
+              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size: 17px; font-weight:600;">
                 View All Transactions
               </button>
             </div>
@@ -1574,7 +1574,7 @@ function renderDashboard() {
               <span class="panel-title">Payment Cards</span>
             </div>
             <div class="panel-body">
-              ${state.cards.length ? cardPanels : '<p style="color:var(--text-muted);font-size:13px;">No cards on file.</p>'}
+              ${state.cards.length ? cardPanels : '<p style="color:var(--text-muted);font-size: 19px;">No cards on file.</p>'}
               <button class="btn btn-secondary btn-full btn-sm" style="margin-top:16px;" onclick="issueVirtualCard()">
                 ${icons.card} &nbsp; Issue New Virtual Card
               </button>
@@ -1627,44 +1627,44 @@ function renderWireTransfer() {
         <span class="panel-title">Incoming SWIFT Wire Routing Instructions</span>
       </div>
       <div class="panel-body" style="padding:24px;">
-        <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
+        <p style="font-size: 20px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
           Use these official routing details to fund your accounts or receive high-value institutional wire transfers from third parties globally. All incoming wires are automatically processed and credited to your ledger in real time.
         </p>
         <div class="incoming-wire-grid">
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Receiving Bank</div>
-            <div style="font-size:14px; font-weight:600; color:var(--citi-navy);">Meridian Trust Bank Ltd.</div>
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">Receiving Bank</div>
+            <div style="font-size: 20px; font-weight:600; color:var(--citi-navy);">Meridian Trust Bank Ltd.</div>
           </div>
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">SWIFT / BIC Code</div>
-            <div style="font-size:14px; font-weight:600; color:var(--citi-navy); font-family:monospace;">MTBUSD2X</div>
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">SWIFT / BIC Code</div>
+            <div style="font-size: 20px; font-weight:600; color:var(--citi-navy); font-family:monospace;">MTBUSD2X</div>
           </div>
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Routing Transit Number (RTN)</div>
-            <div style="font-size:14px; font-weight:600; color:var(--citi-navy); font-family:monospace;">021000021</div>
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">Routing Transit Number (RTN)</div>
+            <div style="font-size: 20px; font-weight:600; color:var(--citi-navy); font-family:monospace;">021000021</div>
           </div>
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Funding Currency</div>
-            <div style="font-size:14px; font-weight:600; color:var(--citi-navy);">United States Dollar (USD)</div>
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">Funding Currency</div>
+            <div style="font-size: 20px; font-weight:600; color:var(--citi-navy);">United States Dollar (USD)</div>
           </div>
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px; grid-column: span 2;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">
               ${isBusiness ? 'Beneficiary Name (Company LLC)' : 'Beneficiary Name (Individual)'}
             </div>
-            <div style="font-size:16px; font-weight:700; color:var(--citi-navy);">${u.name}</div>
+            <div style="font-size: 20px; font-weight:700; color:var(--citi-navy);">${u.name}</div>
           </div>
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px; grid-column: span 2;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Associated Account Numbers</div>
-            <div style="display:flex; flex-direction:column; gap:4px; font-family:monospace; font-size:13px; font-weight:600;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">Associated Account Numbers</div>
+            <div style="display:flex; flex-direction:column; gap:4px; font-family:monospace; font-size: 19px; font-weight:600;">
               ${state.accounts.map(a => `<div>${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account: ${a.accountNumber}</div>`).join('')}
             </div>
           </div>
           <div style="grid-column: span 2; border-bottom:1px solid var(--border); padding-bottom:12px;">
-            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Intermediary Bank (Standard Settlement)</div>
-            <div style="font-size:13px; color:var(--text-secondary);">Citibank N.A., New York, NY &nbsp;|&nbsp; SWIFT: CITIUS33</div>
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size: 17px; margin-bottom:4px;">Intermediary Bank (Standard Settlement)</div>
+            <div style="font-size: 19px; color:var(--text-secondary);">Citibank N.A., New York, NY &nbsp;|&nbsp; SWIFT: CITIUS33</div>
           </div>
         </div>
-        <div style="margin-top:20px; background:#fffdf5; border:1px solid #ebd382; padding:14px; border-radius:6px; font-size:12px; color:#744210; line-height:1.5;">
+        <div style="margin-top:20px; background:#fffdf5; border:1px solid #ebd382; padding:14px; border-radius:6px; font-size: 18px; color:#744210; line-height:1.5;">
           <strong>Notice:</strong> Please ensure the beneficiary name matches your registered profile name exactly to avoid automated compliance holds or wire rejection. Wires are typically settled in 1–2 business hours.
         </div>
       </div>
@@ -1682,12 +1682,12 @@ function renderWireTransfer() {
       return `
         <div onclick="state.wireData.accountId = '${a.id}'; renderWireTransfer();" style="border: 1px solid ${isSelected ? 'var(--citi-blue)' : 'var(--border)'}; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; background: ${isSelected ? '#f0f7ff' : 'var(--bg-card)'}; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
           <div>
-            <div style="font-weight:600; color:var(--citi-navy); font-size:14px; margin-bottom:4px;">${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account</div>
-            <div style="font-family:monospace; color:var(--text-secondary); font-size:13px;">*${a.accountNumber.slice(-4)}</div>
+            <div style="font-weight:600; color:var(--citi-navy); font-size: 20px; margin-bottom:4px;">${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account</div>
+            <div style="font-family:monospace; color:var(--text-secondary); font-size: 19px;">*${a.accountNumber.slice(-4)}</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-weight:700; color:var(--citi-navy); font-size:15px;">${fmtMoney(a.balance, a.currency)}</div>
-            <div style="font-size:12px; color:var(--text-muted);">Available Balance</div>
+            <div style="font-weight:700; color:var(--citi-navy); font-size: 19px;">${fmtMoney(a.balance, a.currency)}</div>
+            <div style="font-size: 18px; color:var(--text-muted);">Available Balance</div>
           </div>
         </div>
       `;
@@ -1695,7 +1695,7 @@ function renderWireTransfer() {
 
     currentStepFormHtml = `
       <form id="wire-step-1" novalidate onsubmit="event.preventDefault(); nextWireStep();">
-        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
         
         <div class="form-group">
           <label class="form-label" style="margin-bottom:12px; display:block;">Select Funding Account</label>
@@ -1717,7 +1717,7 @@ function renderWireTransfer() {
   } else if (state.wireStep === 2) {
     currentStepFormHtml = `
       <form id="wire-step-2" novalidate onsubmit="event.preventDefault(); nextWireStep();">
-        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
         
         <div class="form-group">
           <label class="form-label">Beneficiary Full Name</label>
@@ -1753,7 +1753,7 @@ function renderWireTransfer() {
   } else if (state.wireStep === 3) {
     currentStepFormHtml = `
       <form id="wire-step-3" novalidate onsubmit="event.preventDefault(); nextWireStep();">
-        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">3. Receiving Bank & Memo</h3>
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">3. Receiving Bank & Memo</h3>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">SWIFT / BIC Code</label>
@@ -1791,10 +1791,10 @@ function renderWireTransfer() {
     const fundingAcc = state.accounts.find(a => a.id === state.wireData.accountId);
     currentStepFormHtml = `
       <form id="wire-step-4" onsubmit="event.preventDefault(); handleWireCodeRequest();">
-        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">4. Confirmation & Authorization</h3>
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">4. Confirmation & Authorization</h3>
         
         <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:20px;">
-          <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.8;">
+          <table style="width:100%; border-collapse:collapse; font-size: 19.5px; line-height:1.8;">
             <tr><td style="color:var(--text-secondary); width:35%;">Funding Account:</td><td style="font-weight:600; color:var(--citi-navy);">${fundingAcc?.type.toUpperCase()} (*${fundingAcc?.accountNumber.slice(-4)})</td></tr>
             <tr><td style="color:var(--text-secondary);">Transfer Amount:</td><td style="font-weight:700; color:var(--citi-navy);">${fmtMoney(state.wireData.amount, fundingAcc?.currency || 'USD')}</td></tr>
             <tr><td style="color:var(--text-secondary);">Beneficiary Name:</td><td style="font-weight:600;">${state.wireData.recipientName}</td></tr>
@@ -1806,13 +1806,13 @@ function renderWireTransfer() {
           </table>
         </div>
 
-        <div style="background:#fffdf5; border:1px solid #ebd382; padding:16px; border-radius:6px; font-size:13px; color:#744210; line-height:1.5; margin-bottom:20px;">
+        <div style="background:#fffdf5; border:1px solid #ebd382; padding:16px; border-radius:6px; font-size: 19px; color:#744210; line-height:1.5; margin-bottom:20px;">
           <strong>Authorization Notice:</strong> By checking the confirmation box below and proceeding, you authorize Meridian Trust Bank to transmit the specified funds to the designated beneficiary. You certify that this transaction is compliant with international wire transfer regulations.
         </div>
 
         <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:20px;">
           <input type="checkbox" id="s-authorize-check" style="width:18px; height:18px; margin-top:2px; cursor:pointer;" required>
-          <label for="s-authorize-check" style="font-size:13px; color:var(--text-secondary); cursor:pointer; font-weight:500; line-height:1.4;">
+          <label for="s-authorize-check" style="font-size: 19px; color:var(--text-secondary); cursor:pointer; font-weight:500; line-height:1.4;">
             I confirm that I have reviewed the transaction details above and verify that all beneficiary and routing details are accurate.
           </label>
         </div>
@@ -1826,15 +1826,15 @@ function renderWireTransfer() {
   } else if (state.wireStep === 5) {
     currentStepFormHtml = `
       <form id="wire-step-5" onsubmit="event.preventDefault(); submitWireTransfer();">
-        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">5. Security Verification</h3>
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">5. Security Verification</h3>
         
-        <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5; text-align:center;">
+        <p style="font-size: 19.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5; text-align:center;">
           A 6-digit transaction verification code has been dispatched to your registered email address. Enter the code below to finalize authorized transmission.
         </p>
 
         <div class="form-group" style="text-align:center;">
           <label class="form-label" style="display:block; text-align:center; font-weight:600; margin-bottom:8px;">6-Digit Security Code</label>
-          <input type="text" id="s-verification-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
+          <input type="text" id="s-verification-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size: 26px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
         </div>
 
         <div style="display:flex; justify-content:space-between; margin-top:24px;">
@@ -1875,24 +1875,24 @@ function renderWireTransfer() {
           <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
           <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
         </svg>
-        <div style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; color:var(--citi-navy); margin-top:8px;">Meridian Trust</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size: 26px; font-weight:700; color:var(--citi-navy); margin-top:8px;">Meridian Trust</div>
         
-        <div style="width:50px; height:50px; border-radius:50%; background:#e6f4ea; display:flex; align-items:center; justify-content:center; color:#137333; font-size:24px; margin:20px auto 12px auto; box-shadow:0 2px 8px rgba(19,115,51,0.15);">
+        <div style="width:50px; height:50px; border-radius:50%; background:#e6f4ea; display:flex; align-items:center; justify-content:center; color:#137333; font-size: 26px; margin:20px auto 12px auto; box-shadow:0 2px 8px rgba(19,115,51,0.15);">
           ✔
         </div>
         
-        <h3 style="font-size:18px; color:#137333; font-weight:700; margin-bottom:6px;">Wire Transfer Initiated</h3>
-        <p style="font-size:13px; color:var(--text-secondary); max-width:400px; margin:0 auto 20px auto; line-height:1.5;">
+        <h3 style="font-size: 22px; color:#137333; font-weight:700; margin-bottom:6px;">Wire Transfer Initiated</h3>
+        <p style="font-size: 19px; color:var(--text-secondary); max-width:400px; margin:0 auto 20px auto; line-height:1.5;">
           Your international SWIFT wire transfer request has been successfully submitted and logged. Our operations desk is reviewing the transfer for compliance standards.
         </p>
 
         <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px; margin:0 auto 24px auto; max-width:460px; text-align:left;">
-          <table style="width:100%; border-collapse:collapse; font-size:13px; line-height:1.8;">
+          <table style="width:100%; border-collapse:collapse; font-size: 19px; line-height:1.8;">
             <tr><td style="color:var(--text-secondary); width:35%;">Transaction Ref:</td><td style="font-weight:700; font-family:monospace; color:var(--citi-navy);">${tx?.id}</td></tr>
             <tr><td style="color:var(--text-secondary);">Funding Account:</td><td style="font-weight:600;">${fundingAcc?.type.toUpperCase()} (*${fundingAcc?.accountNumber.slice(-4)})</td></tr>
             <tr><td style="color:var(--text-secondary);">Transfer Amount:</td><td style="font-weight:700; color:#002C77;">${fmtMoney(state.wireData.amount, fundingAcc?.currency || 'USD')}</td></tr>
             <tr><td style="color:var(--text-secondary);">Beneficiary:</td><td style="font-weight:600;">${state.wireData.recipientName}</td></tr>
-            <tr><td style="color:var(--text-secondary);">Status:</td><td><span style="background:#fff4e5; color:#b25e00; padding:2px 8px; border-radius:4px; font-weight:600; font-size:11px;">PENDING COMPLIANCE REVIEW</span></td></tr>
+            <tr><td style="color:var(--text-secondary);">Status:</td><td><span style="background:#fff4e5; color:#b25e00; padding:2px 8px; border-radius:4px; font-weight:600; font-size: 17px;">PENDING COMPLIANCE REVIEW</span></td></tr>
           </table>
         </div>
 
@@ -1925,10 +1925,10 @@ function renderWireTransfer() {
 
       <!-- Tab Toggle buttons group -->
       <div style="display:flex; gap:10px; margin-bottom:24px;">
-        <button id="btn-tab-send" class="btn ${currentWireTab === 'send' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('send')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+        <button id="btn-tab-send" class="btn ${currentWireTab === 'send' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('send')" style="padding: 8px 16px; font-size: 19px; font-weight:600;">
           Send Wire Transfer
         </button>
-        <button id="btn-tab-details" class="btn ${currentWireTab === 'details' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('details')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+        <button id="btn-tab-details" class="btn ${currentWireTab === 'details' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('details')" style="padding: 8px 16px; font-size: 19px; font-weight:600;">
           Incoming Wire Details
         </button>
       </div>
@@ -2148,7 +2148,7 @@ function renderIntrabankTransfer() {
       <div class="page-header" style="margin-bottom:24px;">
         <div class="page-header-inner">
           <div style="flex:1;">
-            <h2 class="page-greeting" style="font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:700; color:var(--citi-navy);">Intrabank Account Transfer</h2>
+            <h2 class="page-greeting" style="font-family:'Cormorant Garamond',serif; font-size: 34px; font-weight:700; color:var(--citi-navy);">Intrabank Account Transfer</h2>
             <p class="page-subtext">Transfer funds instantly between your Checking, Savings, or Money Market accounts.</p>
           </div>
         </div>
@@ -2174,7 +2174,7 @@ function renderIntrabankTransfer() {
                 <input id="t-amount" type="number" step="0.01" min="0.01" class="form-input" placeholder="0.00" required style="width:100%;">
               </div>
 
-              <button type="submit" class="btn btn-primary btn-full" style="padding:12px; font-weight:600; font-size:14px; width:100%;">
+              <button type="submit" class="btn btn-primary btn-full" style="padding:12px; font-weight:600; font-size: 20px; width:100%;">
                 Execute Instant Transfer
               </button>
             </form>
@@ -2291,13 +2291,13 @@ function renderLogin2FA(userId) {
       <div class="auth-card" style="max-width:420px;">
         <div class="auth-card-header" style="text-align:center;">
           <h1 class="auth-title">Security Verification</h1>
-          <p class="auth-subtitle" style="font-size:12.5px;line-height:1.5;">A 6-digit verification code has been dispatched to your registered email address.</p>
+          <p class="auth-subtitle" style="font-size: 18.5px;line-height:1.5;">A 6-digit verification code has been dispatched to your registered email address.</p>
         </div>
         <div class="auth-card-body">
           <form onsubmit="handleLogin2FASubmit(event, '${userId}')">
             <div class="form-group">
               <label class="form-label">MFA Verification Code</label>
-              <input type="text" id="login-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size:20px;letter-spacing:6px;font-family:monospace;" autofocus>
+              <input type="text" id="login-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 24px;letter-spacing:6px;font-family:monospace;" autofocus>
             </div>
             <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Confirm Sign-In</button>
           </form>
@@ -2388,7 +2388,7 @@ function showPasswordChangeModal() {
       <h3 class="modal-title" style="color:var(--citi-navy);font-weight:700;">Passcode Update Required</h3>
     </div>
     <div class="modal-body">
-      <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
+      <p style="font-size: 18.5px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
         As a security protocol, first-time users must replace their system-assigned passcode before accessing the private banking dashboard.
       </p>
       <form id="pwd-change-form" onsubmit="handlePasswordChangeSubmit(event)">
@@ -2495,13 +2495,13 @@ function openWire2FAModal(onConfirm) {
       <button class="modal-close-btn" onclick="closeWire2FAModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
+      <p style="font-size: 18.5px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">
         Enter the 6-digit security verification code sent to your registered email to authorize this outbound transaction.
       </p>
       <form id="wire-2fa-form">
         <div class="form-group">
           <label class="form-label">6-Digit Code</label>
-          <input type="text" id="wire-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size:20px;letter-spacing:6px;font-family:monospace;" autofocus>
+          <input type="text" id="wire-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 24px;letter-spacing:6px;font-family:monospace;" autofocus>
         </div>
         <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Authorize SWIFT Transfer</button>
       </form>
@@ -2551,8 +2551,8 @@ function showTransactionDetails(txnId) {
   if (isWire && swift.recipientBank) {
     swiftHtml = `
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:18px; margin-top:18px;">
-        <h4 style="margin:0 0 12px 0; color:var(--citi-navy); font-size:14px; text-transform:uppercase; letter-spacing:0.06em;">SWIFT Routing Details</h4>
-        <table style="width:100%; font-size:16px; border-collapse:collapse;">
+        <h4 style="margin:0 0 12px 0; color:var(--citi-navy); font-size: 20px; text-transform:uppercase; letter-spacing:0.06em;">SWIFT Routing Details</h4>
+        <table style="width:100%; font-size: 20px; border-collapse:collapse;">
           <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Bank:</td><td style="padding:8px 0; font-weight:600; text-align:right;">${swift.recipientBank}</td></tr>
           <tr><td style="padding:8px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.swiftCode}</td></tr>
           <tr><td style="padding:8px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
@@ -2572,7 +2572,7 @@ function showTransactionDetails(txnId) {
     `;
   } else if (isWire && txn.status === 'PENDING') {
     pdfButtonHtml = `
-      <div style="background:#fff7ed; border:1px solid #ffedd5; color:#c2410c; padding:12px; border-radius:6px; font-size:13px; text-align:center; font-weight:500; margin-top:16px;">
+      <div style="background:#fff7ed; border:1px solid #ffedd5; color:#c2410c; padding:12px; border-radius:6px; font-size: 19px; text-align:center; font-weight:500; margin-top:16px;">
         ⏳ Outbound wire transfer is pending administrative clearance. advice PDF will be available upon approval.
       </div>
     `;
@@ -2587,15 +2587,15 @@ function showTransactionDetails(txnId) {
       <button class="modal-close-btn" onclick="closeTransactionDetails()">&times;</button>
     </div>
     <div class="modal-body" style="padding-top:12px;">
-      <table style="width:100%; font-size:16px; border-collapse:collapse; margin-bottom:18px;">
+      <table style="width:100%; font-size: 20px; border-collapse:collapse; margin-bottom:18px;">
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${displayTxnId}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Original Ref:</td><td style="padding:12px 0; font-weight:500; text-align:right; font-family:monospace; font-size:12px; color:#888;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Original Ref:</td><td style="padding:12px 0; font-weight:500; text-align:right; font-family:monospace; font-size: 18px; color:#888;">${txn.id}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transfer Mode:</td><td style="padding:12px 0; font-weight:600; text-align:right; color:var(--citi-navy);">${isWire ? 'SWIFT International Wire' : 'Internal / Domestic ACH'}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
-        <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
+        <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size: 24px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
       </table>
       ${swiftHtml}
       ${pdfButtonHtml}
@@ -2640,8 +2640,8 @@ function downloadWirePDF(txnId) {
   if (isWire) {
     specSectionHtml = `
       <!-- SWIFT Routing details -->
-      <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
-      <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+      <h3 style="font-size: 19px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">SWIFT MT103 Specifications</h3>
+      <table style="width:100%; border-collapse:collapse; font-size: 19.5px; line-height:1.7;">
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:4px 0; color:#555;">Beneficiary Customer Name:</td><td style="padding:4px 0; font-weight:600;">${txn.counterparty}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; font-weight:600;">Beneficiary Bank Name:</td><td style="padding:4px 0; font-weight:600;">${swift.recipientBank || 'N/A'}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">SWIFT / BIC Identifier:</td><td style="padding:4px 0; font-weight:600; font-family:monospace; color:#002C77;">${swift.swiftCode || 'N/A'}</td></tr>
@@ -2653,8 +2653,8 @@ function downloadWirePDF(txnId) {
   } else {
     specSectionHtml = `
       <!-- Settlement specifications -->
-      <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">Settlement Specifications</h3>
-      <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+      <h3 style="font-size: 19px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:22px 0 10px 0; letter-spacing:0.5px;">Settlement Specifications</h3>
+      <table style="width:100%; border-collapse:collapse; font-size: 19.5px; line-height:1.7;">
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="width:35%; padding:4px 0; color:#555;">Originating Institution:</td><td style="padding:4px 0; font-weight:600;">${txn.counterparty}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Receiving Institution:</td><td style="padding:4px 0; font-weight:600;">Meridian Trust Bank</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px 0; color:#555;">Settlement Channel:</td><td style="padding:4px 0; font-weight:600; font-family:monospace;">FEDWIRE / SWIFT INBOUND CLEARING</td></tr>
@@ -2680,24 +2680,24 @@ function downloadWirePDF(txnId) {
           <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF"/>
         </svg>
         <div>
-          <h1 style="color:#002C77; margin:0; font-size:20px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
-          <div style="font-size:9px; color:#a47c14; text-transform:uppercase; letter-spacing:1px; margin-top:2px; font-weight:700;">International Private Banking</div>
+          <h1 style="color:#002C77; margin:0; font-size: 24px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">MERIDIAN TRUST BANK</h1>
+          <div style="font-size: 15px; color:#a47c14; text-transform:uppercase; letter-spacing:1px; margin-top:2px; font-weight:700;">International Private Banking</div>
         </div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:10px; font-weight:700; color:#555; text-transform:uppercase;">Official Transaction Receipt</div>
-        <div style="font-size:11.5px; font-family:monospace; font-weight:700; color:#002C77; margin-top:2px;">TXN-ID: ${displayTxnId}</div>
+        <div style="font-size: 16px; font-weight:700; color:#555; text-transform:uppercase;">Official Transaction Receipt</div>
+        <div style="font-size: 17.5px; font-family:monospace; font-weight:700; color:#002C77; margin-top:2px;">TXN-ID: ${displayTxnId}</div>
       </div>
     </div>
 
     <!-- Status Alert Bar -->
-    <div style="margin-top:16px; background:#e6f4ea; border-left:4px solid #137333; padding:10px 14px; color:#137333; border-radius:0 4px 4px 0; font-size:12px; font-weight:600;">
+    <div style="margin-top:16px; background:#e6f4ea; border-left:4px solid #137333; padding:10px 14px; color:#137333; border-radius:0 4px 4px 0; font-size: 18px; font-weight:600;">
       ✔ TRANSACTION COMPLETED — LEDGER ACCREDITED AND AUDITED SUCCESSFULLY.
     </div>
 
     <!-- Core Details Table -->
-    <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:20px 0 10px 0; letter-spacing:0.5px;">Transfer Summary</h3>
-    <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
+    <h3 style="font-size: 19px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:20px 0 10px 0; letter-spacing:0.5px;">Transfer Summary</h3>
+    <table style="width:100%; border-collapse:collapse; font-size: 19.5px; line-height:1.7;">
       <tr><td style="width:35%; padding:3px 0; color:#555;">Transaction ID:</td><td style="padding:3px 0; font-weight:700; font-family:monospace; color:#002C77;">${displayTxnId}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Value Date:</td><td style="padding:3px 0; font-weight:600;">${formattedDate}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Transaction Time:</td><td style="padding:3px 0; font-weight:600;">${formattedTime} (UTC)</td></tr>
@@ -2706,8 +2706,8 @@ function downloadWirePDF(txnId) {
       <tr><td style="padding:3px 0; color:#555;">Ordering Customer ID:</td><td style="padding:3px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Sending Account:</td><td style="padding:3px 0; font-weight:600;">Offshore Private Placement Treasury (USD equivalent)</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Memo / Reference:</td><td style="padding:3px 0; font-weight:600;">${txn.description}</td></tr>
-      <tr><td style="padding:3px 0; color:#555;">Original System Ref:</td><td style="padding:3px 0; font-weight:500; font-family:monospace; font-size:11px; color:#888;">${txn.id}</td></tr>
-      <tr><td style="padding:3px 0; color:#555;">Settled Net Amount:</td><td style="padding:3px 0; font-weight:800; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Original System Ref:</td><td style="padding:3px 0; font-weight:500; font-family:monospace; font-size: 17px; color:#888;">${txn.id}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Settled Net Amount:</td><td style="padding:3px 0; font-weight:800; font-size: 20px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
     </table>
 
     ${specSectionHtml}
@@ -2715,17 +2715,17 @@ function downloadWirePDF(txnId) {
     <!-- Sign-off / Compliance Seals -->
     <div style="margin-top:24px; border-top:1px solid #e2e8f0; padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
       <div>
-        <div style="font-size:10px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
-        <div style="font-size:9px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
+        <div style="font-size: 16px; font-weight:700; color:#002C77; text-transform:uppercase;">Security Compliance Audit</div>
+        <div style="font-size: 15px; color:#777; margin-top:2px;">Digital Cryptographic Seal: AES-256 System Authenticated</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:10px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & AUDITED</div>
-        <div style="font-size:9px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
+        <div style="font-size: 16px; font-weight:700; color:#137333; text-transform:uppercase;">STATUS: COMPLETED & AUDITED</div>
+        <div style="font-size: 15px; color:#777; margin-top:2px;">Funds Transmitted Under Sovereign reserve protection.</div>
       </div>
     </div>
 
     <!-- Reporting & Cancellation Support Desk -->
-    <div style="margin-top:24px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:16px; font-size:11.5px; color:#475569; line-height:1.5;">
+    <div style="margin-top:24px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:16px; font-size: 17.5px; color:#475569; line-height:1.5;">
       <strong>Support & Cancellation Operations Desk:</strong> For wire retroactive inquiries, reporting unauthorized movements, or requesting wire cancellations, please email us immediately at <a href="mailto:operations@meridiantrust.com" style="color:#0066CC; text-decoration:none; font-weight:600;">operations@meridiantrust.com</a>. Wire cancellation requests must be filed with our compliance desk within 1 hour of the transfer value date/time.
     </div>
   `;
@@ -2750,7 +2750,7 @@ function downloadWirePDF(txnId) {
 function logout() {
   showCustomModal(
     'Are you ready to sign out?',
-    '<p style="margin:0; font-size:15px; color:var(--text-secondary); line-height:1.5;">Please confirm if you are ready to secure and terminate your active banking session. Any unsaved actions will be discarded.</p>',
+    '<p style="margin:0; font-size: 19px; color:var(--text-secondary); line-height:1.5;">Please confirm if you are ready to secure and terminate your active banking session. Any unsaved actions will be discarded.</p>',
     () => {
       state = { user: null, accounts: [], transactions: [], cards: [], adminUsers: [], pendingEmail: null, devOtp: null };
       localStorage.removeItem('mtb_session');
@@ -2878,16 +2878,16 @@ function renderProducts() {
     <div class="app-container">
       <div class="panel" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
-          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Meridian Offshore Accounts & Programs</h2>
+          <h2 class="panel-title" style="color:#fff;font-size: 20px;letter-spacing:0.05em;">Meridian Offshore Accounts & Programs</h2>
         </div>
         <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
-          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size: 19.5px;color:#991b1b;font-weight:600;">
             ⚠️ Simulated System Notice: The ledger account systems, credit limits, card placements, and balances presented here are part of a private banking digital simulation. No real funds are held or processed.
           </div>
           
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Checking Programs</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Our flagship checking program is designed for private corporate entities and high-net-worth individuals requiring immediate global liquidity. Key features include:</p>
-          <ul style="padding-left:20px;margin-bottom:24px;font-size:13.5px;color:#475569;line-height:1.8;">
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Checking Programs</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">Our flagship checking program is designed for private corporate entities and high-net-worth individuals requiring immediate global liquidity. Key features include:</p>
+          <ul style="padding-left:20px;margin-bottom:24px;font-size: 19.5px;color:#475569;line-height:1.8;">
             <li style="margin-bottom:6px;"><strong>Full-Reserve Auditing:</strong> Checking balances are verified and credited manually via secure ledger operators.</li>
             <li style="margin-bottom:6px;"><strong>SWIFT Settlement Routing:</strong> Seamless processing parameters matching international routing codes.</li>
             <li style="margin-bottom:6px;"><strong>Real-Time Ledger Audits:</strong> Instant balance adjustments and manual deposit credits via secure operators.</li>
@@ -2895,13 +2895,13 @@ function renderProducts() {
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">High-Yield Savings & Money Markets</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">For asset placements and reserve preservation, our savings and capital market programs offer fixed returns and structured ledger protection, yielding full capital backing across sovereign instruments.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">High-Yield Savings & Money Markets</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">For asset placements and reserve preservation, our savings and capital market programs offer fixed returns and structured ledger protection, yielding full capital backing across sovereign instruments.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Debit Cards & Virtual Programs</h3>
-          <p style="margin-bottom:12px;font-size:14px;color:#475569;">Manage corporate spending instantly with our debit card suite. Operators can issue cards, toggle status (active, frozen, cancelled), and view CVV/expiry details directly inside the portal.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Offshore Debit Cards & Virtual Programs</h3>
+          <p style="margin-bottom:12px;font-size: 20px;color:#475569;">Manage corporate spending instantly with our debit card suite. Operators can issue cards, toggle status (active, frozen, cancelled), and view CVV/expiry details directly inside the portal.</p>
         </div>
       </div>
     </div>
@@ -2914,25 +2914,25 @@ function renderServices() {
     <div class="app-container">
       <div class="panel" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
-          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Core Banking Services</h2>
+          <h2 class="panel-title" style="color:#fff;font-size: 20px;letter-spacing:0.05em;">Core Banking Services</h2>
         </div>
         <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
-          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size: 19.5px;color:#991b1b;font-weight:600;">
             ⚠️ Simulated System Notice: All transfer routing and FX rates displayed on this platform are part of a private ledger simulation.
           </div>
           
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Outbound SWIFT Wire Transfers</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Submit international wire transfers globally. Secure 2FA multi-factor checks verify and authorize transactions before outbound routing is written to the ledger block.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Outbound SWIFT Wire Transfers</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">Submit international wire transfers globally. Secure 2FA multi-factor checks verify and authorize transactions before outbound routing is written to the ledger block.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Treasury Asset Management</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Allocate surplus capital to yielding treasury assets. Enjoy sovereign protection under full-reserve regulatory compliance with immediate liquidity.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Treasury Asset Management</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">Allocate surplus capital to yielding treasury assets. Enjoy sovereign protection under full-reserve regulatory compliance with immediate liquidity.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Identity Management & Compliance KYC</h3>
-          <p style="margin-bottom:12px;font-size:14px;color:#475569;">We apply professional identity verification and tax classification checks to ensure profile compliance. Operators approve or reject onboarding queues securely from the operations console.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Identity Management & Compliance KYC</h3>
+          <p style="margin-bottom:12px;font-size: 20px;color:#475569;">We apply professional identity verification and tax classification checks to ensure profile compliance. Operators approve or reject onboarding queues securely from the operations console.</p>
         </div>
       </div>
     </div>
@@ -2945,22 +2945,22 @@ function renderLegal() {
     <div class="app-container">
       <div class="panel" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
-          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">Legal, Compliance & Disclaimers</h2>
+          <h2 class="panel-title" style="color:#fff;font-size: 20px;letter-spacing:0.05em;">Legal, Compliance & Disclaimers</h2>
         </div>
         <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
-          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:16px;margin-bottom:24px;border-radius:4px;font-size:14px;color:#991b1b;font-weight:700;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:16px;margin-bottom:24px;border-radius:4px;font-size: 20px;color:#991b1b;font-weight:700;">
             ⚠️ CRITICAL REGULATORY NOTICE & DISCLAIMER:<br>
             THIS PLATFORM IS AN ENTIRELY SIMULATED DIGITAL banking environment. It is constructed solely for private demonstrations, software testing, and auditing purposes. No real monetary transactions, deposits, or withdrawals are processed. All funds, balances, account details, and payment cards are fictional.
           </div>
           
-          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">1. Purpose of Simulation</h3>
-          <p style="margin-bottom:20px;font-size:13.5px;color:#475569;">The Meridian Trust Bank digital interface mimics a secure corporate offshore banking client portal to demonstrate multi-currency ledgers, administrative compliance controls, and SWIFT wire authorizations. No real-world deposits are held or protected by the FDIC or other financial regulators.</p>
+          <h3 style="color:#002C77;font-size: 20px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">1. Purpose of Simulation</h3>
+          <p style="margin-bottom:20px;font-size: 19.5px;color:#475569;">The Meridian Trust Bank digital interface mimics a secure corporate offshore banking client portal to demonstrate multi-currency ledgers, administrative compliance controls, and SWIFT wire authorizations. No real-world deposits are held or protected by the FDIC or other financial regulators.</p>
 
-          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">2. Privacy & Data Integrity</h3>
-          <p style="margin-bottom:20px;font-size:13.5px;color:#475569;">All personal details entered during registration are treated as simulated inputs. For compliance, please do not use your real-world banking passcodes or critical credentials.</p>
+          <h3 style="color:#002C77;font-size: 20px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">2. Privacy & Data Integrity</h3>
+          <p style="margin-bottom:20px;font-size: 19.5px;color:#475569;">All personal details entered during registration are treated as simulated inputs. For compliance, please do not use your real-world banking passcodes or critical credentials.</p>
 
-          <h3 style="color:#002C77;font-size:16px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">3. Anti-Money Laundering (AML) Compliance</h3>
-          <p style="margin-bottom:12px;font-size:13.5px;color:#475569;">The system simulates real-time transaction intercept filters to block transfers under preset administrative rules. These blocks mimic regulatory holds for auditing exercises.</p>
+          <h3 style="color:#002C77;font-size: 20px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">3. Anti-Money Laundering (AML) Compliance</h3>
+          <p style="margin-bottom:12px;font-size: 19.5px;color:#475569;">The system simulates real-time transaction intercept filters to block transfers under preset administrative rules. These blocks mimic regulatory holds for auditing exercises.</p>
         </div>
       </div>
     </div>
@@ -2973,25 +2973,25 @@ function renderAbout() {
     <div class="app-container">
       <div class="panel" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
-          <h2 class="panel-title" style="color:#fff;font-size:14px;letter-spacing:0.05em;">About Meridian Trust Bank</h2>
+          <h2 class="panel-title" style="color:#fff;font-size: 20px;letter-spacing:0.05em;">About Meridian Trust Bank</h2>
         </div>
         <div class="panel-body" style="line-height:1.75;color:#334155;padding:32px;">
-          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size:13.5px;color:#991b1b;font-weight:600;">
+          <div style="background:#fee2e2;border-left:4px solid #b91c1c;padding:12px 18px;margin-bottom:24px;border-radius:4px;font-size: 19.5px;color:#991b1b;font-weight:600;">
             ⚠️ Simulated System Notice: This about section describes a simulated banking concept for auditing and demonstration.
           </div>
           
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Private Offshore Capital Preservation</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Meridian Trust represents a concept in full-reserve private offshore banking. In an era of fractional reserve exposure, our design prioritizes absolute ledger security and capital transparency.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Private Offshore Capital Preservation</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">Meridian Trust represents a concept in full-reserve private offshore banking. In an era of fractional reserve exposure, our design prioritizes absolute ledger security and capital transparency.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Secure Offshore Custody Model</h3>
-          <p style="margin-bottom:20px;font-size:14px;color:#475569;">Under our simulated framework, 100% of capital reserves are allocated directly to liquid short-term government instruments. This prevents lending exposure, offering immediate availability on settlement requests.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Secure Offshore Custody Model</h3>
+          <p style="margin-bottom:20px;font-size: 20px;color:#475569;">Under our simulated framework, 100% of capital reserves are allocated directly to liquid short-term government instruments. This prevents lending exposure, offering immediate availability on settlement requests.</p>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-          <h3 style="color:#002C77;font-size:18px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Digital Core Infrastructure</h3>
-          <p style="margin-bottom:12px;font-size:14px;color:#475569;">With path-based admin consoles, dynamic transaction intercepts, and 2-phase MFA security, our core engineering represents a highly resilient system built for secure demonstration auditing.</p>
+          <h3 style="color:#002C77;font-size: 22px;margin-bottom:8px;font-family:'Roboto Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Digital Core Infrastructure</h3>
+          <p style="margin-bottom:12px;font-size: 20px;color:#475569;">With path-based admin consoles, dynamic transaction intercepts, and 2-phase MFA security, our core engineering represents a highly resilient system built for secure demonstration auditing.</p>
         </div>
       </div>
     </div>
@@ -3017,7 +3017,7 @@ function resolveAccountLabel(accId) {
 }
 
 async function loadTransactionHistory() {
-  setRoot(`<div style="padding:60px;text-align:center;color:var(--text-muted);font-size:14px;">Loading statement and transaction ledger…</div>`);
+  setRoot(`<div style="padding:60px;text-align:center;color:var(--text-muted);font-size: 20px;">Loading statement and transaction ledger…</div>`);
   try {
     if (!state.accounts.length) {
       const accounts = await api(`/api/accounts?userId=${state.user.id}`);
@@ -3079,14 +3079,14 @@ function renderTransactionHistory() {
         <div class="panel-body" style="padding:20px;">
           <div class="form-row" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:16px;">
             <div class="form-group">
-              <label class="form-label" style="font-size:11px;">Select Account</label>
+              <label class="form-label" style="font-size: 17px;">Select Account</label>
               <select id="hist-account" class="form-select" onchange="updateHistoryFilter()">
                 <option value="all">All USD Accounts</option>
                 ${accOptions}
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" style="font-size:11px;">Transaction Type</label>
+              <label class="form-label" style="font-size: 17px;">Transaction Type</label>
               <select id="hist-type" class="form-select" onchange="updateHistoryFilter()">
                 <option value="all">All Types</option>
                 <option value="DEPOSIT">Inflows (Deposits)</option>
@@ -3094,17 +3094,17 @@ function renderTransactionHistory() {
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" style="font-size:11px;">Start Date</label>
+              <label class="form-label" style="font-size: 17px;">Start Date</label>
               <input id="hist-start-date" type="date" class="form-input" value="${state.historyFilter.startDate}" onchange="updateHistoryFilter()">
             </div>
             <div class="form-group">
-              <label class="form-label" style="font-size:11px;">End Date</label>
+              <label class="form-label" style="font-size: 17px;">End Date</label>
               <input id="hist-end-date" type="date" class="form-input" value="${state.historyFilter.endDate}" onchange="updateHistoryFilter()">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" style="font-size:11px;">Search Description / Counterparty</label>
+              <label class="form-label" style="font-size: 17px;">Search Description / Counterparty</label>
               <input id="hist-search" type="text" class="form-input" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
             </div>
           </div>
@@ -3115,7 +3115,7 @@ function renderTransactionHistory() {
       <div class="panel">
         <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
           <span class="panel-title">Transaction History</span>
-          <span id="hist-count" style="font-size:12px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
+          <span id="hist-count" style="font-size: 18px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
         </div>
         <div style="overflow-x:auto;">
           <table class="txn-table">
@@ -3225,7 +3225,7 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-party">${t.counterparty}</div>
           </td>
           <td>
-            <span style="font-weight:600;font-size:12px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
+            <span style="font-weight:600;font-size: 18px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
           </td>
           <td class="txn-date">${fmtDateTime(t.date)}</td>
           <td>
@@ -3241,7 +3241,7 @@ function applyHistoryFiltersAndRender() {
           </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</td></tr>`;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transaction statements match your search criteria.</td></tr>`;
 
     if (mobileListEl) {
       mobileListEl.innerHTML = pageTxs.length ? pageTxs.map(t => {
@@ -3253,7 +3253,7 @@ function applyHistoryFiltersAndRender() {
               <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
               <div class="txn-mobile-info">
                 <div class="txn-desc">${t.description}</div>
-                <div class="txn-party">${t.counterparty} <span style="font-size:10px; color:var(--text-muted);">(${accLabel})</span></div>
+                <div class="txn-party">${t.counterparty} <span style="font-size: 16px; color:var(--text-muted);">(${accLabel})</span></div>
                 <div class="txn-date">${fmtDateTime(t.date)}</div>
               </div>
             </div>
@@ -3270,11 +3270,11 @@ function applyHistoryFiltersAndRender() {
             </div>
           </div>
         `;
-      }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</div>`;
+      }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size: 19px;">No transaction statements match your search criteria.</div>`;
     }
 
     paginationEl.innerHTML = `
-      <div style="font-size:12px; color:var(--text-muted); font-weight:500;">
+      <div style="font-size: 18px; color:var(--text-muted); font-weight:500;">
         Showing ${total ? startIdx + 1 : 0}–${endIdx} of ${total} records
       </div>
       <div style="display:flex; gap:8px;">
@@ -3507,9 +3507,9 @@ window.exportHistoryPDF = function() {
   });
 
   const rowsHTML = txs.map(t => `
-    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 12px;">
+    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 18px;">
       <td style="padding: 10px 0;">${new Date(t.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}</td>
-      <td style="padding: 10px 0;"><strong>${t.description}</strong><br><span style="color:#64748b; font-size:11px;">${t.counterparty}</span></td>
+      <td style="padding: 10px 0;"><strong>${t.description}</strong><br><span style="color:#64748b; font-size: 17px;">${t.counterparty}</span></td>
       <td style="padding: 10px 0;">${t.id}</td>
       <td style="padding: 10px 0;">${t.accountId.split('-').pop()}</td>
       <td style="padding: 10px 0; text-align: right; color: ${t.type === 'DEPOSIT' ? '#10b981' : '#ef4444'}; font-weight: 600;">
@@ -3526,16 +3526,16 @@ window.exportHistoryPDF = function() {
           body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #0f172a; padding: 40px; margin: 0; line-height: 1.5; }
           .header { display: flex; justify-content: space-between; border-bottom: 2px solid #002C77; padding-bottom: 20px; margin-bottom: 30px; }
           .brand { color: #002C77; }
-          .brand h1 { margin: 0; font-size: 24px; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; }
-          .brand p { margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; color: #a47c14; letter-spacing: 1.5px; font-weight: 700; }
-          .meta-details { display: flex; justify-content: space-between; margin-bottom: 40px; font-size: 13px; }
+          .brand h1 { margin: 0; font-size: 26px; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px; }
+          .brand p { margin: 4px 0 0 0; font-size: 17px; text-transform: uppercase; color: #a47c14; letter-spacing: 1.5px; font-weight: 700; }
+          .meta-details { display: flex; justify-content: space-between; margin-bottom: 40px; font-size: 19px; }
           .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin-bottom: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
           .summary-item { display: flex; flex-direction: column; }
-          .summary-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; }
-          .summary-value { font-size: 18px; font-weight: 700; color: #002C77; }
+          .summary-label { font-size: 17px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 6px; }
+          .summary-value { font-size: 22px; font-weight: 700; color: #002C77; }
           .statement-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          .statement-table th { border-bottom: 2px solid #cbd5e1; text-align: left; padding: 10px 0; font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; }
-          .footer { margin-top: 50px; font-size: 11px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          .statement-table th { border-bottom: 2px solid #cbd5e1; text-align: left; padding: 10px 0; font-size: 17px; text-transform: uppercase; color: #64748b; font-weight: 700; }
+          .footer { margin-top: 50px; font-size: 17px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
           @media print {
             body { padding: 0; }
             .no-print { display: none; }
@@ -3548,7 +3548,7 @@ window.exportHistoryPDF = function() {
             <h1>MERIDIAN TRUST BANK</h1>
             <p>International Private Banking</p>
           </div>
-          <div style="text-align: right; font-size: 12px; color: #64748b;">
+          <div style="text-align: right; font-size: 18px; color: #64748b;">
             <strong>OFFICIAL TRANSACTION STATEMENT</strong><br>
             Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
@@ -3584,7 +3584,7 @@ window.exportHistoryPDF = function() {
           </div>
         </div>
 
-        <h3 style="font-size: 14px; color: #002C77; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Account Ledger Activity</h3>
+        <h3 style="font-size: 20px; color: #002C77; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Account Ledger Activity</h3>
         <table class="statement-table">
           <thead>
             <tr>
