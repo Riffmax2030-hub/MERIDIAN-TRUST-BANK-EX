@@ -3296,9 +3296,6 @@ function renderTransactionHistory() {
             <p class="page-subtext">View your transaction history, filter by date or account, and download statements.</p>
           </div>
           <div style="display:flex; gap:10px;">
-            <button class="btn btn-secondary btn-sm" onclick="exportHistoryCSV()">
-              Export CSV Ledger
-            </button>
             <button class="btn btn-primary btn-sm" onclick="exportHistoryPDF()">
               Print Statement
             </button>
@@ -3306,43 +3303,9 @@ function renderTransactionHistory() {
         </div>
       </div>
 
-      <!-- Filters Panel -->
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header">
-          <span class="panel-title">Filters & Search</span>
-        </div>
-        <div class="panel-body" style="padding:20px;">
-          <div class="form-row" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:16px;">
-            <div class="form-group">
-              <label class="form-label" style="font-size: 15px;">Select Account</label>
-              <select id="hist-account" class="form-select" onchange="updateHistoryFilter()">
-                <option value="all">All USD Accounts</option>
-                ${accOptions}
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-size: 15px;">Transaction Type</label>
-              <select id="hist-type" class="form-select" onchange="updateHistoryFilter()">
-                <option value="all">All Types</option>
-                <option value="DEPOSIT">Inflows (Deposits)</option>
-                <option value="TRANSFER_OUT">Outflows (Transfers/Debits)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-size: 15px;">Start Date</label>
-              <input id="hist-start-date" type="date" class="form-input" value="${state.historyFilter.startDate}" onchange="updateHistoryFilter()">
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-size: 15px;">End Date</label>
-              <input id="hist-end-date" type="date" class="form-input" value="${state.historyFilter.endDate}" onchange="updateHistoryFilter()">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <input id="hist-search" type="text" class="form-input" style="padding:14px; font-size:15px; border-radius:12px; border:1.5px solid var(--border);" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
-            </div>
-          </div>
-        </div>
+      <!-- Search Panel -->
+      <div style="margin-bottom:24px;">
+        <input id="hist-search" type="text" class="form-input" style="width:100%; padding:16px; font-size:15px; border-radius:12px; border:1.5px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.05);" placeholder="Search reference id, name, date or memo..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
       </div>
 
       <!-- Ledger Panel -->
@@ -3673,10 +3636,10 @@ function drawHistoryChart(txs) {
 window.changeHistoryPage = function(delta) {
   if (state.historyFilter) {
     state.historyFilter.page += delta;
-    showLoader('Retrieving Archive...', 5000);
+    showLoader('Loading Records...', 1200);
     setTimeout(() => {
       applyHistoryFiltersAndRender();
-    }, 5000);
+    }, 1200);
   }
 };
 
