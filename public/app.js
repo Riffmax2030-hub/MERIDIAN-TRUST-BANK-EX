@@ -1415,11 +1415,35 @@ function renderDashboard() {
 
   setRoot(`
     <div class="app-container">
-      <div class="page-header">
+      <div class="page-header" style="margin-bottom:0;">
         <div class="page-header-inner">
-          <div>
+          <div style="flex:1;">
             <h2 class="page-greeting">Good day, ${u.name}</h2>
             <p class="page-subtext">Client ID: ${u.id} &nbsp;·&nbsp; ${u.accountType === 'business' ? 'Corporate Account' : 'Personal Account'} &nbsp;·&nbsp; ${u.email}</p>
+
+            <!-- Inline Net Balance with eye toggle -->
+            <div style="margin-top:16px; display:flex; align-items:center; gap:10px;">
+              <div>
+                <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em;">Total Balance</div>
+                <div style="font-size:28px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2;">${maskBalance(netAssets, 'USD')}</div>
+              </div>
+              <button onclick="toggleBalanceVisibility()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:50%; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(0,44,119,0.08)'" onmouseout="this.style.background='none'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
+                ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
+              </button>
+            </div>
+
+            <!-- Compact account list -->
+            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
+              ${state.accounts.map(a => `
+                <div style="display:flex; align-items:center; gap:8px; background:var(--bg-card, #f8fafc); border:1px solid var(--border); border-radius:8px; padding:8px 14px; min-width:200px;">
+                  <div style="width:6px; height:6px; border-radius:50%; flex-shrink:0; background:${a.type === 'checking' ? '#002C77' : a.type === 'savings' ? '#0066CC' : a.type === 'market' ? '#0099D6' : '#b5a25e'};"></div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:11px; color:var(--text-muted); font-weight:600; text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type}</div>
+                    <div style="font-size:15px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
           <div>
             <span class="kyc-badge ${u.kycStatus}">
@@ -1429,39 +1453,8 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- Net Balance & Account List -->
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="panel-title">Portfolio Overview</span>
-          <button class="btn btn-ghost btn-xs" onclick="toggleBalanceVisibility()" style="display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;font-weight:600;">
-            ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
-            ${balanceVisible ? 'Hide Balances' : 'Show Balances'}
-          </button>
-        </div>
-        <div class="panel-body" style="padding:24px;">
-          <div style="text-align:center; margin-bottom:20px;">
-            <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.05em; margin-bottom:4px;">Net Balance Across All Accounts</div>
-            <div style="font-size:32px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(netAssets, 'USD')}</div>
-          </div>
-          <div style="border-top:1px solid var(--border); padding-top:16px;">
-            ${state.accounts.map(a => `
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <div style="width:8px; height:8px; border-radius:50%; background:${a.type === 'checking' ? '#002C77' : a.type === 'savings' ? '#0066CC' : a.type === 'market' ? '#0099D6' : '#b5a25e'};"></div>
-                  <div>
-                    <div style="font-weight:600; font-size:14px; color:var(--citi-navy); text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type} Account</div>
-                    <div style="font-size:12px; color:var(--text-muted);">Acct: ••${a.accountNumber.slice(-6)} &nbsp;|&nbsp; ${a.routingNumber}</div>
-                  </div>
-                </div>
-                <div style="font-size:18px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      </div>
-
       <!-- Quick Actions -->
-      <div class="quick-actions">
+      <div class="quick-actions" style="margin-top:20px;">
         <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/wire-transfer')" style="grid-column: span 2;">
           <div class="quick-action-icon">${icons.send}</div>
           <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
