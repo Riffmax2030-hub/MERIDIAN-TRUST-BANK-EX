@@ -1652,11 +1652,6 @@ function renderDashboard() {
               `;
             })()}
           </div>
-          <div>
-            <span class="kyc-badge ${u.kycStatus}">
-              ${icons.check} KYC ${(u.kycStatus || '').toLowerCase() === 'approved' ? 'Verified' : u.kycStatus}
-            </span>
-          </div>
         </div>
       </div>
 
@@ -2855,7 +2850,7 @@ function downloadWirePDF(txnId) {
 
   // Format date and time
   const txnDate = new Date(txn.date);
-  const displayTxnId = `MTB-TRX-${txn.id.split('-')[0]?.toUpperCase()}-${txnDate.getTime().toString().slice(-6)}`;
+  const displayTxnId = txn.id.toUpperCase();
   const formattedDate = txnDate.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });

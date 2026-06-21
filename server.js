@@ -770,7 +770,7 @@ function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5
     const dateStr = new Date(Math.max(startDate, Math.min(endDate - 24 * 3600 * 1000, randTime))).toISOString();
     
     txs.push({
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId,
       userId,
       type: temp.type,
@@ -794,7 +794,7 @@ function generateHighValueTransactions(accountId, userId, targetFinalBalance = 5
   const finalAmount = Math.abs(diff);
   
   txs.push({
-    id: `trx${randomDigits(20)}`,
+    id: `trx${randomDigits(10)}`,
     accountId,
     userId,
     type: finalType,
@@ -1213,7 +1213,7 @@ app.post('/api/transactions/send', async (req, res) => {
     if (acc.balance < num) return res.status(400).json({ error: 'Insufficient available balance.' });
 
     const tx = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId,
       userId,
       type: 'TRANSFER_OUT',
@@ -1337,7 +1337,7 @@ app.post('/api/transactions/exchange', async (req, res) => {
 
     // Exchange transaction objects
     const txOut = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId: fromAccountId,
       userId,
       type: 'TRANSFER_OUT',
@@ -1350,7 +1350,7 @@ app.post('/api/transactions/exchange', async (req, res) => {
     };
 
     const txIn = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId: toAccountId,
       userId,
       type: 'DEPOSIT',
@@ -1445,7 +1445,7 @@ app.post('/api/transactions/intrabank-transfer', async (req, res) => {
     }
 
     const txOut = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId: fromAccountId,
       userId,
       type: 'TRANSFER_OUT',
@@ -1458,7 +1458,7 @@ app.post('/api/transactions/intrabank-transfer', async (req, res) => {
     };
 
     const txIn = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId: toAccountId,
       userId,
       type: 'DEPOSIT',
@@ -1737,7 +1737,7 @@ app.post('/api/admin/inbound-wire', async (req, res) => {
     }
 
     const tx = {
-      id: `trx${randomDigits(20)}`,
+      id: `trx${randomDigits(10)}`,
       accountId,
       userId,
       type: 'DEPOSIT',
