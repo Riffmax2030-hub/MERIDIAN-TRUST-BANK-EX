@@ -2602,6 +2602,9 @@ function showTransactionDetails(txnId) {
     `;
   }
 
+  const txnDateObj = new Date(txn.date);
+  const displayTxnId = `MTB-TRX-${txn.id.split('-')[0]?.toUpperCase()}-${txnDateObj.getTime().toString().slice(-6)}`;
+
   modal.innerHTML = `
     <div class="modal-header">
       <h3 class="modal-title" style="color:var(--citi-navy); font-weight:700;">Transaction Details</h3>
@@ -2609,11 +2612,12 @@ function showTransactionDetails(txnId) {
     </div>
     <div class="modal-body" style="padding-top:12px;">
       <table style="width:100%; font-size:16px; border-collapse:collapse; margin-bottom:18px;">
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace;">${displayTxnId}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Original Ref:</td><td style="padding:12px 0; font-weight:500; text-align:right; font-family:monospace; font-size:12px; color:#888;">${txn.id}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction Type:</td><td style="padding:12px 0; font-weight:600; text-align:right; text-transform:uppercase; font-size:13px;">${txn.type.replace('_',' ')}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transfer Mode:</td><td style="padding:12px 0; font-weight:600; text-align:right; color:var(--citi-navy);">${isWire ? 'SWIFT International Wire' : 'Internal / Domestic ACH'}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
         <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size:20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
       </table>
@@ -2648,6 +2652,7 @@ function downloadWirePDF(txnId) {
 
   // Format date and time
   const txnDate = new Date(txn.date);
+  const displayTxnId = `MTB-TRX-${txn.id.split('-')[0]?.toUpperCase()}-${txnDate.getTime().toString().slice(-6)}`;
   const formattedDate = txnDate.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -2705,7 +2710,7 @@ function downloadWirePDF(txnId) {
       </div>
       <div style="text-align:right;">
         <div style="font-size:10px; font-weight:700; color:#555; text-transform:uppercase;">Official Transaction Receipt</div>
-        <div style="font-size:11px; font-family:monospace; font-weight:600; color:#002C77; margin-top:2px;">REF: ${txn.id}</div>
+        <div style="font-size:11.5px; font-family:monospace; font-weight:700; color:#002C77; margin-top:2px;">TXN-ID: ${displayTxnId}</div>
       </div>
     </div>
 
@@ -2717,12 +2722,16 @@ function downloadWirePDF(txnId) {
     <!-- Core Details Table -->
     <h3 style="font-size:13px; text-transform:uppercase; color:#002C77; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin:20px 0 10px 0; letter-spacing:0.5px;">Transfer Summary</h3>
     <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.7;">
-      <tr><td style="width:35%; padding:3px 0; color:#555;">Value Date:</td><td style="padding:3px 0; font-weight:600;">${formattedDate}</td></tr>
+      <tr><td style="width:35%; padding:3px 0; color:#555;">Transaction ID:</td><td style="padding:3px 0; font-weight:700; font-family:monospace; color:#002C77;">${displayTxnId}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Value Date:</td><td style="padding:3px 0; font-weight:600;">${formattedDate}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Transaction Time:</td><td style="padding:3px 0; font-weight:600;">${formattedTime} (UTC)</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Mode of Transfer:</td><td style="padding:3px 0; font-weight:600;">${isWire ? 'SWIFT International Wire Transfer (MT103)' : 'Internal / Domestic ACH'}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Settlement Currency:</td><td style="padding:3px 0; font-weight:600;">${txn.currency || 'USD'}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Ordering Customer ID:</td><td style="padding:3px 0; font-weight:600; font-family:monospace;">${txn.userId}</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Sending Account:</td><td style="padding:3px 0; font-weight:600;">Offshore Private Placement Treasury (USD equivalent)</td></tr>
       <tr><td style="padding:3px 0; color:#555;">Memo / Reference:</td><td style="padding:3px 0; font-weight:600;">${txn.description}</td></tr>
-      <tr><td style="padding:3px 0; color:#555;">Settled Net Amount:</td><td style="padding:3px 0; font-weight:700; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Original System Ref:</td><td style="padding:3px 0; font-weight:500; font-family:monospace; font-size:11px; color:#888;">${txn.id}</td></tr>
+      <tr><td style="padding:3px 0; color:#555;">Settled Net Amount:</td><td style="padding:3px 0; font-weight:800; font-size:16px; color:#002C77;">${fmtMoney(txn.amount, txn.currency)}</td></tr>
     </table>
 
     ${specSectionHtml}
