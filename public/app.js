@@ -623,7 +623,7 @@ window.showCardAuthModal = (id) => {
       setTimeout(() => {
         hideLoader();
         showCardDetails(id);
-      }, 1200);
+      }, 0);
     } else {
       toast('Verification Failed', 'Password is required to view secure details.', 'error');
     }
@@ -840,7 +840,7 @@ function handleForgotSubmit(e) {
       null,
       'Close'
     );
-  }, 1200);
+  }, 0);
 }
 window.handleForgotSubmit = handleForgotSubmit;
 
@@ -861,7 +861,7 @@ function handleLinkLoginSubmit(e) {
       null,
       'Check Inbox'
     );
-  }, 1200);
+  }, 0);
 }
 window.handleLinkLoginSubmit = handleLinkLoginSubmit;
 
@@ -1037,7 +1037,7 @@ async function handleRegisterSubmitWizard(e) {
     state.regStep = 1;
     
     const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1500 - elapsed);
+    const delay = 0;
     
     setTimeout(() => {
       hideLoader();
@@ -1489,7 +1489,7 @@ window.selectAccount = (id) => {
     const dd = document.getElementById('acc-dropdown');
     if (dd) dd.style.display = 'none';
     hideLoader();
-  }, 1200);
+  }, 0);
 };
 
 window.showCardDetails = (id) => {
@@ -2502,7 +2502,7 @@ async function handleLogin(e) {
     
     // Ensure loader shows for at least 1.5 seconds for premium effect
     const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1500 - elapsed);
+    const delay = 0;
     
     if (data.requires2FA) {
       setTimeout(() => {
@@ -2602,7 +2602,7 @@ async function handleLogin2FASubmit(e, userId) {
   try {
     const data = await api('/api/auth/verify-login-2fa', { userId, code });
     const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1500 - elapsed);
+    const delay = 0;
 
     setTimeout(() => {
       hideLoader();
@@ -2636,7 +2636,7 @@ async function handleRegisterSubmit(e) {
     state.regData = {}; // Clear form memory
     
     const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1500 - elapsed);
+    const delay = 0;
     
     setTimeout(() => {
       hideLoader();
@@ -2727,7 +2727,7 @@ async function handlePasswordChangeSubmit(e) {
     });
 
     const elapsed = Date.now() - startTime;
-    const delay = Math.max(0, 1500 - elapsed);
+    const delay = 0;
 
     setTimeout(() => {
       hideLoader();
@@ -2811,7 +2811,7 @@ function showTransactionDetails(txnId) {
   setTimeout(() => {
     hideLoader();
     renderTransactionDetailsModal(txnId);
-  }, 1200);
+  }, 0);
 }
 
 function renderTransactionDetailsModal(txnId) {
