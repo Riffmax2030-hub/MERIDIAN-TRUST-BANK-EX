@@ -33,6 +33,7 @@ const routeLoaderMessages = {
   '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
   '#/portal/digital-banking/transaction-history': ['Loading Transactions', 'Retrieving your transaction history and analytics…'],
   '#/portal/digital-banking/intrabank-transfer': ['Connecting Ledger', 'Authorizing account balance cross-transfer module…'],
+  '#/portal/digital-banking/profile': ['Loading Profile', 'Retrieving account settings and security preferences…'],
 };
 
 let _routeTimer = null;
@@ -83,6 +84,7 @@ function route() {
       case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       case '#/portal/digital-banking/intrabank-transfer': loadIntrabankTransfer(); break;
+      case '#/portal/digital-banking/profile': loadProfile(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -136,6 +138,7 @@ function renderNav() {
       <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
       <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Intrabank Transfer</button>
       <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/profile'?'active':''}"      onclick="nav('#/portal/digital-banking/profile')">Profile</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
   } else {
@@ -153,9 +156,21 @@ function toast(title, msg, type = 'info') {
   if (!c) return;
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  t.innerHTML = `<div class="toast-title">${title}</div><div class="toast-msg">${msg}</div>`;
+  
+  let icon = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+  if(type === 'success') icon = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+  if(type === 'error') icon = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+  if(type === 'warning') icon = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+
+  t.innerHTML = `
+    <div style="color:rgba(255,255,255,0.9); flex-shrink:0;">${icon}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-msg">${msg}</div>
+    </div>
+  `;
   c.appendChild(t);
-  setTimeout(() => { t.style.animation = 'toastIn 0.25s reverse forwards'; setTimeout(() => t.remove(), 280); }, 4500);
+  setTimeout(() => { t.style.animation = 'toastOut 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards'; setTimeout(() => t.remove(), 300); }, 4500);
 }
 
 function showLoader(statusText, subtext = 'Meridian Trust Secure Operations') {
@@ -1590,7 +1605,7 @@ function renderDashboard() {
             <div style="margin-top:16px;">
               <div style="font-size: 15px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em; margin-bottom:4px;">Total Balance</div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <div style="font-size: 26px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2; min-width:150px;">${maskBalance(netAssets, 'USD')}</div>
+                <div style="font-size: 26px; font-weight:800; color:var(--citi-navy); font-family:var(--font-sans); line-height:1.2; min-width:150px;">${maskBalance(netAssets, 'USD')}</div>
                 <button onclick="toggleBalanceVisibility()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:50%; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(0,44,119,0.08)'" onmouseout="this.style.background='none'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
                   ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
                 </button>
@@ -1612,7 +1627,7 @@ function renderDashboard() {
               `).join('');
 
               return `
-                <div style="position:relative; margin-top:24px; width:100%; max-width:460px; font-family:'Inter',sans-serif;">
+                <div style="position:relative; margin-top:24px; width:100%; max-width:460px; font-family:var(--font-sans);">
                   <div style="font-size: 14px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; letter-spacing:0.05em;">Active Funding Account</div>
                   
                   <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.12); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,44,119,0.2)'" onmouseout="this.style.boxShadow='0 6px 16px rgba(0,44,119,0.12)'">
@@ -1622,7 +1637,7 @@ function renderDashboard() {
                       </div>
                       <div>
                         <div style="font-size: 17px; font-weight:800; color:var(--citi-navy);">${selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size: 14px; font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
-                        <div style="font-size: 22px; font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
+                        <div style="font-size: 22px; font-weight:800; color:var(--text-primary); font-family:var(--font-sans);">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
                       </div>
                     </div>
                     <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:8px; border-radius:50%;">
@@ -2347,7 +2362,7 @@ function renderIntrabankTransfer() {
                     </div>
                     <div>
                       <div style="font-size:18px; font-weight:800; color:var(--citi-navy);">${fromAcc.type ? (fromAcc.type.charAt(0).toUpperCase() + fromAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:14px; font-family:monospace; font-weight:600;">(*${fromAcc.accountNumber ? fromAcc.accountNumber.slice(-4) : ''})</span></div>
-                      <div style="font-size:22px; font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif;">${fmtMoney(fromAcc.balance, fromAcc.currency)}</div>
+                      <div style="font-size:22px; font-weight:800; color:var(--text-primary); font-family:var(--font-sans);">${fmtMoney(fromAcc.balance, fromAcc.currency)}</div>
                     </div>
                   </div>
                   <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:6px; border-radius:50%;">
@@ -2368,7 +2383,7 @@ function renderIntrabankTransfer() {
                     </div>
                     <div>
                       <div style="font-size:18px; font-weight:800; color:var(--text-primary);">${toAcc.type ? (toAcc.type.charAt(0).toUpperCase() + toAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:14px; font-family:monospace; font-weight:600;">(*${toAcc.accountNumber ? toAcc.accountNumber.slice(-4) : ''})</span></div>
-                      <div style="font-size:16px; font-weight:600; color:var(--text-muted); font-family:'Outfit', sans-serif;">Balance: ${fmtMoney(toAcc.balance, toAcc.currency)}</div>
+                      <div style="font-size:16px; font-weight:600; color:var(--text-muted); font-family:var(--font-sans);">Balance: ${fmtMoney(toAcc.balance, toAcc.currency)}</div>
                     </div>
                   </div>
                   <div style="color:var(--text-muted); background:rgba(0,0,0,0.04); padding:6px; border-radius:50%;">
@@ -2753,13 +2768,13 @@ function renderTransactionDetailsModal(txnId) {
   let swiftHtml = '';
   if (isWire && swift.recipientBank) {
     swiftHtml = `
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:18px; margin-top:18px;">
+      <div style="background:var(--bg-muted); border:1px solid var(--border); border-radius:12px; padding:18px; margin-top:18px;">
         <h4 style="margin:0 0 12px 0; color:var(--citi-navy); font-size: 16px; text-transform:uppercase; letter-spacing:0.06em;">SWIFT Routing Details</h4>
         <table style="width:100%; font-size: 16px; border-collapse:collapse;">
           <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Bank:</td><td style="padding:8px 0; font-weight:600; text-align:right;">${swift.recipientBank}</td></tr>
-          <tr><td style="padding:8px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.swiftCode}</td></tr>
-          <tr><td style="padding:8px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.routingNumber || 'N/A'}</td></tr>
-          <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Account:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:monospace;">${swift.accountNumber}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">SWIFT / BIC Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:var(--font-mono);">${swift.swiftCode}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Routing / Sort Code:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:var(--font-mono);">${swift.routingNumber || 'N/A'}</td></tr>
+          <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Account:</td><td style="padding:8px 0; font-weight:600; text-align:right; font-family:var(--font-mono);">${swift.accountNumber}</td></tr>
           <tr><td style="padding:8px 0; color:var(--text-muted);">Beneficiary Address:</td><td style="padding:8px 0; font-weight:600; text-align:right;">${swift.recipientAddress || 'N/A'}</td></tr>
         </table>
       </div>
@@ -2800,14 +2815,14 @@ function renderTransactionDetailsModal(txnId) {
     </div>
     <div class="modal-body" style="padding-top:12px;">
       <table style="width:100%; font-size: 16px; border-collapse:collapse; margin-bottom:18px;">
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace; color:var(--citi-navy); font-size:14px;">${txn.id.toUpperCase()}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:600; text-align:right; font-family:monospace; font-size:15px; color:#555;">${refId}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transfer Mode:</td><td style="padding:12px 0; font-weight:600; text-align:right; color:var(--citi-navy);">${isWire ? 'SWIFT International Wire' : 'Internal / Domestic ACH'}</td></tr>
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
-        <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:700; text-align:right; color:${txn.type==='DEPOSIT'?'#16a34a':'#b91c1c'}; font-size: 20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Transaction ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:var(--font-mono); color:var(--citi-navy); font-size:14px;">${txn.id.toUpperCase()}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:600; text-align:right; font-family:var(--font-mono); font-size:15px; color:var(--text-secondary);">${refId}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Value Date:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${fmtDateTime(txn.date)}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Transfer Mode:</td><td style="padding:12px 0; font-weight:600; text-align:right; color:var(--citi-navy);">${isWire ? 'SWIFT International Wire' : 'Internal / Domestic ACH'}</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 0; color:var(--text-muted);">Settlement Status:</td><td style="padding:12px 0; text-align:right;"><span class="status-pill ${txn.status}">${txn.status}</span></td></tr>
+        <tr><td style="padding:12px 0; color:var(--text-muted); font-weight:600;">Settled Amount:</td><td style="padding:12px 0; font-weight:800; text-align:right; color:${txn.type==='DEPOSIT'?'var(--success)':'var(--danger)'}; font-size: 20px;">${txn.type==='DEPOSIT'?'+':'−'}${fmtMoney(txn.amount, txn.currency)}</td></tr>
       </table>
       ${swiftHtml}
       ${pdfButtonHtml}
@@ -2835,7 +2850,7 @@ function downloadWirePDF(txnId) {
   optEl.style.padding = '30px';
   optEl.style.background = '#ffffff';
   optEl.style.color = '#0c1a30';
-  optEl.style.fontFamily = "'DM Sans', sans-serif";
+  optEl.style.fontFamily = "var(--font-sans)";
   document.body.appendChild(optEl);
 
   // Format date and time
@@ -3826,6 +3841,82 @@ window.exportHistoryPDF = function() {
   `);
   printWindow.document.close();
 };
+
+// ── Profile & Settings Module ────────────────────────────────────────────────
+function loadProfile() {
+  if (!state.user) { nav('#/portal/client-auth/login'); return; }
+  renderProfile();
+}
+
+function renderProfile() {
+  const u = state.user;
+  const kycText = (u.kycStatus || '').toLowerCase() === 'approved' ? 'Verified' : u.kycStatus;
+  const kycColor = (u.kycStatus || '').toLowerCase() === 'approved' ? 'var(--green)' : 'var(--amber)';
+
+  const html = `
+    <div style="max-width:800px; margin:0 auto;">
+      <h2 style="font-size: 26px; font-weight:800; color:var(--citi-navy); margin-bottom: 24px;">Profile & Settings</h2>
+      
+      <!-- Account Identity -->
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:20px; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
+          <div style="width:70px; height:70px; border-radius:50%; background:var(--citi-navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size: 28px; font-weight:700;">
+            ${u.name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-size: 22px; font-weight:800; color:var(--text-primary);">${u.name}</div>
+            <div style="font-size: 15px; color:var(--text-muted); font-family:var(--font-mono); margin-top:4px;">Client ID: ${u.id}</div>
+          </div>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
+          <div>
+            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Email Address</div>
+            <div style="font-size: 16px; font-weight:600;">${u.email}</div>
+          </div>
+          <div>
+            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Account Type</div>
+            <div style="font-size: 16px; font-weight:600;">${u.accountType === 'business' ? 'Corporate Account' : 'Personal Account'}</div>
+          </div>
+          <div>
+            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">KYC Status</div>
+            <div style="font-size: 16px; font-weight:700; color:${kycColor}; display:flex; align-items:center; gap:6px;">
+              ${icons.check} ${kycText}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Registered Address</div>
+            <div style="font-size: 16px; font-weight:600;">Secure Vault Location</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security & Limits -->
+      <div class="card">
+        <h3 style="font-size: 18px; font-weight:700; color:var(--citi-navy); margin-bottom: 20px;">Security & Limits</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size: 16px; font-weight:700;">Two-Factor Authentication (2FA)</div>
+            <div style="font-size: 14px; color:var(--text-muted); margin-top:4px;">Secured via encrypted dynamic OTP.</div>
+          </div>
+          <span style="background:var(--green-bg); color:var(--green); padding:4px 10px; border-radius:12px; font-size: 12px; font-weight:700;">ENABLED</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size: 16px; font-weight:700;">Daily Transfer Limit</div>
+            <div style="font-size: 14px; color:var(--text-muted); margin-top:4px;">Maximum outbound SWIFT & ACH limit.</div>
+          </div>
+          <div style="font-size: 16px; font-weight:700; font-family:var(--font-mono);">$500,000.00</div>
+        </div>
+        <div style="padding-top:16px;">
+          <button class="btn btn-primary" onclick="toast('Security Support', 'Please contact your dedicated account manager to change security limits.', 'info')">Request Limit Increase</button>
+        </div>
+      </div>
+
+    </div>
+  `;
+  setRoot(html);
+}
 
 // ── DOM Value Helper ──────────────────────────────────────────────────────────
 function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
