@@ -1429,13 +1429,14 @@ function renderDashboard() {
 
   const txMobileRows = recent.length ? recent.map(t => {
     const isCredit = t.type === 'DEPOSIT';
+    const accLabel = resolveAccountLabel(t.accountId);
     return `
       <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')">
         <div class="txn-mobile-left">
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           <div class="txn-mobile-info">
             <div class="txn-desc">${t.description}</div>
-            <div class="txn-party">${t.counterparty}</div>
+            <div class="txn-party">${t.counterparty} <span style="font-size:10px; color:var(--text-muted);">(${accLabel})</span></div>
             <div class="txn-date">${fmtDateTime(t.date)}</div>
           </div>
         </div>
@@ -1443,7 +1444,12 @@ function renderDashboard() {
           <div class="txn-amount ${isCredit ? 'credit' : 'debit'}">
             ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
           </div>
-          <span class="status-pill ${t.status}">${t.status}</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="status-pill ${t.status}">${t.status}</span>
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -1534,9 +1540,9 @@ function renderDashboard() {
         <div class="panel-header">
           <span class="panel-title">Asset Allocation & Portfolio Analytics</span>
         </div>
-        <div class="panel-body portfolio-analytics-body">
+        <div class="panel-body" style="padding:24px; display:flex; justify-content:center; align-items:center;">
           <!-- Donut chart -->
-          <div class="portfolio-donut-container">
+          <div style="display:flex; flex-direction:column; align-items:center;">
             <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Account Allocation</h4>
             <div style="position:relative; width:170px; height:170px;">
               <canvas id="chart-donut" width="170" height="170"></canvas>
@@ -1551,13 +1557,6 @@ function renderDashboard() {
               <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0066CC; border-radius:2px;"></span>Savings</span>
               <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0099D6; border-radius:2px;"></span>Money Market</span>
               <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#b5a25e; border-radius:2px;"></span>CDs</span>
-            </div>
-          </div>
-          <!-- Trend line chart -->
-          <div class="portfolio-trend-container">
-            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Offshore Balance Trends (Last 6 Months)</h4>
-            <div style="position:relative; width:100%; height:170px;">
-              <canvas id="chart-trends" style="width:100%; height:170px;"></canvas>
             </div>
           </div>
         </div>
@@ -1617,8 +1616,7 @@ function renderDashboard() {
 
 function drawDashboardCharts() {
   const dCanvas = document.getElementById('chart-donut');
-  const tCanvas = document.getElementById('chart-trends');
-  if (!dCanvas || !tCanvas) return;
+  if (!dCanvas) return;
 
   // ── Calculate Totals (USD equivalents) ──
   let totalUSD = 0;
@@ -1675,138 +1673,6 @@ function drawDashboardCharts() {
     dct.closePath();
     dct.fill();
   }
-
-  // ── TREND LINE CHART DRAWING ──
-  const tct = tCanvas.getContext('2d');
-  const dWidth = tCanvas.clientWidth;
-  const dHeight = 170;
-  tCanvas.width = dWidth;
-  tCanvas.height = dHeight;
-  tct.clearRect(0, 0, dWidth, dHeight);
-
-  // Reconstruct portfolio balance at points in time using transaction history
-  const points = [];
-  const now = new Date('2026-06-20T16:16:30+03:00'); // Use June 20, 2026 as reference time
-  
-  // Sort transactions descending (newest first)
-  const txSorted = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  // Create 6 datapoints for the last 6 months (chronological order)
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
-    
-    let balAtEnd = totalUSD;
-    txSorted.forEach(tx => {
-      const txDate = new Date(tx.date);
-      if (txDate > endOfMonth) {
-        if (tx.type === 'DEPOSIT') {
-          balAtEnd -= parseFloat(tx.amount) || 0;
-        } else {
-          balAtEnd += parseFloat(tx.amount) || 0;
-        }
-      }
-    });
-
-    const labelStr = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-    points.push({ label: labelStr, value: balAtEnd });
-  }
-
-  // Chart configs
-  const paddingLeft = 60;
-  const paddingRight = 20;
-  const paddingTop = 20;
-  const paddingBottom = 30;
-
-  const graphWidth = dWidth - paddingLeft - paddingRight;
-  const graphHeight = dHeight - paddingTop - paddingBottom;
-
-  const values = points.map(p => p.value);
-  const minVal = Math.min(...values) * 0.98;
-  const maxVal = Math.max(...values) * 1.02;
-  const valRange = maxVal - minVal || 1;
-
-  // Draw Grid Lines & Y-Axis Labels
-  tct.strokeStyle = '#f1f5f9';
-  tct.lineWidth = 1.5;
-  tct.fillStyle = '#64748b';
-  tct.font = '500 10px "DM Sans", sans-serif';
-  tct.textAlign = 'right';
-  tct.textBaseline = 'middle';
-
-  const gridSteps = 3;
-  for (let i = 0; i <= gridSteps; i++) {
-    const yVal = minVal + (valRange * (i / gridSteps));
-    const yPos = dHeight - paddingBottom - (graphHeight * (i / gridSteps));
-    
-    // Grid Line
-    tct.beginPath();
-    tct.moveTo(paddingLeft, yPos);
-    tct.lineTo(dWidth - paddingRight, yPos);
-    tct.stroke();
-
-    // Label
-    let labelText = '';
-    if (yVal >= 1000000) labelText = '$' + (yVal / 1000000).toFixed(2) + 'M';
-    else labelText = '$' + (yVal / 1000).toFixed(0) + 'k';
-    tct.fillText(labelText, paddingLeft - 10, yPos);
-  }
-
-  // Draw X-Axis Labels (months)
-  tct.textAlign = 'center';
-  tct.textBaseline = 'top';
-  points.forEach((p, idx) => {
-    const xPos = paddingLeft + (graphWidth * (idx / (points.length - 1)));
-    tct.fillText(p.label, xPos, dHeight - paddingBottom + 8);
-  });
-
-  // Draw Trend Line Path
-  tct.beginPath();
-  points.forEach((p, idx) => {
-    const xPos = paddingLeft + (graphWidth * (idx / (points.length - 1)));
-    const yPos = dHeight - paddingBottom - (graphHeight * ((p.value - minVal) / valRange));
-    
-    if (idx === 0) tct.moveTo(xPos, yPos);
-    else tct.lineTo(xPos, yPos);
-  });
-
-  tct.strokeStyle = '#0066CC';
-  tct.lineWidth = 3;
-  tct.lineCap = 'round';
-  tct.lineJoin = 'round';
-  tct.stroke();
-
-  // Draw Gradient Fill beneath the line
-  const grad = tct.createLinearGradient(0, paddingTop, 0, dHeight - paddingBottom);
-  grad.addColorStop(0, 'rgba(0, 102, 204, 0.15)');
-  grad.addColorStop(1, 'rgba(0, 102, 204, 0.0)');
-
-  tct.beginPath();
-  points.forEach((p, idx) => {
-    const xPos = paddingLeft + (graphWidth * (idx / (points.length - 1)));
-    const yPos = dHeight - paddingBottom - (graphHeight * ((p.value - minVal) / valRange));
-    
-    if (idx === 0) tct.moveTo(xPos, dHeight - paddingBottom);
-    tct.lineTo(xPos, yPos);
-  });
-  tct.lineTo(paddingLeft + graphWidth, dHeight - paddingBottom);
-  tct.closePath();
-  tct.fillStyle = grad;
-  tct.fill();
-
-  // Draw Hover Node Points
-  tct.fillStyle = '#002C77';
-  tct.strokeStyle = '#ffffff';
-  tct.lineWidth = 2;
-  points.forEach((p, idx) => {
-    const xPos = paddingLeft + (graphWidth * (idx / (points.length - 1)));
-    const yPos = dHeight - paddingBottom - (graphHeight * ((p.value - minVal) / valRange));
-    
-    tct.beginPath();
-    tct.arc(xPos, yPos, 5, 0, 2 * Math.PI);
-    tct.fill();
-    tct.stroke();
-  });
 }
 
 let currentWireTab = 'send';
@@ -3002,35 +2868,11 @@ function renderTransactionHistory() {
               <input id="hist-end-date" type="date" class="form-input" value="${state.historyFilter.endDate}" onchange="updateHistoryFilter()">
             </div>
           </div>
-          <div class="form-row" style="display:grid; grid-template-columns: 2fr 1fr; gap:16px;">
+          <div class="form-row">
             <div class="form-group">
               <label class="form-label" style="font-size:11px;">Search Description / Counterparty</label>
               <input id="hist-search" type="text" class="form-input" placeholder="Search reference, description, counterparty..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
             </div>
-            <div class="form-group">
-              <label class="form-label" style="font-size:11px;">Chart Period Grouping</label>
-              <select id="hist-grouping" class="form-select" onchange="updateHistoryFilter()">
-                <option value="month">Group by Month</option>
-                <option value="year">Group by Year</option>
-                <option value="day">Group by Day</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Graph Panel -->
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header">
-          <span class="panel-title">Transaction Volume Chart</span>
-        </div>
-        <div class="panel-body" style="padding:24px;">
-          <div style="position:relative; width:100%; height:220px;">
-            <canvas id="chart-history-trends" style="width:100%; height:220px;"></canvas>
-          </div>
-          <div style="display:flex; justify-content:center; gap:24px; margin-top:12px; font-size:12px; font-weight:600;">
-            <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#10b981; border-radius:2px;"></span>Inflow (Deposits)</span>
-            <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#ef4444; border-radius:2px;"></span>Outflow (Transfers/Debits)</span>
           </div>
         </div>
       </div>
