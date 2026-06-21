@@ -1692,7 +1692,7 @@ function renderWireTransfer() {
     }).join('');
 
     currentStepFormHtml = `
-      <form id="wire-step-1" onsubmit="event.preventDefault(); nextWireStep();">
+      <form id="wire-step-1" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
         
         <div class="form-group">
@@ -1714,7 +1714,7 @@ function renderWireTransfer() {
     `;
   } else if (state.wireStep === 2) {
     currentStepFormHtml = `
-      <form id="wire-step-2" onsubmit="event.preventDefault(); nextWireStep();">
+      <form id="wire-step-2" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
         
         <div class="form-group">
@@ -1750,7 +1750,7 @@ function renderWireTransfer() {
     `;
   } else if (state.wireStep === 3) {
     currentStepFormHtml = `
-      <form id="wire-step-3" onsubmit="event.preventDefault(); nextWireStep();">
+      <form id="wire-step-3" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">3. Receiving Bank & Memo</h3>
         <div class="form-row">
           <div class="form-group">
@@ -1941,6 +1941,37 @@ window.setWireTab = function(tab) {
 };
 
 window.nextWireStep = function() {
+  const form = document.getElementById('wire-step-' + state.wireStep);
+  if (form) {
+    const requiredInputs = form.querySelectorAll('input[required], select[required]');
+    let hasError = false;
+    requiredInputs.forEach(inp => {
+      if (!inp.value.trim()) {
+        inp.style.border = '2px solid #ef4444';
+        inp.style.backgroundColor = '#fdf2f2';
+        inp.placeholder = '* Required';
+        
+        const label = inp.previousElementSibling;
+        if (label && label.tagName === 'LABEL' && !label.innerHTML.includes('ef4444')) {
+          label.innerHTML += ' <span style="color:#ef4444; font-weight:bold;">*</span>';
+        }
+        hasError = true;
+      } else {
+        inp.style.border = '';
+        inp.style.backgroundColor = '';
+        const label = inp.previousElementSibling;
+        if (label && label.tagName === 'LABEL' && label.innerHTML.includes('ef4444')) {
+          label.innerHTML = label.innerHTML.replace(' <span style="color:#ef4444; font-weight:bold;">*</span>', '');
+        }
+      }
+    });
+    
+    if (hasError) {
+      toast('Required Fields', 'Please fill in all highlighted fields.', 'error');
+      return;
+    }
+  }
+
   saveCurrentStepInputs();
   
   if (state.wireStep === 1) {
@@ -1956,8 +1987,12 @@ window.nextWireStep = function() {
     }
   }
 
-  state.wireStep++;
-  renderWireTransfer();
+  showLoader('Processing', 'Validating details...');
+  setTimeout(() => {
+    hideLoader();
+    state.wireStep++;
+    renderWireTransfer();
+  }, 600);
 };
 
 window.prevWireStep = function() {
