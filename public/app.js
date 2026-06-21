@@ -1585,14 +1585,26 @@ function renderDashboard() {
 
 }
 
-
-
 let currentWireTab = 'send';
 
 async function loadSend() {
   if (!state.accounts.length) {
     const accounts = await api(`/api/accounts?userId=${state.user.id}`);
     state.accounts = accounts;
+  }
+  if (state.wireStep === undefined || state.wireStep === 6) {
+    state.wireStep = 1;
+    state.wireData = {
+      accountId: state.accounts[0]?.id || '',
+      amount: '',
+      recipientName: '',
+      recipientAddress: '',
+      swiftCode: '',
+      routingNumber: '',
+      accountNumber: '',
+      bankName: '',
+      description: ''
+    };
   }
   renderWireTransfer();
 }
@@ -1601,11 +1613,12 @@ function renderWireTransfer() {
   const u = state.user;
   const isBusiness = u.accountType === 'business';
 
-  const opts = state.accounts.map(a =>
-    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} (${a.currency}) — ${fmtMoney(a.balance, a.currency)}</option>`
-  ).join('');
+  const opts = state.accounts.map(a => {
+    const selected = state.wireData.accountId === a.id ? 'selected' : '';
+    return `<option value="${a.id}" ${selected}>${a.type.charAt(0).toUpperCase() + a.type.slice(1)} (${a.currency}) — ${fmtMoney(a.balance, a.currency)}</option>`;
+  }).join('');
 
-  // Prepare wire details card
+  // Prepare wire details card for the incoming tab
   const detailsHtml = `
     <div class="panel">
       <div class="panel-header">
@@ -1656,65 +1669,450 @@ function renderWireTransfer() {
     </div>
   `;
 
-  const formHtml = `
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Outbound SWIFT Wire Details</span></div>
-      <div class="panel-body">
-        <form id="send-form" onsubmit="handleSend(event)">
-          <h3 style="font-size:14px;color:var(--citi-blue);margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">1. Originating Account & Amount</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Funding Account</label>
-              <select id="s-acc" class="form-select">${opts || '<option>No accounts</option>'}</select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Transfer Amount</label>
-              <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required>
-            </div>
-          </div>
+  // Step wizard progress indicator
+  const stepsDef = [
+    { num: 1, label: 'Amount' },
+    { num: 2, label: 'Beneficiary' },
+    { num: 3, label: 'Bank Details' },
+    { num: 4, label: 'Authorize' },
+    { num: 5, label: 'Verify' },
+    { num: 6, label: 'Success' }
+  ];
 
-          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Beneficiary Full Name</label>
-              <input id="s-recipient-name" type="text" class="form-input" placeholder="" required>
+  const progressHtml = `
+    <div class="wire-progress-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; position:relative; background:var(--bg-card); padding:16px; border-radius:12px; border:1px solid var(--border);">
+      <div style="position:absolute; top:50%; left:40px; right:40px; height:2px; background:var(--border); z-index:1; transform:translateY(-50%);"></div>
+      <div style="position:absolute; top:50%; left:40px; width:${((state.wireStep - 1) / 5) * 100}%; height:2px; background:#002C77; z-index:1; transform:translateY(-50%); transition: width 0.3s ease;"></div>
+      ${stepsDef.map(s => {
+        const isActive = state.wireStep === s.num;
+        const isDone = state.wireStep > s.num;
+        const bg = isDone ? '#002C77' : isActive ? 'var(--citi-blue, #0066CC)' : 'var(--border)';
+        const color = isDone || isActive ? '#ffffff' : 'var(--text-muted)';
+        const textWeight = isActive ? '700' : '500';
+        return `
+          <div style="display:flex; flex-direction:column; align-items:center; z-index:2; position:relative; width:60px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:${bg}; color:${color}; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; transition:all 0.3s ease;">
+              ${isDone ? '✔' : s.num}
             </div>
-            <div class="form-group">
-              <label class="form-label">Beneficiary Address</label>
-              <input id="s-recipient-addr" type="text" class="form-input" placeholder="" required>
-            </div>
+            <span style="font-size:10px; margin-top:6px; font-weight:${textWeight}; color:${isActive ? 'var(--citi-navy)' : 'var(--text-muted)'}; text-align:center; white-space:nowrap;">${s.label}</span>
           </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 
-          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">3. Receiving Bank Routing (SWIFT) Details</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">SWIFT / BIC Code</label>
-              <input id="s-swift-code" type="text" class="form-input" placeholder="" maxlength="11" required style="text-transform:uppercase;font-family:monospace;">
-            </div>
-            <div class="form-group">
-              <label class="form-label">ABA Routing / Sort Code / IBAN</label>
-              <input id="s-routing-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Recipient Account Number</label>
-              <input id="s-acc-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Recipient Bank Name</label>
-              <input id="s-bank-name" type="text" class="form-input" placeholder="" required>
-            </div>
-          </div>
+  let currentStepFormHtml = '';
 
-          <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">4. Transfer Memo</h3>
+  if (state.wireStep === 1) {
+    const accountCardsHtml = state.accounts.map(a => {
+      const isSelected = state.wireData.accountId === a.id;
+      return `
+        <div onclick="state.wireData.accountId = '${a.id}'; renderWireTransfer();" style="border: 1px solid ${isSelected ? 'var(--citi-blue)' : 'var(--border)'}; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; background: ${isSelected ? '#f0f7ff' : 'var(--bg-card)'}; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
+          <div>
+            <div style="font-weight:600; color:var(--citi-navy); font-size:14px; margin-bottom:4px;">${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account</div>
+            <div style="font-family:monospace; color:var(--text-secondary); font-size:13px;">*${a.accountNumber.slice(-4)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700; color:var(--citi-navy); font-size:15px;">${fmtMoney(a.balance, a.currency)}</div>
+            <div style="font-size:12px; color:var(--text-muted);">Available Balance</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    currentStepFormHtml = `
+      <form id="wire-step-1" onsubmit="event.preventDefault(); nextWireStep();">
+        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
+        
+        <div class="form-group">
+          <label class="form-label" style="margin-bottom:12px; display:block;">Select Funding Account</label>
+          <div style="max-height:300px; overflow-y:auto; margin-bottom:20px; padding-right:10px;">
+            ${accountCardsHtml}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Transfer Amount</label>
+          <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="" required value="${state.wireData.amount || ''}">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Next &nbsp;➜</button>
+        </div>
+      </form>
+    `;
+  } else if (state.wireStep === 2) {
+    currentStepFormHtml = `
+      <form id="wire-step-2" onsubmit="event.preventDefault(); nextWireStep();">
+        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
+        
+        <div class="form-group">
+          <label class="form-label">Beneficiary Full Name</label>
+          <input id="s-recipient-name" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientName || ''}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Street Address</label>
+          <input id="s-recipient-addr" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientAddress || ''}">
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Narrative / Description (For bank statement)</label>
-            <input id="s-description" type="text" class="form-input" placeholder="" required>
+            <label class="form-label">State / Province</label>
+            <input id="s-recipient-state" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientState || ''}">
           </div>
+          <div class="form-group">
+            <label class="form-label">Zip / Postal Code</label>
+            <input id="s-recipient-zip" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientZip || ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <input id="s-recipient-country" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientCountry || ''}">
+          </div>
+        </div>
 
-          <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px;">Transmit International Wire</button>
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="prevWireStep();" style="padding: 10px 24px;">⬅&nbsp; Back</button>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Next &nbsp;➜</button>
+        </div>
+      </form>
+    `;
+  } else if (state.wireStep === 3) {
+    currentStepFormHtml = `
+      <form id="wire-step-3" onsubmit="event.preventDefault(); nextWireStep();">
+        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">3. Receiving Bank & Memo</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">SWIFT / BIC Code</label>
+            <input id="s-swift-code" type="text" class="form-input" placeholder="" maxlength="11" required style="text-transform:uppercase; font-family:monospace;" value="${state.wireData.swiftCode || ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ABA Routing / Sort Code / IBAN</label>
+            <input id="s-routing-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.routingNumber || ''}">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Recipient Account Number</label>
+            <input id="s-acc-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.accountNumber || ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient Bank Name</label>
+            <input id="s-bank-name" type="text" class="form-input" placeholder="" required value="${state.wireData.bankName || ''}">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">Narrative / Description (For bank statement)</label>
+          <input id="s-description" type="text" class="form-input" placeholder="" required value="${state.wireData.description || ''}">
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="prevWireStep();" style="padding: 10px 24px;">⬅&nbsp; Back</button>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Next &nbsp;➜</button>
+        </div>
+      </form>
+    `;
+  } else if (state.wireStep === 4) {
+    const fundingAcc = state.accounts.find(a => a.id === state.wireData.accountId);
+    currentStepFormHtml = `
+      <form id="wire-step-4" onsubmit="event.preventDefault(); handleWireCodeRequest();">
+        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">4. Confirmation & Authorization</h3>
+        
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:20px;">
+          <table style="width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.8;">
+            <tr><td style="color:var(--text-secondary); width:35%;">Funding Account:</td><td style="font-weight:600; color:var(--citi-navy);">${fundingAcc?.type.toUpperCase()} (*${fundingAcc?.accountNumber.slice(-4)})</td></tr>
+            <tr><td style="color:var(--text-secondary);">Transfer Amount:</td><td style="font-weight:700; color:var(--citi-navy);">${fmtMoney(state.wireData.amount, fundingAcc?.currency || 'USD')}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Beneficiary Name:</td><td style="font-weight:600;">${state.wireData.recipientName}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Beneficiary Address:</td><td>${state.wireData.recipientAddress}, ${state.wireData.recipientState} ${state.wireData.recipientZip}, ${state.wireData.recipientCountry}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Receiving Bank:</td><td>${state.wireData.bankName}</td></tr>
+            <tr><td style="color:var(--text-secondary);">SWIFT Code / Routing:</td><td style="font-family:monospace;">${state.wireData.swiftCode} / ${state.wireData.routingNumber}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Account Number:</td><td style="font-family:monospace;">${state.wireData.accountNumber}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Narrative Memo:</td><td style="font-style:italic;">"${state.wireData.description}"</td></tr>
+          </table>
+        </div>
+
+        <div style="background:#fffdf5; border:1px solid #ebd382; padding:16px; border-radius:6px; font-size:13px; color:#744210; line-height:1.5; margin-bottom:20px;">
+          <strong>Authorization Notice:</strong> By checking the confirmation box below and proceeding, you authorize Meridian Trust Bank to transmit the specified funds to the designated beneficiary. You certify that this transaction is compliant with international wire transfer regulations.
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:20px;">
+          <input type="checkbox" id="s-authorize-check" style="width:18px; height:18px; margin-top:2px; cursor:pointer;" required>
+          <label for="s-authorize-check" style="font-size:13px; color:var(--text-secondary); cursor:pointer; font-weight:500; line-height:1.4;">
+            I confirm that I have reviewed the transaction details above and verify that all beneficiary and routing details are accurate.
+          </label>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="prevWireStep();" style="padding: 10px 24px;">⬅&nbsp; Back</button>
+          <button type="submit" id="btn-request-code" class="btn btn-primary" style="padding: 10px 24px;">Send Verification Code &nbsp;➜</button>
+        </div>
+      </form>
+    `;
+  } else if (state.wireStep === 5) {
+    currentStepFormHtml = `
+      <form id="wire-step-5" onsubmit="event.preventDefault(); submitWireTransfer();">
+        <h3 style="font-size:15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">5. Security Verification</h3>
+        
+        <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5; text-align:center;">
+          A 6-digit transaction verification code has been dispatched to your registered email address. Enter the code below to finalize authorized transmission.
+        </p>
+
+        <div class="form-group" style="text-align:center;">
+          <label class="form-label" style="display:block; text-align:center; font-weight:600; margin-bottom:8px;">6-Digit Security Code</label>
+          <input type="text" id="s-verification-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size:24px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="prevWireStep();" style="padding: 10px 24px;">⬅&nbsp; Back</button>
+          <button type="submit" id="btn-submit-wire" class="btn btn-primary" style="padding: 10px 24px;">Authorize & Submit Transfer</button>
+        </div>
+      </form>
+    `;
+  } else if (state.wireStep === 6) {
+    const fundingAcc = state.accounts.find(a => a.id === state.wireData.accountId);
+    const tx = state.wireTxn;
+    currentStepFormHtml = `
+      <div style="text-align:center; padding:10px 0;">
+        <svg class="bank-logo-icon" viewBox="0 0 32 32" width="64" height="64" fill="none" style="margin: 0 auto;">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFDF0" />
+              <stop offset="20%" stop-color="#FFDF6D" />
+              <stop offset="50%" stop-color="#E5A922" />
+              <stop offset="80%" stop-color="#A5750F" />
+              <stop offset="100%" stop-color="#674600" />
+            </linearGradient>
+            <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="1.5" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.35"/>
+            </filter>
+          </defs>
+          <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.8" fill="#002C77" fill-opacity="0.05" filter="url(#goldGlow)"/>
+          <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.8" stroke-dasharray="1.5 1.5" filter="url(#goldGlow)"/>
+          <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
+          <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
+          <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
+          <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
+          <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
+          <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF" filter="url(#goldGlow)"/>
+        </svg>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; color:var(--citi-navy); margin-top:8px;">Meridian Trust</div>
+        
+        <div style="width:50px; height:50px; border-radius:50%; background:#e6f4ea; display:flex; align-items:center; justify-content:center; color:#137333; font-size:24px; margin:20px auto 12px auto; box-shadow:0 2px 8px rgba(19,115,51,0.15);">
+          ✔
+        </div>
+        
+        <h3 style="font-size:18px; color:#137333; font-weight:700; margin-bottom:6px;">Wire Transfer Initiated</h3>
+        <p style="font-size:13px; color:var(--text-secondary); max-width:400px; margin:0 auto 20px auto; line-height:1.5;">
+          Your international SWIFT wire transfer request has been successfully submitted and logged. Our operations desk is reviewing the transfer for compliance standards.
+        </p>
+
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:16px; margin:0 auto 24px auto; max-width:460px; text-align:left;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px; line-height:1.8;">
+            <tr><td style="color:var(--text-secondary); width:35%;">Transaction Ref:</td><td style="font-weight:700; font-family:monospace; color:var(--citi-navy);">${tx?.id}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Funding Account:</td><td style="font-weight:600;">${fundingAcc?.type.toUpperCase()} (*${fundingAcc?.accountNumber.slice(-4)})</td></tr>
+            <tr><td style="color:var(--text-secondary);">Transfer Amount:</td><td style="font-weight:700; color:#002C77;">${fmtMoney(state.wireData.amount, fundingAcc?.currency || 'USD')}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Beneficiary:</td><td style="font-weight:600;">${state.wireData.recipientName}</td></tr>
+            <tr><td style="color:var(--text-secondary);">Status:</td><td><span style="background:#fff4e5; color:#b25e00; padding:2px 8px; border-radius:4px; font-weight:600; font-size:11px;">PENDING COMPLIANCE REVIEW</span></td></tr>
+          </table>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+          <button class="btn btn-secondary" onclick="downloadWirePDF('${tx?.id}')" style="padding: 10px 20px;">🖨&nbsp; Download Receipt</button>
+          <button class="btn btn-primary" onclick="resetWireWizard(); nav('#/portal/digital-banking/dashboard');" style="padding: 10px 20px;">Done</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const formCardHtml = `
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Wire Transfer Form</span></div>
+      <div class="panel-body" style="padding:24px;">
+        ${progressHtml}
+        ${currentStepFormHtml}
+      </div>
+    </div>
+  `;
+
+  setRoot(`
+    <div class="app-container transfer-shell">
+      <div class="page-header" style="margin-bottom:20px;">
+        <div>
+          <h2 class="page-greeting">Wire Transfer Form</h2>
+          <p class="page-subtext">Manage outbound international wires or view incoming transfer routing instructions.</p>
+        </div>
+      </div>
+
+      <!-- Tab Toggle buttons group -->
+      <div style="display:flex; gap:10px; margin-bottom:24px;">
+        <button id="btn-tab-send" class="btn ${currentWireTab === 'send' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('send')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+          Send Wire Transfer
+        </button>
+        <button id="btn-tab-details" class="btn ${currentWireTab === 'details' ? 'btn-primary' : 'btn-ghost'}" onclick="setWireTab('details')" style="padding: 8px 16px; font-size:13px; font-weight:600;">
+          Incoming Wire Details
+        </button>
+      </div>
+
+      <div id="wire-tab-content">
+        ${currentWireTab === 'send' ? formCardHtml : detailsHtml}
+      </div>
+    </div>
+  `);
+}
+
+window.setWireTab = function(tab) {
+  currentWireTab = tab;
+  renderWireTransfer();
+};
+
+window.nextWireStep = function() {
+  saveCurrentStepInputs();
+  
+  if (state.wireStep === 1) {
+    const acc = state.accounts.find(a => a.id === state.wireData.accountId);
+    const amt = parseFloat(state.wireData.amount);
+    if (!acc || isNaN(amt) || amt <= 0) {
+      toast('Invalid Input', 'Please enter a valid positive transfer amount.', 'error');
+      return;
+    }
+    if (acc.balance < amt) {
+      toast('Transfer Declined', 'Insufficient available balance.', 'error');
+      return;
+    }
+  }
+
+  state.wireStep++;
+  renderWireTransfer();
+};
+
+window.prevWireStep = function() {
+  saveCurrentStepInputs();
+  if (state.wireStep > 1) {
+    state.wireStep--;
+    renderWireTransfer();
+  }
+};
+
+window.resetWireWizard = function() {
+  state.wireStep = 1;
+  state.wireData = {
+    accountId: state.accounts[0]?.id || '',
+    amount: '',
+    recipientName: '',
+    recipientAddress: '',
+    recipientState: '',
+    recipientZip: '',
+    recipientCountry: '',
+    swiftCode: '',
+    routingNumber: '',
+    accountNumber: '',
+    bankName: '',
+    description: ''
+  };
+};
+
+function saveCurrentStepInputs() {
+  if (state.wireStep === 1) {
+    const accEl = document.getElementById('s-acc');
+    const amtEl = document.getElementById('s-amt');
+    if (accEl) state.wireData.accountId = accEl.value;
+    if (amtEl) state.wireData.amount = amtEl.value;
+  } else if (state.wireStep === 2) {
+    const nameEl = document.getElementById('s-recipient-name');
+    const addrEl = document.getElementById('s-recipient-addr');
+    const stateEl = document.getElementById('s-recipient-state');
+    const zipEl = document.getElementById('s-recipient-zip');
+    const countryEl = document.getElementById('s-recipient-country');
+    if (nameEl) state.wireData.recipientName = nameEl.value;
+    if (addrEl) state.wireData.recipientAddress = addrEl.value;
+    if (stateEl) state.wireData.recipientState = stateEl.value;
+    if (zipEl) state.wireData.recipientZip = zipEl.value;
+    if (countryEl) state.wireData.recipientCountry = countryEl.value;
+  } else if (state.wireStep === 3) {
+    const swiftEl = document.getElementById('s-swift-code');
+    const routEl = document.getElementById('s-routing-num');
+    const accNumEl = document.getElementById('s-acc-num');
+    const bankEl = document.getElementById('s-bank-name');
+    const descEl = document.getElementById('s-description');
+    
+    if (swiftEl) state.wireData.swiftCode = swiftEl.value;
+    if (routEl) state.wireData.routingNumber = routEl.value;
+    if (accNumEl) state.wireData.accountNumber = accNumEl.value;
+    if (bankEl) state.wireData.bankName = bankEl.value;
+    if (descEl) state.wireData.description = descEl.value;
+  }
+}
+
+window.handleWireCodeRequest = async function() {
+  const checkEl = document.getElementById('s-authorize-check');
+  if (!checkEl || !checkEl.checked) {
+    toast('Confirmation Required', 'Please check the confirmation box to authorize this wire transfer.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-request-code');
+  if (btn) { btn.disabled = true; btn.textContent = 'Requesting Code…'; }
+  showLoader('Requesting Code', 'Requesting outbound transfer verification code from security server...');
+
+  try {
+    await api('/api/transactions/request-code', { userId: state.user.id });
+    hideLoader();
+    state.wireStep = 5;
+    renderWireTransfer();
+  } catch (err) {
+    hideLoader();
+    toast('Request Failed', err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Verification Code ➜'; }
+  }
+};
+
+window.submitWireTransfer = async function() {
+  const codeEl = document.getElementById('s-verification-code');
+  const verificationCode = codeEl ? codeEl.value : '';
+  if (verificationCode.length !== 6) {
+    toast('Verification Failed', 'Code must be exactly 6 digits.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-wire');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting Wire…'; }
+  
+  const acc = state.accounts.find(a => a.id === state.wireData.accountId);
+  const amt = parseFloat(state.wireData.amount);
+
+  showLoader('Transmitting SWIFT Wire', `Routing ${fmtMoney(amt, acc?.currency || 'USD')} out to international clearing systems…`);
+
+  try {
+    const res = await api('/api/transactions/send', {
+      userId: state.user.id,
+      accountId: state.wireData.accountId,
+      amount: amt,
+      currency: acc?.currency || 'USD',
+      recipientName: state.wireData.recipientName,
+      recipientAddress: state.wireData.recipientAddress,
+      recipientBank: state.wireData.bankName,
+      swiftCode: state.wireData.swiftCode.toUpperCase(),
+      routingNumber: state.wireData.routingNumber,
+      accountNumber: state.wireData.accountNumber,
+      description: state.wireData.description,
+      verificationCode
+    });
+
+    hideLoader();
+    state.wireTxn = res.transaction;
+    state.accounts = []; // clear cache to force refresh balances
+    state.wireStep = 6;
+    renderWireTransfer();
+  } catch (err) {
+    hideLoader();
+    toast('Transfer Failed', err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Authorize & Submit Transfer'; }
+  }
+};rimary btn-full" style="margin-top:16px;">Transmit International Wire</button>
         </form>
       </div>
     </div>
@@ -2362,68 +2760,7 @@ function downloadWirePDF(txnId) {
   });
 }
 
-async function handleSend(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type=submit]');
-  btn.disabled = true; btn.textContent = 'Processing…';
-  const accId = v('s-acc');
-  const acc   = state.accounts.find(a => a.id === accId);
-  const amt   = parseFloat(v('s-amt'));
-  if (!acc || acc.balance < amt) {
-    toast('Transfer Declined', 'Insufficient available balance.', 'error');
-    btn.disabled = false; btn.textContent = 'Transmit International Wire';
-    return;
-  }
-
-  showLoader('Requesting Code', 'Requesting outbound transfer verification code from security server...');
-
-  try {
-    // Request verification code via API
-    await api('/api/transactions/request-code', { userId: state.user.id });
-    hideLoader();
-    btn.disabled = false; btn.textContent = 'Transmit International Wire';
-
-    // Show 2FA input modal
-    openWire2FAModal(async (verificationCode) => {
-      btn.disabled = true; btn.textContent = 'Processing…';
-      showLoader('Transmitting SWIFT Wire', `Routing ${fmtMoney(amt, acc.currency)} out to international clearing systems…`);
-
-      const startTime = Date.now();
-      try {
-        await api('/api/transactions/send', {
-          userId: state.user.id, accountId: accId,
-          amount: amt, currency: acc.currency,
-          recipientName: v('s-recipient-name'),
-          recipientAddress: v('s-recipient-addr'),
-          recipientBank: v('s-bank-name'),
-          swiftCode: v('s-swift-code').toUpperCase(),
-          routingNumber: v('s-routing-num'),
-          accountNumber: v('s-acc-num'),
-          description: v('s-description'),
-          verificationCode
-        });
-
-        const elapsed = Date.now() - startTime;
-        const delay = Math.max(0, 1800 - elapsed);
-
-        setTimeout(() => {
-          hideLoader();
-          toast('Wire Submitted', `SWIFT wire transfer of ${fmtMoney(amt, acc.currency)} to ${v('s-recipient-name')} has been submitted for compliance review.`, 'info');
-          state.accounts = []; // Force refresh
-          nav('#/portal/digital-banking/dashboard');
-        }, delay);
-      } catch (err) {
-        hideLoader();
-        toast('Transfer Failed', err.message, 'error');
-        btn.disabled = false; btn.textContent = 'Transmit International Wire';
-      }
-    });
-  } catch (err) {
-    hideLoader();
-    toast('Request Failed', err.message, 'error');
-    btn.disabled = false; btn.textContent = 'Transmit International Wire';
-  }
-}
+// Old handleSend function removed.
 
 function logout() {
   showCustomModal(
