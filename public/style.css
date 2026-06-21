@@ -2394,6 +2394,29 @@ label.checkbox-invalid {
   }
 }
 
+/* Portfolio Charts default layouts */
+.portfolio-analytics-body {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+}
+.portfolio-donut-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid var(--border);
+  padding-right: 32px;
+}
+.portfolio-trend-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.txn-list-mobile {
+  display: none;
+}
+
 /* Mobile Transaction History Optimization */
 @media (max-width: 640px) {
   .txn-table th {
@@ -2433,5 +2456,156 @@ label.checkbox-invalid {
     font-size: 9px;
     padding: 2px 5px;
     letter-spacing: 0.02em;
+  }
+  .card-item-container {
+    max-width: 300px;
+    margin: 0 auto 16px auto;
+  }
+  .card-visual {
+    margin-bottom: 8px;
+  }
+
+  /* Mobile Bottom Navigation Bar */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(10, 25, 49, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    justify-content: space-around;
+    align-items: center;
+    z-index: 999;
+    padding: 0 8px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+  body.logged-in {
+    padding-bottom: 80px;
+  }
+  body.logged-in .mobile-bottom-nav {
+    display: flex;
+  }
+  body.logged-in .main-footer {
+    padding-bottom: 80px;
+  }
+  body.logged-in .main-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  body.logged-in .mobile-toggle {
+    display: none !important;
+  }
+  
+  .mobile-bottom-nav .mobile-nav-item {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 12px;
+    transition: all 0.2s ease;
+    flex: 1;
+  }
+  .mobile-bottom-nav .mobile-nav-item.active {
+    color: #FFDF6D;
+  }
+  .mobile-bottom-nav .mobile-nav-item svg {
+    transition: transform 0.2s ease;
+  }
+  .mobile-bottom-nav .mobile-nav-item:active svg {
+    transform: scale(0.9);
+  }
+
+  /* Mobile Transaction Ledger */
+  .txn-table {
+    display: none !important;
+  }
+  .txn-list-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .txn-mobile-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-card, #f8fafc);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .txn-mobile-item:active {
+    background: rgba(0, 44, 119, 0.04);
+  }
+  .txn-mobile-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .txn-mobile-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .txn-mobile-info .txn-desc {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .txn-mobile-info .txn-party {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .txn-mobile-info .txn-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .txn-mobile-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .txn-mobile-right .txn-amount {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Roboto Condensed', sans-serif;
+  }
+  
+  /* Portfolio Charts Mobile Adjustments */
+  .portfolio-analytics-body {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    padding: 16px !important;
+  }
+  .portfolio-donut-container {
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0 !important;
+    padding-bottom: 24px;
   }
 }

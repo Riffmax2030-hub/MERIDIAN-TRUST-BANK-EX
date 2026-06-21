@@ -100,6 +100,36 @@ function renderNav() {
   if (!el) return;
   const h = window.location.hash;
 
+  // Toggle logged-in class on body
+  document.body.classList.toggle('logged-in', !!state.user);
+
+  // Render bottom nav if element exists
+  const mNav = document.getElementById('mobile-bottom-nav');
+  if (mNav) {
+    if (state.user) {
+      mNav.innerHTML = `
+        <button class="mobile-nav-item ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </button>
+        <button class="mobile-nav-item ${h==='#/portal/digital-banking/wire-transfer' || h==='#/portal/digital-banking/intrabank-transfer' ?'active':''}" onclick="nav('#/portal/digital-banking/wire-transfer')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span>Transfer</span>
+        </button>
+        <button class="mobile-nav-item ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>History</span>
+        </button>
+        <button class="mobile-nav-item" onclick="logout()">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Sign Out</span>
+        </button>
+      `;
+    } else {
+      mNav.innerHTML = '';
+    }
+  }
+
   if (state.user) {
     el.innerHTML = `
       <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
@@ -1397,13 +1427,35 @@ function renderDashboard() {
     `;
   }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transactions on record.</td></tr>`;
 
+  const txMobileRows = recent.length ? recent.map(t => {
+    const isCredit = t.type === 'DEPOSIT';
+    return `
+      <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')">
+        <div class="txn-mobile-left">
+          <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
+          <div class="txn-mobile-info">
+            <div class="txn-desc">${t.description}</div>
+            <div class="txn-party">${t.counterparty}</div>
+            <div class="txn-date">${fmtDateTime(t.date)}</div>
+          </div>
+        </div>
+        <div class="txn-mobile-right">
+          <div class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+            ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+          </div>
+          <span class="status-pill ${t.status}">${t.status}</span>
+        </div>
+      </div>
+    `;
+  }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transactions on record.</div>`;
+
   // Card panels (first 2) — Platinum & Diamond luxury design
   const cardPanels = state.cards.slice(0, 2).map((c, idx) => {
     const frozen = c.status === 'FROZEN';
     const tierClass = idx === 0 ? '' : 'diamond';
     const tierLabel = idx === 0 ? 'Platinum' : 'Diamond';
     return `
-      <div>
+      <div class="card-item-container">
         <div class="card-visual ${frozen ? 'frozen' : 'active'} ${tierClass}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div class="card-chip"></div>
@@ -1482,9 +1534,9 @@ function renderDashboard() {
         <div class="panel-header">
           <span class="panel-title">Asset Allocation & Portfolio Analytics</span>
         </div>
-        <div class="panel-body" style="padding:24px; display:grid; grid-template-columns: 280px 1fr; gap:32px;">
+        <div class="panel-body portfolio-analytics-body">
           <!-- Donut chart -->
-          <div style="display:flex; flex-direction:column; align-items:center; border-right:1px solid var(--border); padding-right:32px;">
+          <div class="portfolio-donut-container">
             <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Account Allocation</h4>
             <div style="position:relative; width:170px; height:170px;">
               <canvas id="chart-donut" width="170" height="170"></canvas>
@@ -1502,7 +1554,7 @@ function renderDashboard() {
             </div>
           </div>
           <!-- Trend line chart -->
-          <div style="display:flex; flex-direction:column; justify-content:center;">
+          <div class="portfolio-trend-container">
             <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Offshore Balance Trends (Last 6 Months)</h4>
             <div style="position:relative; width:100%; height:170px;">
               <canvas id="chart-trends" style="width:100%; height:170px;"></canvas>
@@ -1534,6 +1586,9 @@ function renderDashboard() {
                 </thead>
                 <tbody>${txRows}</tbody>
               </table>
+              <div class="txn-list-mobile">
+                ${txMobileRows}
+              </div>
             </div>
           </div>
         </div>
@@ -3003,6 +3058,7 @@ function renderTransactionHistory() {
               <!-- Rendered dynamically -->
             </tbody>
           </table>
+          <div id="hist-list-mobile" class="txn-list-mobile"></div>
         </div>
         <div id="hist-pagination" class="panel-body" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding:16px 24px;">
           <!-- Pagination rendered dynamically -->
@@ -3068,6 +3124,7 @@ function applyHistoryFiltersAndRender() {
   }
 
   const tableBody = document.getElementById('hist-table-body');
+  const mobileListEl = document.getElementById('hist-list-mobile');
   const paginationEl = document.getElementById('hist-pagination');
 
   if (tableBody && paginationEl) {
@@ -3109,6 +3166,36 @@ function applyHistoryFiltersAndRender() {
         </tr>
       `;
     }).join('') : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</td></tr>`;
+
+    if (mobileListEl) {
+      mobileListEl.innerHTML = pageTxs.length ? pageTxs.map(t => {
+        const isCredit = t.type === 'DEPOSIT';
+        const accLabel = resolveAccountLabel(t.accountId);
+        return `
+          <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')">
+            <div class="txn-mobile-left">
+              <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
+              <div class="txn-mobile-info">
+                <div class="txn-desc">${t.description}</div>
+                <div class="txn-party">${t.counterparty} <span style="font-size:10px; color:var(--text-muted);">(${accLabel})</span></div>
+                <div class="txn-date">${fmtDateTime(t.date)}</div>
+              </div>
+            </div>
+            <div class="txn-mobile-right">
+              <div class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+                ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="status-pill ${t.status}">${t.status}</span>
+                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transaction statements match your search criteria.</div>`;
+    }
 
     paginationEl.innerHTML = `
       <div style="font-size:12px; color:var(--text-muted); font-weight:500;">
