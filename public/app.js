@@ -613,29 +613,28 @@ function getLoginHeaderHtml(title, subtitle) {
           <defs>
             <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#FFFDF0" />
-              <stop offset="20%" stop-color="#FFDF6D" />
-              <stop offset="50%" stop-color="#E5A922" />
-              <stop offset="80%" stop-color="#A5750F" />
-              <stop offset="100%" stop-color="#674600" />
+              <stop offset="15%" stop-color="#FFDF6D" />
+              <stop offset="30%" stop-color="#E5A922" />
+              <stop offset="50%" stop-color="#FFF5C2" />
+              <stop offset="70%" stop-color="#A5750F" />
+              <stop offset="100%" stop-color="#4B3300" />
             </linearGradient>
-            <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="1.5" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.35"/>
+            <linearGradient id="goldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+              <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+            </linearGradient>
+            <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="1.5" dy="3.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.5"/>
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#001844" flood-opacity="0.25"/>
             </filter>
           </defs>
-          <!-- Outer Shield Crest -->
-          <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.8" fill="#002C77" fill-opacity="0.05" filter="url(#goldGlow)"/>
-          <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.8" stroke-dasharray="1.5 1.5" filter="url(#goldGlow)"/>
-          <!-- Meridian Lines -->
-          <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-          <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-          <!-- Monogram M and T Interlocked -->
-          <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-          <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-          <!-- Diamond / Compass Star -->
-          <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF" filter="url(#goldGlow)"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" fill="#001F5A" filter="url(#goldGlow)"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldGrad)" stroke-width="2.5" fill="none" opacity="0.9"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldHighlight)" stroke-width="1.5" fill="none" opacity="0.6"/>
+          <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
         </svg>
         <span style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);">Meridian Trust</span>
       </div>
@@ -1325,25 +1324,28 @@ function renderRegistrationSuccess(email) {
               <defs>
                 <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#FFFDF0" />
-                  <stop offset="20%" stop-color="#FFDF6D" />
-                  <stop offset="50%" stop-color="#E5A922" />
-                  <stop offset="80%" stop-color="#A5750F" />
-                  <stop offset="100%" stop-color="#674600" />
+                  <stop offset="15%" stop-color="#FFDF6D" />
+                  <stop offset="30%" stop-color="#E5A922" />
+                  <stop offset="50%" stop-color="#FFF5C2" />
+                  <stop offset="70%" stop-color="#A5750F" />
+                  <stop offset="100%" stop-color="#4B3300" />
                 </linearGradient>
-                <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="1.5" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.35"/>
+                <linearGradient id="goldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+                  <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+                  <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+                </linearGradient>
+                <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="1.5" dy="3.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.5"/>
+                  <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#001844" flood-opacity="0.25"/>
                 </filter>
               </defs>
-              <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.8" fill="#002C77" fill-opacity="0.05" filter="url(#goldGlow)"/>
-              <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.8" stroke-dasharray="1.5 1.5" filter="url(#goldGlow)"/>
-              <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-              <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-              <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-              <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-              <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-              <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-              <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-              <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF" filter="url(#goldGlow)"/>
+              <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" fill="#001F5A" filter="url(#goldGlow)"/>
+              <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldGrad)" stroke-width="2.5" fill="none" opacity="0.9"/>
+              <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldHighlight)" stroke-width="1.5" fill="none" opacity="0.6"/>
+              <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+              <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+              <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
             </svg>
             <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:0.02em;color:var(--citi-navy);margin-top:12px;">Meridian Trust</div>
           </div>
@@ -1850,25 +1852,28 @@ function renderWireTransfer() {
           <defs>
             <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#FFFDF0" />
-              <stop offset="20%" stop-color="#FFDF6D" />
-              <stop offset="50%" stop-color="#E5A922" />
-              <stop offset="80%" stop-color="#A5750F" />
-              <stop offset="100%" stop-color="#674600" />
+              <stop offset="15%" stop-color="#FFDF6D" />
+              <stop offset="30%" stop-color="#E5A922" />
+              <stop offset="50%" stop-color="#FFF5C2" />
+              <stop offset="70%" stop-color="#A5750F" />
+              <stop offset="100%" stop-color="#4B3300" />
             </linearGradient>
-            <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="1.5" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.35"/>
+            <linearGradient id="goldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+              <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+            </linearGradient>
+            <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="1.5" dy="3.5" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.5"/>
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#001844" flood-opacity="0.25"/>
             </filter>
           </defs>
-          <path d="M16 3.5 L27 6.5 C27 17.5 16 25.5 16 28.5 C16 25.5 5 17.5 5 6.5 Z" stroke="url(#goldGrad)" stroke-width="1.8" fill="#002C77" fill-opacity="0.05" filter="url(#goldGlow)"/>
-          <path d="M16 5 L25.5 7.5 C25.5 16.5 16 23.5 16 26.2 C16 23.5 6.5 16.5 6.5 7.5 Z" stroke="url(#goldGrad)" stroke-width="0.8" stroke-dasharray="1.5 1.5" filter="url(#goldGlow)"/>
-          <ellipse cx="16" cy="16.5" rx="9" ry="3.5" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M16 5 C19.5 9 19.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M16 5 C12.5 9 12.5 24 16 26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" fill="none" filter="url(#goldGlow)"/>
-          <path d="M7 16.5 H25" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-          <path d="M16 5 V26.2" stroke="url(#goldGrad)" stroke-width="0.6" opacity="0.55" filter="url(#goldGlow)"/>
-          <path d="M11 21 L11 12 H12.5 L16 17 L19.5 12 H21 L21 21 H19.5 L19.5 14 L16.5 18 H15.5 L12.5 14 L12.5 21 H11 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-          <path d="M9 10 H23 V12.2 H16.8 V21 H15.2 V12.2 H9 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
-          <path d="M16 11.5 L17.5 13 L16 14.5 L14.5 13 Z" fill="#FFFFFF" filter="url(#goldGlow)"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" fill="#001F5A" filter="url(#goldGlow)"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldGrad)" stroke-width="2.5" fill="none" opacity="0.9"/>
+          <path d="M16 2.5 L28 6.5 C28 18.5 16 27.5 16 30.5 C16 27.5 4 18.5 4 6.5 Z" stroke="url(#goldHighlight)" stroke-width="1.5" fill="none" opacity="0.6"/>
+          <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M8 9.5 H24 V11.5 H17 V21.5 H15 V11.5 H8 Z" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+          <path d="M10.5 21.5 L10.5 11 H12.5 L16 16.5 L19.5 11 H21.5 L21.5 21.5 H19.5 L19.5 14.5 L16.5 19 H15.5 L12.5 14.5 L12.5 21.5 H10.5 Z" fill="url(#goldHighlight)" style="mix-blend-mode: overlay;"/>
         </svg>
         <div style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; color:var(--citi-navy); margin-top:8px;">Meridian Trust</div>
         
