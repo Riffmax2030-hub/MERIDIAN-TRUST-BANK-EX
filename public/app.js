@@ -1484,7 +1484,7 @@ function renderDashboard() {
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
         </td>
         <td>
-          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id}</div>
+          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
           <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
         </td>
         <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
@@ -1636,8 +1636,8 @@ function renderDashboard() {
         <div>
           <div class="panel">
             <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="panel-title">Transaction Ledger</span>
-              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size: 15px; font-weight:600;">
+              <span class="panel-title" style="font-size: 16px;">Transaction Ledger</span>
+              <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size: 12px; font-weight:600;">
                 View All Transactions
               </button>
             </div>
@@ -1646,10 +1646,10 @@ function renderDashboard() {
                 <thead>
                   <tr>
                     <th></th>
-                    <th>Description</th>
-                    <th>Date & Time</th>
-                    <th>Status</th>
-                    <th style="text-align:right;">Amount</th>
+                    <th style="font-size: 13px;">Description</th>
+                    <th style="font-size: 13px;">Date & Time</th>
+                    <th style="font-size: 13px;">Status</th>
+                    <th style="text-align:right; font-size: 13px;">Amount</th>
                   </tr>
                 </thead>
                 <tbody>${txRows}</tbody>
@@ -2770,7 +2770,7 @@ function showTransactionDetails(txnId) {
     </div>
     <div class="modal-body" style="padding-top:12px;">
       <table style="width:100%; font-size: 16px; border-collapse:collapse; margin-bottom:18px;">
-        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace; color:var(--citi-navy); font-size:14px;">${txn.id}</td></tr>
+        <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Transaction ID:</td><td style="padding:12px 0; font-weight:700; text-align:right; font-family:monospace; color:var(--citi-navy); font-size:14px;">${txn.id.toUpperCase()}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Reference ID:</td><td style="padding:12px 0; font-weight:600; text-align:right; font-family:monospace; font-size:15px; color:#555;">${refId}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Description:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.description}</td></tr>
         <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 0; color:var(--text-muted);">Counterparty:</td><td style="padding:12px 0; font-weight:600; text-align:right;">${txn.counterparty}</td></tr>
@@ -3296,19 +3296,19 @@ function renderTransactionHistory() {
       <!-- Ledger Panel -->
       <div class="panel">
         <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="panel-title">Transaction History</span>
-          <span id="hist-count" style="font-size: 16px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
+          <span class="panel-title" style="font-size: 16px;">Transaction History</span>
+          <span id="hist-count" style="font-size: 13px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
         </div>
         <div style="overflow-x:auto;">
           <table class="txn-table">
             <thead>
               <tr>
                 <th></th>
-                <th>Transaction ID</th>
-                <th>Account</th>
-                <th>Date & Time</th>
-                <th>Status</th>
-                <th style="text-align:right;">Amount</th>
+                <th style="font-size: 13px;">Transaction ID</th>
+                <th style="font-size: 13px;">Account</th>
+                <th style="font-size: 13px;">Date & Time</th>
+                <th style="font-size: 13px;">Status</th>
+                <th style="text-align:right; font-size: 13px;">Amount</th>
                 <th></th>
               </tr>
             </thead>
@@ -3403,7 +3403,7 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           </td>
           <td>
-            <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id}</div>
+            <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id.toUpperCase()}</div>
             <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </td>
           <td>
@@ -3434,7 +3434,7 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-mobile-left" style="gap:10px;">
               <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
               <div class="txn-mobile-info">
-                <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id}</div>
+                <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
                 <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
               </div>
             </div>
