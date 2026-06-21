@@ -1261,7 +1261,13 @@ a:hover { text-decoration: underline; }
 }
 
 .modal-box.show { display: block; }
-.modal-header { padding: 22px 28px 16px; border-bottom: 1px solid var(--border); }
+.modal-header {
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .modal-title { font-size: 17px; }
 .modal-body { padding: 22px 28px; }
 .modal-footer { padding: 16px 28px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
@@ -2482,12 +2488,12 @@ label.checkbox-invalid {
     letter-spacing: 0.02em;
   }
   .card-item-container {
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto 16px auto;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto 16px auto !important;
   }
   .card-visual {
-    padding: 16px !important;
+    padding: 12px 14px !important;
     margin-bottom: 8px !important;
     aspect-ratio: 1.586 / 1;
     width: 100%;
@@ -2498,23 +2504,23 @@ label.checkbox-invalid {
     border-radius: 4px !important;
   }
   .card-number-display {
-    font-size: 17px !important;
+    font-size: 15px !important;
     letter-spacing: 2px !important;
     margin: 8px 0 !important;
   }
   .card-tier-label {
-    font-size: 11px !important;
+    font-size: 10px !important;
     letter-spacing: 2px !important;
   }
   .card-network {
-    font-size: 11px !important;
+    font-size: 10px !important;
     letter-spacing: 1px !important;
   }
   .card-label {
     font-size: 8px !important;
   }
   .card-value {
-    font-size: 10px !important;
+    font-size: 9.5px !important;
   }
 
   /* Mobile Bottom Navigation Bar */

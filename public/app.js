@@ -1535,33 +1535,6 @@ function renderDashboard() {
         </button>
       </div>
 
-      <!-- SLEEK MODERN METRICS CHARTS -->
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header">
-          <span class="panel-title">Asset Allocation & Portfolio Analytics</span>
-        </div>
-        <div class="panel-body" style="padding:24px; display:flex; justify-content:center; align-items:center;">
-          <!-- Donut chart -->
-          <div style="display:flex; flex-direction:column; align-items:center;">
-            <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Account Allocation</h4>
-            <div style="position:relative; width:170px; height:170px;">
-              <canvas id="chart-donut" width="170" height="170"></canvas>
-              <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
-                <span style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.05em;">Total Portfolio</span>
-                <span id="chart-portfolio-total" style="font-size:15px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">$0.00</span>
-              </div>
-            </div>
-            <!-- Legend labels -->
-            <div style="display:flex; justify-content:center; gap:12px; margin-top:14px; flex-wrap:wrap; font-size:11px; font-weight:600;">
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#002C77; border-radius:2px;"></span>Checking</span>
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0066CC; border-radius:2px;"></span>Savings</span>
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#0099D6; border-radius:2px;"></span>Money Market</span>
-              <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#b5a25e; border-radius:2px;"></span>CDs</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="dash-grid">
         <!-- Transactions -->
         <div>
@@ -1610,70 +1583,9 @@ function renderDashboard() {
     </div>
   `);
 
-  // Trigger sleek Canvas graphics drawing
-  setTimeout(drawDashboardCharts, 100);
 }
 
-function drawDashboardCharts() {
-  const dCanvas = document.getElementById('chart-donut');
-  if (!dCanvas) return;
 
-  // ── Calculate Totals (USD equivalents) ──
-  let totalUSD = 0;
-  let checkingBal = 0;
-  let savingsBal = 0;
-  let marketBal = 0;
-  let cdBal = 0;
-
-  state.accounts.forEach(a => {
-    let bal = parseFloat(a.balance) || 0;
-    totalUSD += bal;
-    if (a.type === 'checking') checkingBal += bal;
-    else if (a.type === 'savings') savingsBal += bal;
-    else if (a.type === 'market') marketBal += bal;
-    else if (a.type === 'cd') cdBal += bal;
-  });
-
-  document.getElementById('chart-portfolio-total').textContent = fmtMoney(totalUSD, 'USD');
-
-  // ── DONUT CHART DRAWING ──
-  const dct = dCanvas.getContext('2d');
-  dct.clearRect(0, 0, 170, 170);
-  
-  const segments = [
-    { value: checkingBal, color: '#002C77' }, // Checking Navy
-    { value: savingsBal, color: '#0066CC' }, // Savings Blue
-    { value: marketBal, color: '#0099D6' }, // Money Market Light Blue
-    { value: cdBal, color: '#b5a25e' } // CD Gold
-  ];
-  
-  const grandTotal = segments.reduce((sum, seg) => sum + seg.value, 0) || 1;
-  let startAngle = -Math.PI / 2;
-  const cx = 85, cy = 85, outerR = 75, innerR = 52;
-
-  segments.forEach(seg => {
-    const sliceAngle = (seg.value / grandTotal) * 2 * Math.PI;
-    if (sliceAngle > 0) {
-      dct.fillStyle = seg.color;
-      dct.beginPath();
-      dct.arc(cx, cy, outerR, startAngle, startAngle + sliceAngle);
-      dct.arc(cx, cy, innerR, startAngle + sliceAngle, startAngle, true);
-      dct.closePath();
-      dct.fill();
-      startAngle += sliceAngle;
-    }
-  });
-
-  // If entire account balances are zero, draw a default placeholder segment
-  if (totalUSD === 0) {
-    dct.fillStyle = '#cbd5e1';
-    dct.beginPath();
-    dct.arc(cx, cy, outerR, 0, 2 * Math.PI);
-    dct.arc(cx, cy, innerR, 2 * Math.PI, 0, true);
-    dct.closePath();
-    dct.fill();
-  }
-}
 
 let currentWireTab = 'send';
 
@@ -1765,11 +1677,11 @@ function renderWireTransfer() {
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Beneficiary Full Name</label>
-              <input id="s-recipient-name" type="text" class="form-input" placeholder="Name of individual or business entity" required>
+              <input id="s-recipient-name" type="text" class="form-input" placeholder="" required>
             </div>
             <div class="form-group">
               <label class="form-label">Beneficiary Address</label>
-              <input id="s-recipient-addr" type="text" class="form-input" placeholder="Street Address, City, Country" required>
+              <input id="s-recipient-addr" type="text" class="form-input" placeholder="" required>
             </div>
           </div>
 
@@ -1777,29 +1689,29 @@ function renderWireTransfer() {
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">SWIFT / BIC Code</label>
-              <input id="s-swift-code" type="text" class="form-input" placeholder="8 or 11 character code" maxlength="11" required style="text-transform:uppercase;font-family:monospace;">
+              <input id="s-swift-code" type="text" class="form-input" placeholder="" maxlength="11" required style="text-transform:uppercase;font-family:monospace;">
             </div>
             <div class="form-group">
               <label class="form-label">ABA Routing / Sort Code / IBAN</label>
-              <input id="s-routing-num" type="text" class="form-input" placeholder="Routing or international account identifier" required style="font-family:monospace;">
+              <input id="s-routing-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;">
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Recipient Account Number</label>
-              <input id="s-acc-num" type="text" class="form-input" placeholder="Beneficiary Account Number" required style="font-family:monospace;">
+              <input id="s-acc-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;">
             </div>
             <div class="form-group">
               <label class="form-label">Recipient Bank Name</label>
-              <input id="s-bank-name" type="text" class="form-input" placeholder="e.g. Citibank N.A., HSBC Bank" required>
+              <input id="s-bank-name" type="text" class="form-input" placeholder="" required>
             </div>
           </div>
 
           <h3 style="font-size:14px;color:var(--citi-blue);margin-top:24px;margin-bottom:16px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;">4. Transfer Memo</h3>
           <div class="form-group">
             <label class="form-label">Narrative / Description (For bank statement)</label>
-            <input id="s-description" type="text" class="form-input" placeholder="e.g. Invoice settlement, family support, property purchase" required>
+            <input id="s-description" type="text" class="form-input" placeholder="" required>
           </div>
 
           <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px;">Transmit International Wire</button>
