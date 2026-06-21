@@ -1517,19 +1517,16 @@ function renderDashboard() {
     const isCredit = t.type === 'DEPOSIT';
     return `
       <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-interactive">
-        <td style="width:44px;">
-          <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
-        </td>
         <td>
           <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
           <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
         </td>
-        <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
+        <td class="txn-date" style="font-size:13px; color:var(--text-secondary);">${fmtDateTime(t.date)}</td>
         <td>
           <span class="status-pill ${t.status}" style="font-size:11px; padding:2px 8px;">${t.status}</span>
         </td>
-        <td class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:15px;">
-          ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+        <td class="txn-amount" style="font-size:15px; font-weight:600; color:var(--text-primary);">
+          ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
         </td>
       </tr>
     `;
@@ -1540,15 +1537,14 @@ function renderDashboard() {
     return `
       <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')" style="padding:10px 14px;">
         <div class="txn-mobile-left" style="gap:10px;">
-          <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           <div class="txn-mobile-info">
             <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
             <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </div>
         </div>
         <div class="txn-mobile-right">
-          <div class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:14px; margin-bottom:2px;">
-            ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+          <div class="txn-amount" style="font-size:14px; margin-bottom:2px; font-weight:600; color:var(--text-primary);">
+            ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="status-pill ${t.status}">${t.status}</span>
@@ -1677,7 +1673,6 @@ function renderDashboard() {
               <table class="txn-table">
                 <thead>
                   <tr>
-                    <th></th>
                     <th style="font-size: 13px;">Description</th>
                     <th style="font-size: 13px;">Date & Time</th>
                     <th style="font-size: 13px;">Status</th>
@@ -3343,7 +3338,6 @@ function renderTransactionHistory() {
           <table class="txn-table">
             <thead>
               <tr>
-                <th></th>
                 <th style="font-size: 13px;">Transaction ID</th>
                 <th style="font-size: 13px;">Account</th>
                 <th style="font-size: 13px;">Date & Time</th>
@@ -3439,9 +3433,6 @@ function applyHistoryFiltersAndRender() {
       const accLabel = resolveAccountLabel(t.accountId);
       return `
         <tr onclick="showTransactionDetails('${t.id}')" style="cursor:pointer;" class="txn-row-interactive">
-          <td style="width:44px;">
-            <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
-          </td>
           <td>
             <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id.toUpperCase()}</div>
             <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
@@ -3449,12 +3440,12 @@ function applyHistoryFiltersAndRender() {
           <td>
             <span style="font-weight:600;font-size: 14px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
           </td>
-          <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
+          <td class="txn-date" style="font-size:13px; color:var(--text-secondary);">${fmtDateTime(t.date)}</td>
           <td>
             <span class="status-pill ${t.status}" style="font-size:11px; padding:2px 8px;">${t.status}</span>
           </td>
-          <td class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:15px;">
-            ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+          <td class="txn-amount" style="font-size:15px; font-weight:600; color:var(--text-primary);">
+            ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
           </td>
           <td style="width:36px; text-align:center;">
             <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
@@ -3472,15 +3463,14 @@ function applyHistoryFiltersAndRender() {
         return `
           <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')" style="padding:10px 14px;">
             <div class="txn-mobile-left" style="gap:10px;">
-              <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
               <div class="txn-mobile-info">
                 <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
                 <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">***** ${t.counterparty.split(' ').slice(-2).join(' ')}</div>
               </div>
             </div>
             <div class="txn-mobile-right">
-              <div class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:14px; margin-bottom:2px;">
-                ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
+              <div class="txn-amount" style="font-size:14px; margin-bottom:2px; font-weight:600; color:var(--text-primary);">
+                ${isCredit ? '' : '−'}${fmtMoney(t.amount, t.currency)}
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="status-pill ${t.status}" style="font-size:10px; padding:2px 6px;">${t.status}</span>
