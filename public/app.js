@@ -134,18 +134,26 @@ function renderNav() {
 
   if (state.user) {
     el.innerHTML = `
-      <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Intrabank Transfer</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/profile'?'active':''}"      onclick="nav('#/portal/digital-banking/profile')">Profile</button>
-      <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
+      <div style="display:flex; gap:4px; align-items:center;">
+        <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
+        <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
+        <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Intrabank Transfer</button>
+        <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
+        <button class="nav-link ${h==='#/portal/digital-banking/profile'?'active':''}"      onclick="nav('#/portal/digital-banking/profile')">Profile</button>
+      </div>
+      <div>
+        <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
+      </div>
     `;
   } else {
     el.innerHTML = `
-      <button class="nav-link ${h==='#'?'active':''}"         onclick="nav('#')">Home</button>
-      <button class="nav-link ${h==='#/portal/client-auth/login'?'active':''}"   onclick="nav('#/portal/client-auth/login')">Client Login</button>
-      <button class="nav-btn-primary"                          onclick="nav('#/portal/client-onboarding/apply')">Open Account</button>
+      <div style="display:flex; gap:4px; align-items:center;">
+        <button class="nav-link ${h==='#'?'active':''}"         onclick="nav('#')">Home</button>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button class="nav-link ${h==='#/portal/client-auth/login'?'active':''}"   onclick="nav('#/portal/client-auth/login')">Client Login</button>
+        <button class="nav-btn-primary"                          onclick="nav('#/portal/client-onboarding/apply')">Open Account</button>
+      </div>
     `;
   }
 }
