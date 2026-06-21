@@ -1603,6 +1603,23 @@ function renderDashboard() {
     `;
   }).join('<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">');
 
+  const firstName = u.name ? u.name.split(' ')[0] : 'Client';
+  let dynamicGreeting = `Welcome back, ${firstName}`;
+  
+  if (sessionStorage.getItem('just_logged_in') === 'true') {
+    sessionStorage.removeItem('just_logged_in');
+    dynamicGreeting = `Welcome back, ${firstName}`;
+  } else {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      dynamicGreeting = `Good morning, ${firstName}`;
+    } else if (hour < 18) {
+      dynamicGreeting = `Good afternoon, ${firstName}`;
+    } else {
+      dynamicGreeting = `Good evening, ${firstName}`;
+    }
+  }
+
   setRoot(`
     <div class="app-container">
       <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(16px, 5vw, 40px); border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
@@ -1612,7 +1629,7 @@ function renderDashboard() {
           
           <div style="flex: 1 1 100%; min-width: 0;">
             <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:8px;">Meridian Trust Private Client</div>
-            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(24px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
+            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(24px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">${dynamicGreeting}</h2>
           </div>
 
           <div style="flex: 1 1 100%; min-width: 0;">
@@ -2499,6 +2516,7 @@ async function handleLogin(e) {
       hideLoader();
       state.user = data.user;
       localStorage.setItem('mtb_session', JSON.stringify(state.user));
+      sessionStorage.setItem('just_logged_in', 'true');
       toast('Session Authenticated', `Welcome, ${data.user.name}.`, 'success');
       nav('#/dashboard');
     }, delay);
@@ -2590,6 +2608,7 @@ async function handleLogin2FASubmit(e, userId) {
       hideLoader();
       state.user = data.user;
       localStorage.setItem('mtb_session', JSON.stringify(state.user));
+      sessionStorage.setItem('just_logged_in', 'true');
       toast('Session Authenticated', `Welcome back, ${data.user.name}.`, 'success');
       nav('#/dashboard');
     }, delay);
@@ -3678,10 +3697,7 @@ function drawHistoryChart(txs) {
 window.changeHistoryPage = function(delta) {
   if (state.historyFilter) {
     state.historyFilter.page += delta;
-    showLoader('Loading Records...', 1000);
-    setTimeout(() => {
-      applyHistoryFiltersAndRender();
-    }, 1000);
+    applyHistoryFiltersAndRender();
   }
 };
 
