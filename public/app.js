@@ -1484,8 +1484,8 @@ function renderDashboard() {
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
         </td>
         <td>
-          <div class="txn-desc" style="font-size:14px;">${t.description}</div>
-          <div class="txn-party" style="font-size:12px; color:var(--text-muted); font-family:monospace;">TRX-${t.id.slice(0, 8).toUpperCase()}</div>
+          <div class="txn-desc" style="font-size:13px; font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px;">${t.id.toUpperCase()}</div>
+          <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
         </td>
         <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
         <td>
@@ -1505,8 +1505,8 @@ function renderDashboard() {
         <div class="txn-mobile-left" style="gap:10px;">
           <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           <div class="txn-mobile-info">
-            <div class="txn-desc" style="font-size:13px; font-weight:600; margin-bottom:2px;">${t.description}</div>
-            <div class="txn-party" style="font-size:11px; color:var(--text-muted); font-family:monospace;">TRX-${t.id.slice(0, 8).toUpperCase()}</div>
+            <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
+            <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </div>
         </div>
         <div class="txn-mobile-right">
@@ -3295,7 +3295,7 @@ function renderTransactionHistory() {
             <thead>
               <tr>
                 <th></th>
-                <th>Description</th>
+                <th>Transaction ID</th>
                 <th>Account</th>
                 <th>Date & Time</th>
                 <th>Status</th>
@@ -3394,17 +3394,17 @@ function applyHistoryFiltersAndRender() {
             <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
           </td>
           <td>
-            <div class="txn-desc">${t.description}</div>
-            <div class="txn-party">${t.counterparty}</div>
+            <div class="txn-desc" style="font-weight:700; font-family:monospace; color:var(--citi-navy); letter-spacing:0.5px; font-size:13px;">${t.id.toUpperCase()}</div>
+            <div class="txn-party" style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
           </td>
           <td>
-            <span style="font-weight:600;font-size: 16px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
+            <span style="font-weight:600;font-size: 14px;color:var(--text-secondary);text-transform:capitalize;">${accLabel}</span>
           </td>
-          <td class="txn-date">${fmtDateTime(t.date)}</td>
+          <td class="txn-date" style="font-size:13px;">${fmtDateTime(t.date)}</td>
           <td>
-            <span class="status-pill ${t.status}">${t.status}</span>
+            <span class="status-pill ${t.status}" style="font-size:11px; padding:2px 8px;">${t.status}</span>
           </td>
-          <td class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+          <td class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:15px;">
             ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
           </td>
           <td style="width:36px; text-align:center;">
@@ -3421,21 +3421,20 @@ function applyHistoryFiltersAndRender() {
         const isCredit = t.type === 'DEPOSIT';
         const accLabel = resolveAccountLabel(t.accountId);
         return `
-          <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')">
-            <div class="txn-mobile-left">
-              <div class="txn-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
+          <div class="txn-mobile-item" onclick="showTransactionDetails('${t.id}')" style="padding:10px 14px;">
+            <div class="txn-mobile-left" style="gap:10px;">
+              <div class="txn-icon ${isCredit ? 'credit' : 'debit'}" style="width:32px; height:32px; min-width:32px;">${isCredit ? icons.arrowDown : icons.arrowUp}</div>
               <div class="txn-mobile-info">
-                <div class="txn-desc">${t.description}</div>
-                <div class="txn-party">${t.counterparty} <span style="font-size: 14px; color:var(--text-muted);">(${accLabel})</span></div>
-                <div class="txn-date">${fmtDateTime(t.date)}</div>
+                <div class="txn-desc" style="font-size:12px; font-weight:700; font-family:monospace; color:var(--citi-navy); margin-bottom:2px;">${t.id.toUpperCase()}</div>
+                <div class="txn-party" style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">${t.counterparty.split(' ').slice(-2).join(' ')}</div>
               </div>
             </div>
             <div class="txn-mobile-right">
-              <div class="txn-amount ${isCredit ? 'credit' : 'debit'}">
+              <div class="txn-amount ${isCredit ? 'credit' : 'debit'}" style="font-size:14px; margin-bottom:2px;">
                 ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <span class="status-pill ${t.status}">${t.status}</span>
+                <span class="status-pill ${t.status}" style="font-size:10px; padding:2px 6px;">${t.status}</span>
                 <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 </button>
