@@ -3843,20 +3843,41 @@ function loadProfile() {
   renderProfile();
 }
 
+window.uploadProfilePic = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    localStorage.setItem(\`profile_pic_\${state.user.id}\`, e.target.result);
+    toast('Success', 'Profile picture updated securely.', 'success');
+    renderProfile();
+  };
+  reader.readAsDataURL(file);
+};
+
 function renderProfile() {
   const u = state.user;
   const kycText = (u.kycStatus || '').toLowerCase() === 'approved' ? 'Verified' : u.kycStatus;
   const kycColor = (u.kycStatus || '').toLowerCase() === 'approved' ? 'var(--green)' : 'var(--amber)';
+  
+  const profilePicDataUrl = localStorage.getItem(\`profile_pic_\${u.id}\`);
+  const avatarContent = profilePicDataUrl 
+    ? \`<img src="\${profilePicDataUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />\` 
+    : u.name.charAt(0).toUpperCase();
 
-  const html = `
+  const html = \`
     <div style="max-width:800px; margin:0 auto;">
       <h2 style="font-size: 26px; font-weight:800; color:var(--citi-navy); margin-bottom: 24px;">Profile & Settings</h2>
       
       <!-- Account Identity -->
       <div class="card" style="margin-bottom:24px;">
         <div style="display:flex; align-items:center; gap:20px; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
-          <div style="width:70px; height:70px; border-radius:50%; background:var(--citi-navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size: 28px; font-weight:700;">
-            ${u.name.charAt(0).toUpperCase()}
+          <div style="position:relative; width:80px; height:80px; border-radius:50%; background:var(--citi-navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size: 32px; font-weight:700; cursor:pointer;" title="Click to upload profile picture" onclick="document.getElementById('profile-pic-upload').click()">
+            \${avatarContent}
+            <div style="position:absolute; bottom:0; right:0; background:var(--bg-white); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); border:1px solid var(--border);">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--citi-navy)" stroke-width="2.5" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <input type="file" id="profile-pic-upload" style="display:none" accept="image/*" onchange="uploadProfilePic(event)">
           </div>
           <div>
             <div style="font-size: 22px; font-weight:800; color:var(--text-primary);">${u.name}</div>
@@ -3901,7 +3922,7 @@ function renderProfile() {
             <div style="font-size: 16px; font-weight:700;">Daily Transfer Limit</div>
             <div style="font-size: 14px; color:var(--text-muted); margin-top:4px;">Maximum outbound SWIFT & ACH limit.</div>
           </div>
-          <div style="font-size: 16px; font-weight:700; font-family:var(--font-mono);">$500,000.00</div>
+          <div style="font-size: 16px; font-weight:700; font-family:var(--font-mono);">$10,000,000.00</div>
         </div>
         <div style="padding-top:16px;">
           <button class="btn btn-primary" onclick="toast('Security Support', 'Please contact your dedicated account manager to change security limits.', 'info')">Request Limit Increase</button>
