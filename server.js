@@ -1415,6 +1415,110 @@ app.post('/api/transactions/exchange', async (req, res) => {
   }
 });
 
+// Intrabank Account Transfer Desk (checking <=> savings <=> market)
+app.post('/api/transactions/intrabank-transfer', async (req, res) => {
+  const { userId, fromAccountId, toAccountId, amount } = req.body;
+  if (!userId || !fromAccountId || !toAccountId || !amount) {
+    return res.status(400).json({ error: 'All fields (userId, fromAccountId, toAccountId, amount) are required.' });
+  }
+
+  const amt = parseFloat(amount);
+  if (isNaN(amt) || amt <= 0) {
+    return res.status(400).json({ error: 'Transfer amount must be a positive numeric value.' });
+  }
+
+  try {
+    const accounts = await dbGetAccounts(userId);
+    const fromAcc = accounts.find(a => a.id === fromAccountId);
+    const toAcc = accounts.find(a => a.id === toAccountId);
+
+    if (!fromAcc || !toAcc) {
+      return res.status(404).json({ error: 'Source or destination account not found.' });
+    }
+
+    if (fromAcc.id === toAcc.id) {
+      return res.status(400).json({ error: 'Source and destination accounts must be different.' });
+    }
+
+    if (fromAcc.balance < amt) {
+      return res.status(400).json({ error: 'Insufficient available balance.' });
+    }
+
+    const txOut = {
+      id: `TXN-${randomDigits(6)}`,
+      accountId: fromAccountId,
+      userId,
+      type: 'TRANSFER_OUT',
+      description: `Intrabank Transfer to ${toAcc.type.toUpperCase()} (${toAcc.accountNumber.slice(-4)})`,
+      amount: amt,
+      currency: fromAcc.currency,
+      date: new Date().toISOString(),
+      status: 'COMPLETED',
+      counterparty: 'Self'
+    };
+
+    const txIn = {
+      id: `TXN-${randomDigits(6)}`,
+      accountId: toAccountId,
+      userId,
+      type: 'DEPOSIT',
+      description: `Intrabank Transfer from ${fromAcc.type.toUpperCase()} (${fromAcc.accountNumber.slice(-4)})`,
+      amount: amt,
+      currency: toAcc.currency,
+      date: new Date().toISOString(),
+      status: 'COMPLETED',
+      counterparty: 'Self'
+    };
+
+    if (usePostgres) {
+      const client = await pgPool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('UPDATE accounts SET balance = balance - $1 WHERE id = $2', [amt, fromAccountId]);
+        await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [amt, toAccountId]);
+        
+        await client.query(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [txOut.id, txOut.accountId, txOut.userId, txOut.type, txOut.description, txOut.amount, txOut.currency, txOut.date, txOut.status, txOut.counterparty]);
+
+        await client.query(`
+          INSERT INTO transactions (id, account_id, user_id, type, description, amount, currency, date, status, counterparty)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [txIn.id, txIn.accountId, txIn.userId, txIn.type, txIn.description, txIn.amount, txIn.currency, txIn.date, txIn.status, txIn.counterparty]);
+        
+        await client.query('COMMIT');
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
+    } else {
+      const db = readJSONDB();
+      const fIdx = db.accounts.findIndex(a => a.id === fromAccountId);
+      const tIdx = db.accounts.findIndex(a => a.id === toAccountId);
+
+      if (fIdx === -1 || tIdx === -1) throw new Error('Accounts not found in ledger.');
+
+      db.accounts[fIdx].balance = parseFloat((db.accounts[fIdx].balance - amt).toFixed(2));
+      db.accounts[tIdx].balance = parseFloat((db.accounts[tIdx].balance + amt).toFixed(2));
+
+      db.transactions.push(txOut);
+      db.transactions.push(txIn);
+      writeJSONDB(db);
+    }
+
+    res.json({
+      message: 'Intrabank transfer completed successfully.',
+      fromBalance: fromAcc.balance - amt,
+      toBalance: toAcc.balance + amt
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── OPERATIONS CONSOLE API ENDPOINTS ─────────────────────────────────────────
 
 // Get Onboarding Applications Queue

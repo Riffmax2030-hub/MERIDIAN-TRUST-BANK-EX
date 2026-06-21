@@ -32,6 +32,7 @@ const routeLoaderMessages = {
   '#/portal/digital-banking/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
   '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
   '#/portal/digital-banking/transaction-history': ['Loading Transactions', 'Retrieving your transaction history and analytics…'],
+  '#/portal/digital-banking/intrabank-transfer': ['Connecting Ledger', 'Authorizing account balance cross-transfer module…'],
 };
 
 let _routeTimer = null;
@@ -44,7 +45,8 @@ function route() {
   const privateRoutes = [
     '#/portal/digital-banking/dashboard', 
     '#/portal/digital-banking/wire-transfer', 
-    '#/portal/digital-banking/transaction-history'
+    '#/portal/digital-banking/transaction-history',
+    '#/portal/digital-banking/intrabank-transfer'
   ];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/portal/client-auth/login'); return; }
@@ -80,6 +82,7 @@ function route() {
       case '#/portal/digital-banking/dashboard': loadDashboard(); break;
       case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
+      case '#/portal/digital-banking/intrabank-transfer': loadIntrabankTransfer(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -101,6 +104,7 @@ function renderNav() {
     el.innerHTML = `
       <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
       <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Intrabank Transfer</button>
       <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
@@ -1914,6 +1918,124 @@ window.setWireTab = function(tab) {
   renderWireTransfer();
 };
 
+// ── Intrabank Account Transfer Module ──────────────────────────────────────────
+async function loadIntrabankTransfer() {
+  if (!state.accounts.length) {
+    const accounts = await api(`/api/accounts?userId=${state.user.id}`);
+    state.accounts = accounts;
+  }
+  renderIntrabankTransfer();
+}
+
+function renderIntrabankTransfer() {
+  const fromOpts = state.accounts.map(a =>
+    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`
+  ).join('');
+
+  const toOpts = state.accounts.map(a =>
+    `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`
+  ).join('');
+
+  setRoot(`
+    <div class="app-container">
+      <div class="page-header" style="margin-bottom:24px;">
+        <div class="page-header-inner">
+          <div style="flex:1;">
+            <h2 class="page-greeting" style="font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:700; color:var(--citi-navy);">Intrabank Account Transfer</h2>
+            <p class="page-subtext">Transfer funds instantly between your Checking, Savings, or Money Market accounts.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 600px; margin: 0 auto;">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Transfer Parameters</span></div>
+          <div class="panel-body" style="padding:24px;">
+            <form id="intrabank-form" onsubmit="handleIntrabankTransfer(event)">
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer From (Source Account)</label>
+                <select id="t-from-acc" class="form-select" onchange="updateIntrabankToOptions()" style="width:100%;">${fromOpts}</select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer To (Destination Account)</label>
+                <select id="t-to-acc" class="form-select" style="width:100%;">${toOpts}</select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer Amount (USD)</label>
+                <input id="t-amount" type="number" step="0.01" min="0.01" class="form-input" placeholder="0.00" required style="width:100%;">
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full" style="padding:12px; font-weight:600; font-size:14px; width:100%;">
+                Execute Instant Transfer
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+
+  updateIntrabankToOptions();
+}
+
+window.updateIntrabankToOptions = function() {
+  const fromSelect = document.getElementById('t-from-acc');
+  const toSelect = document.getElementById('t-to-acc');
+  if (!fromSelect || !toSelect) return;
+  const selectedFrom = fromSelect.value;
+  
+  const currentToVal = toSelect.value;
+  toSelect.innerHTML = state.accounts
+    .filter(a => a.id !== selectedFrom)
+    .map(a => `<option value="${a.id}">${a.type.charAt(0).toUpperCase()+a.type.slice(1)} Account (*${a.accountNumber.slice(-4)}) — ${fmtMoney(a.balance, a.currency)}</option>`)
+    .join('');
+  
+  if (currentToVal && currentToVal !== selectedFrom) {
+    toSelect.value = currentToVal;
+  }
+};
+
+async function handleIntrabankTransfer(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Processing…';
+
+  const fromAccId = v('t-from-acc');
+  const toAccId   = v('t-to-acc');
+  const amt       = parseFloat(v('t-amount'));
+
+  const fromAcc = state.accounts.find(a => a.id === fromAccId);
+  if (!fromAcc || fromAcc.balance < amt) {
+    toast('Transfer Failed', 'Insufficient available balance in originating account.', 'error');
+    btn.disabled = false; btn.textContent = 'Execute Instant Transfer';
+    return;
+  }
+
+  showLoader('Authorizing Transfer', 'Routing cross-balance ledger adjustments…');
+
+  try {
+    await api('/api/transactions/intrabank-transfer', {
+      userId: state.user.id,
+      fromAccountId: fromAccId,
+      toAccountId: toAccId,
+      amount: amt
+    });
+
+    const accounts = await api(`/api/accounts?userId=${state.user.id}`);
+    state.accounts = accounts;
+
+    hideLoader();
+    toast('Transfer Successful', `Transferred ${fmtMoney(amt, 'USD')} successfully.`, 'success');
+    nav('#/portal/digital-banking/dashboard');
+  } catch (err) {
+    hideLoader();
+    toast('Transfer Failed', err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Execute Instant Transfer';
+  }
+}
+
 // ── EVENT HANDLERS ────────────────────────────────────────────────────────────
 
 async function handleLogin(e) {
@@ -2238,7 +2360,7 @@ function showTransactionDetails(txnId) {
   if (txn.status === 'COMPLETED') {
     pdfButtonHtml = `
       <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="downloadWirePDF('${txn.id}')">
-        📥 Download Receipt
+        Download Receipt
       </button>
     `;
   } else if (isWire && txn.status === 'PENDING') {
@@ -2971,8 +3093,8 @@ function applyHistoryFiltersAndRender() {
             ${isCredit ? '+' : '−'}${fmtMoney(t.amount, t.currency)}
           </td>
           <td style="width:36px; text-align:center;">
-            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px;" title="Download Receipt">
-              📥
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); downloadWirePDF('${t.id}')" style="padding:4px 6px; display:inline-flex; align-items:center; justify-content:center;" title="Download Receipt">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             </button>
           </td>
         </tr>
