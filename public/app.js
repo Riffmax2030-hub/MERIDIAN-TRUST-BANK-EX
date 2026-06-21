@@ -1599,21 +1599,21 @@ function renderDashboard() {
 
   setRoot(`
     <div class="app-container">
-      <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, var(--citi-navy) 0%, #001538 100%); color: white; padding: clamp(24px, 5vw, 40px); border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,44,119,0.25); position: relative; overflow: hidden;">
         <div style="position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius:50%;"></div>
         <div style="position:absolute; bottom:-30%; left:-10%; width:400px; height:400px; background:radial-gradient(circle, rgba(165,117,15,0.1) 0%, transparent 70%); border-radius:50%;"></div>
-        <div style="position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;">
+        <div style="position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:32px;">
           
-          <div>
+          <div style="flex: 1 1 280px;">
             <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:8px;">Meridian Trust Private Client</div>
-            <h2 style="font-family:'Cormorant Garamond', serif; font-size: 38px; font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
+            <h2 style="font-family:'Cormorant Garamond', serif; font-size: clamp(28px, 6vw, 38px); font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
           </div>
 
-          <div style="text-align:right;">
+          <div style="flex: 1 1 280px;">
             <div style="font-size: 13px; text-transform:uppercase; color:rgba(255,255,255,0.6); font-weight:600; letter-spacing:0.08em; margin-bottom:8px;">Total Net Assets</div>
-            <div style="display:flex; align-items:center; justify-content:flex-end; gap:16px;">
-              <div style="font-size: 46px; font-weight:800; font-family:var(--font-sans); line-height:1; letter-spacing:-0.02em;">${maskBalance(netAssets, 'USD')}</div>
-              <button onclick="toggleBalanceVisibility()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); cursor:pointer; color:#fff; padding:10px; border-radius:50%; transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="font-size: clamp(34px, 8vw, 46px); font-weight:800; font-family:var(--font-sans); line-height:1; letter-spacing:-0.02em;">${maskBalance(netAssets, 'USD')}</div>
+              <button onclick="toggleBalanceVisibility()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); cursor:pointer; color:#fff; padding:10px; border-radius:50%; transition:all 0.2s ease; flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
                 ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
               </button>
             </div>
@@ -1624,7 +1624,7 @@ function renderDashboard() {
 
       <div style="margin-bottom:32px;">
         <h3 style="font-size:18px; font-weight:700; color:var(--citi-navy); margin-bottom:16px; letter-spacing:0.02em;">Your Accounts</h3>
-        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
           ${state.accounts.map(a => `
             <div onclick="selectAccount('${a.id}')" style="background:#fff; border:1.5px solid ${state.selectedAccountId === a.id ? 'var(--citi-navy)' : 'var(--border)'}; border-radius:12px; padding:24px; cursor:pointer; box-shadow:${state.selectedAccountId === a.id ? '0 8px 24px rgba(0,44,119,0.15)' : 'var(--shadow-sm)'}; transition:all 0.25s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 28px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='none'; this.style.boxShadow='${state.selectedAccountId === a.id ? '0 8px 24px rgba(0,44,119,0.15)' : 'var(--shadow-sm)'}'">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
