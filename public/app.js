@@ -1523,7 +1523,7 @@ function renderDashboard() {
 
       <!-- Quick Actions -->
       <div class="quick-actions" style="margin-top:20px;">
-        <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/wire-transfer')" style="grid-column: span 2;">
+        <button class="quick-action-btn quick-action-span-2" onclick="nav('#/portal/digital-banking/wire-transfer')">
           <div class="quick-action-icon">${icons.send}</div>
           <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
         </button>
@@ -1837,7 +1837,7 @@ function renderWireTransfer() {
         <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
           Use these official routing details to fund your accounts or receive high-value institutional wire transfers from third parties globally. All incoming wires are automatically processed and credited to your ledger in real time.
         </p>
-        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; font-size:13px; line-height:1.6;">
+        <div class="incoming-wire-grid">
           <div style="border-bottom:1px solid var(--border); padding-bottom:12px;">
             <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; font-size:11px; margin-bottom:4px;">Receiving Bank</div>
             <div style="font-size:14px; font-weight:600; color:var(--citi-navy);">Meridian Trust Bank Ltd.</div>
