@@ -1387,8 +1387,33 @@ async function loadDashboard() {
   }
 }
 
+window.toggleAccountSelector = () => {
+  const dd = document.getElementById('acc-dropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+};
+
+window.selectAccount = (id) => {
+  state.selectedAccountId = id;
+  if (state.wireData) state.wireData.accountId = id;
+  
+  const h = window.location.hash || '';
+  if (h.includes('dashboard')) {
+    renderDashboard();
+  } else if (h.includes('wire-transfer')) {
+    renderWireTransfer();
+  }
+};
+
 function renderDashboard() {
   const u = state.user;
+  
+  if (!state.selectedAccountId && state.accounts && state.accounts.length > 0) {
+    state.selectedAccountId = state.accounts[0].id;
+  }
+  if (state.wireData) {
+    state.wireData.accountId = state.selectedAccountId;
+  }
+
 
   if (u.mustChangePassword) {
     setTimeout(() => {
@@ -1508,18 +1533,45 @@ function renderDashboard() {
               </button>
             </div>
 
-            <!-- Compact account list -->
-            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
-              ${state.accounts.map(a => `
-                <div style="display:flex; align-items:center; gap:8px; background:var(--bg-card, #f8fafc); border:1px solid var(--border); border-radius:8px; padding:8px 14px; min-width:200px;">
-                  <div style="width:6px; height:6px; border-radius:50%; flex-shrink:0; background:${a.type === 'checking' ? '#002C77' : a.type === 'savings' ? '#0066CC' : a.type === 'market' ? '#0099D6' : '#b5a25e'};"></div>
-                  <div style="flex:1; min-width:0;">
-                    <div style="font-size: 17px; color:var(--text-muted); font-weight:600; text-transform:capitalize;">${a.type === 'market' ? 'Money Market' : a.type}</div>
-                    <div style="font-size: 19px; font-weight:700; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif;">${maskBalance(a.balance, a.currency)}</div>
+            <!-- Sophisticated Account Selector -->
+            ${(() => {
+              const selectedAcc = state.accounts.find(a => a.id === state.selectedAccountId) || state.accounts[0] || {};
+              const dropdownItems = state.accounts.map(a => `
+                <div onclick="selectAccount('${a.id}')" style="padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+                  <div style="width:10px; height:10px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
+                  <div style="flex:1;">
+                    <div style="font-weight:700; color:var(--text-primary); font-size:19px;">${a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : ''} Account</div>
+                    <div style="font-size:16px; color:var(--text-muted); font-family:monospace;">*${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
+                  </div>
+                  <div style="font-weight:800; color:var(--citi-navy); font-size:19px;">${maskBalance(a.balance, a.currency)}</div>
+                </div>
+              `).join('');
+
+              return `
+                <div style="position:relative; margin-top:24px; width:100%; max-width:460px; font-family:'Inter',sans-serif;">
+                  <div style="font-size:16px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; letter-spacing:0.05em;">Active Funding Account</div>
+                  
+                  <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.12); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,44,119,0.2)'" onmouseout="this.style.boxShadow='0 6px 16px rgba(0,44,119,0.12)'">
+                    <div style="display:flex; align-items:center; gap:16px;">
+                      <div style="width:54px; height:54px; border-radius:12px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                      </div>
+                      <div>
+                        <div style="font-size:21px; font-weight:800; color:var(--citi-navy);">${selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:16px; font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
+                        <div style="font-size:26px; font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif;">${maskBalance(selectedAcc.balance, selectedAcc.currency)}</div>
+                      </div>
+                    </div>
+                    <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:8px; border-radius:50%;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                  </div>
+
+                  <div id="acc-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:10px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
+                    ${dropdownItems}
                   </div>
                 </div>
-              `).join('')}
-            </div>
+              `;
+            })()}
           </div>
           <div>
             <span class="kyc-badge ${u.kycStatus}">
@@ -1677,31 +1729,46 @@ function renderWireTransfer() {
   let currentStepFormHtml = '';
 
   if (state.wireStep === 1) {
-    const accountCardsHtml = state.accounts.map(a => {
-      const isSelected = state.wireData.accountId === a.id;
-      return `
-        <div onclick="state.wireData.accountId = '${a.id}'; renderWireTransfer();" style="border: 1px solid ${isSelected ? 'var(--citi-blue)' : 'var(--border)'}; border-radius: 8px; padding: 16px; margin-bottom: 12px; cursor: pointer; background: ${isSelected ? '#f0f7ff' : 'var(--bg-card)'}; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
-          <div>
-            <div style="font-weight:600; color:var(--citi-navy); font-size: 20px; margin-bottom:4px;">${a.type.charAt(0).toUpperCase() + a.type.slice(1)} Account</div>
-            <div style="font-family:monospace; color:var(--text-secondary); font-size: 19px;">*${a.accountNumber.slice(-4)}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-weight:700; color:var(--citi-navy); font-size: 19px;">${fmtMoney(a.balance, a.currency)}</div>
-            <div style="font-size: 18px; color:var(--text-muted);">Available Balance</div>
-          </div>
-        </div>
-      `;
-    }).join('');
+        <div class="form-group" style="margin-bottom:28px;">
+          <!-- Sophisticated Account Selector injected here as well -->
+          ${(() => {
+            const selectedAcc = state.accounts.find(a => a.id === state.selectedAccountId) || state.accounts[0] || {};
+            const dropdownItems = state.accounts.map(a => `
+              <div onclick="selectAccount('${a.id}')" style="padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
+                <div style="width:10px; height:10px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'};"></div>
+                <div style="flex:1;">
+                  <div style="font-weight:700; color:var(--text-primary); font-size:19px;">${a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : ''} Account</div>
+                  <div style="font-size:16px; color:var(--text-muted); font-family:monospace;">*${a.accountNumber ? a.accountNumber.slice(-4) : ''}</div>
+                </div>
+                <div style="font-weight:800; color:var(--citi-navy); font-size:19px;">${fmtMoney(a.balance, a.currency)}</div>
+              </div>
+            `).join('');
 
-    currentStepFormHtml = `
-      <form id="wire-step-1" novalidate onsubmit="event.preventDefault(); nextWireStep();">
-        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
-        
-        <div class="form-group">
-          <label class="form-label" style="margin-bottom:12px; display:block;">Select Funding Account</label>
-          <div style="max-height:300px; overflow-y:auto; margin-bottom:20px; padding-right:10px;">
-            ${accountCardsHtml}
-          </div>
+            return `
+              <div style="position:relative; width:100%; font-family:'Inter',sans-serif;">
+                <div style="font-size:18px; font-weight:700; color:var(--text-secondary); margin-bottom:12px;">Select Funding Account</div>
+                
+                <div onclick="toggleAccountSelector()" style="background:#fff; border:2.5px solid var(--citi-navy); border-radius:14px; padding:18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 16px rgba(0,44,119,0.08); transition:all 0.2s;">
+                  <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:54px; height:54px; border-radius:12px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy);">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size:21px; font-weight:800; color:var(--citi-navy);">${selectedAcc.type ? (selectedAcc.type.charAt(0).toUpperCase() + selectedAcc.type.slice(1)) : ''} Account <span style="color:var(--text-muted); font-size:16px; font-family:monospace; font-weight:600;">(*${selectedAcc.accountNumber ? selectedAcc.accountNumber.slice(-4) : ''})</span></div>
+                      <div style="font-size:26px; font-weight:800; color:var(--text-primary); font-family:'Outfit', sans-serif;">${fmtMoney(selectedAcc.balance, selectedAcc.currency)} <span style="font-size:14px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Available</span></div>
+                    </div>
+                  </div>
+                  <div style="color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:8px; border-radius:50%;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                </div>
+
+                <div id="acc-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; margin-top:10px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); z-index:100; overflow:hidden;">
+                  ${dropdownItems}
+                </div>
+              </div>
+            `;
+          })()}
         </div>
 
         <div class="form-group">
