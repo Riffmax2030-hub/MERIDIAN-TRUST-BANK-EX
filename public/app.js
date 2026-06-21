@@ -2880,12 +2880,13 @@ async function loadTransactionHistory() {
 
 function renderTransactionHistory() {
   if (!state.historyFilter) {
+    const defaultEnd = new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
     state.historyFilter = {
       accountId: 'all',
       type: 'all',
       search: '',
       startDate: '2023-06-20',
-      endDate: '2026-06-20',
+      endDate: defaultEnd,
       page: 1,
       pageSize: 15,
       chartGrouping: 'month'
