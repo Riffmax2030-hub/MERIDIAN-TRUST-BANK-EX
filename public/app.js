@@ -1386,15 +1386,20 @@ function renderDashboard() {
     `;
   }).join('') : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No transactions on record.</td></tr>`;
 
-  // Card panels (first 2)
-  const cardPanels = state.cards.slice(0, 2).map(c => {
+  // Card panels (first 2) — Platinum & Diamond luxury design
+  const cardPanels = state.cards.slice(0, 2).map((c, idx) => {
     const frozen = c.status === 'FROZEN';
+    const tierClass = idx === 0 ? '' : 'diamond';
+    const tierLabel = idx === 0 ? 'Platinum' : 'Diamond';
     return `
       <div>
-        <div class="card-visual ${frozen ? 'frozen' : 'active'}">
+        <div class="card-visual ${frozen ? 'frozen' : 'active'} ${tierClass}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
             <div class="card-chip"></div>
-            <span class="card-network">Mastercard</span>
+            <div>
+              <div class="card-network">Meridian Trust</div>
+              <div class="card-tier-label">${tierLabel}</div>
+            </div>
           </div>
           <div>
             <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;${c.cardNumber.slice(-4)}</div>

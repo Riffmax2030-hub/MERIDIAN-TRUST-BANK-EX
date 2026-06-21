@@ -923,60 +923,89 @@ a:hover { text-decoration: underline; }
 }
 
 .card-visual.active {
-  background: linear-gradient(140deg, #001A4D 0%, #002C77 55%, #004499 100%);
+  background: linear-gradient(145deg, #e8e8e8 0%, #d1d5db 20%, #c0c5cc 40%, #b8bcc4 60%, #d4d8de 80%, #eaedf1 100%);
+  color: #1a1a2e;
+}
+
+.card-visual.active.diamond {
+  background: linear-gradient(145deg, #f0f0f5 0%, #dcdfe6 15%, #c8cdd6 35%, #b0b8c4 55%, #cdd3dc 75%, #e8ecf2 100%);
+  color: #1a1a2e;
 }
 
 .card-visual.frozen {
-  background: linear-gradient(140deg, #2D3748 0%, #4A5568 100%);
-  filter: saturate(0.3);
+  background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #4b5563 100%);
+  filter: saturate(0.5);
 }
 
 .card-visual::after {
   content: '';
   position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 80%;
-  height: 140%;
-  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
+  top: -60%;
+  right: -30%;
+  width: 90%;
+  height: 160%;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 55%);
   pointer-events: none;
+}
+
+.card-visual::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .card-chip {
   width: 38px;
   height: 28px;
-  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #c9a82c 40%, #b8960b 100%);
   border-radius: 5px;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 .card-chip::before {
   content: '';
   position: absolute;
   inset: 5px;
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.15);
   border-radius: 2px;
 }
 
 .card-network {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: rgba(255,255,255,0.6);
-  letter-spacing: 0.06em;
+  color: rgba(26,26,46,0.5);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: right;
+}
+
+.card-tier-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(26,26,46,0.35);
+  text-align: right;
+  margin-top: 1px;
 }
 
 .card-number-display {
   font-family: 'Roboto Condensed', monospace;
   font-size: 15px;
   font-weight: 500;
-  color: rgba(255,255,255,0.85);
+  color: rgba(26,26,46,0.7);
   letter-spacing: 3px;
   margin: 4px 0;
 }
 
-.card-label { font-size: 9px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
-.card-value { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+.card-label { font-size: 9px; color: rgba(26,26,46,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+.card-value { font-size: 12px; font-weight: 600; color: rgba(26,26,46,0.8); letter-spacing: 0.5px; }
 
 .card-actions {
   display: grid;
