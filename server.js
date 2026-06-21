@@ -458,6 +458,10 @@ async function dbGetTransactions(userId) {
         t.id = 'TRX' + numPart + (padNeeded > 0 ? getPad(t.id).substring(0, padNeeded) : '');
       }
     }
+    
+    if (t.status === 'COMPLETED' || t.status === 'FAILED' || t.status === 'DECLINED') {
+      t.status = 'SUCCESS';
+    }
   });
 
   return txns;
