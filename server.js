@@ -1107,7 +1107,7 @@ app.post('/api/auth/change-password', async (req, res) => {
               <p style="font-size:14px;line-height:1.6;color:#555;">If you made this update, no further action is required. Your new passcode is immediately active.</p>
             </div>
             <div style="background-color:#F4F6F9;padding:20px;text-align:center;font-size:11px;color:#777;border-top:1px solid #D2D7E0;">
-              <p style="margin:0 0 8px 0;">&copy; 2026 Meridian Trust Bank Ltd. Licensed Offshore Financial Institution.</p>
+              <p style="margin:0 0 8px 0;">&copy; 2019 Meridian Trust Bank Ltd. Licensed Offshore Financial Institution.</p>
             </div>
           </div>
         </div>
@@ -1693,7 +1693,7 @@ app.post('/api/admin/approve', async (req, res) => {
             </div>
           </div>
           <div style="background-color:#F4F6F9;padding:20px;text-align:center;font-size:11px;color:#777;border-top:1px solid #D2D7E0;">
-            <p style="margin:0 0 8px 0;">&copy; 2026 Meridian Trust Bank Ltd. Licensed Offshore Financial Institution.</p>
+            <p style="margin:0 0 8px 0;">&copy; 2019 Meridian Trust Bank Ltd. Licensed Offshore Financial Institution.</p>
           </div>
         </div>
       </div>
