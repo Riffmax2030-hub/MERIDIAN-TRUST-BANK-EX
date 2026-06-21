@@ -1729,6 +1729,10 @@ function renderWireTransfer() {
   let currentStepFormHtml = '';
 
   if (state.wireStep === 1) {
+    currentStepFormHtml = `
+      <form id="wire-step-1" novalidate onsubmit="event.preventDefault(); nextWireStep();">
+        <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
+        
         <div class="form-group" style="margin-bottom:28px;">
           <!-- Sophisticated Account Selector injected here as well -->
           ${(() => {
