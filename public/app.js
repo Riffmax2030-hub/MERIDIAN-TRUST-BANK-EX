@@ -137,7 +137,7 @@ function renderNav() {
       <div style="display:flex; gap:4px; align-items:center;">
         <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
         <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
-        <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Intrabank Transfer</button>
+        <button class="nav-link ${h==='#/portal/digital-banking/intrabank-transfer'?'active':''}" onclick="nav('#/portal/digital-banking/intrabank-transfer')">Internal Transfer</button>
         <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
         <button class="nav-link ${h==='#/portal/digital-banking/profile'?'active':''}"      onclick="nav('#/portal/digital-banking/profile')">Profile</button>
       </div>
@@ -2355,7 +2355,7 @@ function renderIntrabankTransfer() {
       <div class="page-header" style="margin-bottom:24px;">
         <div class="page-header-inner">
           <div style="flex:1;">
-            <h2 class="page-greeting" style="font-family:'Cormorant Garamond',serif; font-size: 30px; font-weight:700; color:var(--citi-navy);">Intrabank Account Transfer</h2>
+            <h2 class="page-greeting" style="font-family:'Cormorant Garamond',serif; font-size: 30px; font-weight:700; color:var(--citi-navy);">Internal Transfer</h2>
             <p class="page-subtext">Transfer funds instantly between your Checking, Savings, or Money Market accounts.</p>
           </div>
         </div>
