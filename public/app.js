@@ -1606,8 +1606,7 @@ function renderDashboard() {
           
           <div>
             <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.6); margin-bottom:8px;">Meridian Trust Private Client</div>
-            <h2 style="font-family:'Cormorant Garamond', serif; font-size: 38px; font-weight:700; margin-bottom:4px; line-height:1.1;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
-            <p style="font-size:13px; color:rgba(255,255,255,0.4); font-family:monospace; letter-spacing:0.05em;">Client ID: ${u.id}</p>
+            <h2 style="font-family:'Cormorant Garamond', serif; font-size: 38px; font-weight:700; margin-bottom:4px; line-height:1.1; color:#ffffff;">Welcome back, ${u.name ? u.name.split(' ')[0] : 'Client'}</h2>
           </div>
 
           <div style="text-align:right;">
@@ -1631,7 +1630,7 @@ function renderDashboard() {
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div style="display:flex; align-items:center; gap:12px;">
                   <div style="width:14px; height:14px; border-radius:50%; background:${a.type === 'checking' ? 'var(--citi-navy)' : a.type === 'savings' ? 'var(--citi-blue)' : 'var(--citi-gold)'}; box-shadow:0 0 0 3px rgba(0,0,0,0.03);"></div>
-                  <div style="font-weight:700; color:var(--citi-navy); font-size:16px;">${a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : ''}</div>
+                  <div style="font-weight:700; color:var(--citi-navy); font-size:16px;">${a.type === 'market' ? 'Money Market' : (a.type ? (a.type.charAt(0).toUpperCase() + a.type.slice(1)) : '')}</div>
                 </div>
                 ${state.selectedAccountId === a.id ? `<div style="font-size:10px; font-weight:800; color:var(--citi-navy); background:rgba(0,44,119,0.08); padding:4px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.05em;">Active Funding</div>` : ''}
               </div>
