@@ -2027,12 +2027,15 @@ html { scroll-behavior: smooth; }
 .modal-close-btn {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 32px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0 4px;
+  padding: 12px;
   line-height: 1;
   transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .modal-close-btn:hover {
   color: var(--text-primary);
@@ -2438,6 +2441,12 @@ label.checkbox-invalid {
   gap: 20px;
   font-size: 15px;
   line-height: 1.6;
+}
+
+@media (min-width: 641px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
 }
 
 /* Mobile Transaction History Optimization */

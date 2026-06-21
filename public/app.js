@@ -1587,14 +1587,14 @@ function renderDashboard() {
             <p class="page-subtext">Client ID: ${u.id} &nbsp;·&nbsp; ${u.accountType === 'business' ? 'Corporate Account' : 'Personal Account'} &nbsp;·&nbsp; ${u.email}</p>
 
             <!-- Inline Net Balance with eye toggle -->
-            <div style="margin-top:16px; display:flex; align-items:center; gap:10px;">
-              <div>
-                <div style="font-size: 15px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em;">Total Balance</div>
-                <div style="font-size: 26px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2;">${maskBalance(netAssets, 'USD')}</div>
+            <div style="margin-top:16px;">
+              <div style="font-size: 15px; text-transform:uppercase; color:var(--text-muted); font-weight:600; letter-spacing:0.06em; margin-bottom:4px;">Total Balance</div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="font-size: 26px; font-weight:800; color:var(--citi-navy); font-family:'Roboto Condensed',sans-serif; line-height:1.2; min-width:150px;">${maskBalance(netAssets, 'USD')}</div>
+                <button onclick="toggleBalanceVisibility()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:50%; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(0,44,119,0.08)'" onmouseout="this.style.background='none'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
+                  ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
+                </button>
               </div>
-              <button onclick="toggleBalanceVisibility()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:6px; border-radius:50%; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(0,44,119,0.08)'" onmouseout="this.style.background='none'" aria-label="Toggle balance visibility" title="${balanceVisible ? 'Hide balances' : 'Show balances'}">
-                ${balanceVisible ? eyeOpenSvg : eyeClosedSvg}
-              </button>
             </div>
 
             <!-- Sophisticated Account Selector -->
@@ -1639,7 +1639,7 @@ function renderDashboard() {
           </div>
           <div>
             <span class="kyc-badge ${u.kycStatus}">
-              ${icons.check} KYC ${u.kycStatus === 'approved' ? 'Verified' : u.kycStatus}
+              ${icons.check} KYC ${(u.kycStatus || '').toLowerCase() === 'approved' ? 'Verified' : u.kycStatus}
             </span>
           </div>
         </div>
