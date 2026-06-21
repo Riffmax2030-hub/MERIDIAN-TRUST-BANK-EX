@@ -31,7 +31,7 @@ const routeLoaderMessages = {
   '#/portal/client-onboarding/apply':  ['Loading Application Portal', 'Initializing US account onboarding compliance module…'],
   '#/portal/digital-banking/dashboard': ['Retrieving Account Data', 'Connecting to offshore ledger and loading client portfolio…'],
   '#/portal/digital-banking/wire-transfer':      ['Loading Wire Transfer Module', 'Preparing SWIFT outbound routing and compliance checks…'],
-  '#/portal/digital-banking/transaction-history': ['Retrieving Transaction Ledger', 'Querying historical statements and computing analytics…'],
+  '#/portal/digital-banking/transaction-history': ['Loading Transactions', 'Retrieving your transaction history and analytics…'],
 };
 
 let _routeTimer = null;
@@ -100,7 +100,7 @@ function renderNav() {
   if (state.user) {
     el.innerHTML = `
       <button class="nav-link ${h==='#/portal/digital-banking/dashboard'?'active':''}" onclick="nav('#/portal/digital-banking/dashboard')">Overview</button>
-      <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Statement & History</button>
+      <button class="nav-link ${h==='#/portal/digital-banking/transaction-history'?'active':''}" onclick="nav('#/portal/digital-banking/transaction-history')">Transactions</button>
       <button class="nav-link ${h==='#/portal/digital-banking/wire-transfer'?'active':''}"      onclick="nav('#/portal/digital-banking/wire-transfer')">Wire Transfer</button>
       <button class="nav-btn-primary" onclick="logout()">Sign Out</button>
     `;
@@ -1502,7 +1502,7 @@ function renderDashboard() {
             <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
               <span class="panel-title">Transaction Ledger</span>
               <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 4px 8px; font-size:11px; font-weight:600;">
-                Statement & History
+                View All Transactions
               </button>
             </div>
             <div style="overflow-x:auto;">
@@ -2759,8 +2759,8 @@ function renderTransactionHistory() {
       <div class="page-header">
         <div class="page-header-inner">
           <div>
-            <h2 class="page-greeting">Account Statement & History</h2>
-            <p class="page-subtext">Filter, query, and print high-value transaction journals across all USD holdings.</p>
+            <h2 class="page-greeting">Transactions</h2>
+            <p class="page-subtext">View your transaction history, filter by date or account, and download statements.</p>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn btn-secondary btn-sm" onclick="exportHistoryCSV()">
@@ -2840,7 +2840,7 @@ function renderTransactionHistory() {
       <!-- Ledger Panel -->
       <div class="panel">
         <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="panel-title">Transaction Ledger Statements</span>
+          <span class="panel-title">Transaction History</span>
           <span id="hist-count" style="font-size:12px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
         </div>
         <div style="overflow-x:auto;">
