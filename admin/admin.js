@@ -285,6 +285,7 @@ async function openInboundModal(userId) {
   document.getElementById('inbound-amount').value = '';
   document.getElementById('inbound-sender').value = '';
   document.getElementById('inbound-desc').value = '';
+  document.getElementById('inbound-date').value = '';
 
   document.getElementById('modal-overlay').classList.add('show');
   document.getElementById('inbound-modal').classList.add('show');
@@ -300,6 +301,7 @@ async function submitInboundWire() {
   const amount = parseFloat(document.getElementById('inbound-amount').value);
   const senderName = document.getElementById('inbound-sender').value;
   const description = document.getElementById('inbound-desc').value;
+  const customDate = document.getElementById('inbound-date').value;
 
   if (isNaN(amount) || amount <= 0 || !senderName) {
     alert('Please fill out all fields correctly.');
@@ -307,7 +309,7 @@ async function submitInboundWire() {
   }
 
   try {
-    await api('/api/admin/inbound-wire', { accountId, amount, senderName, description });
+    await api('/api/admin/inbound-wire', { accountId, amount, senderName, description, date: customDate || undefined });
     toast('Deposit Credited', `Manual inbound wire of ${amount} credited.`, 'success');
     closeInboundModal();
     loadAllData();

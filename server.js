@@ -1709,9 +1709,8 @@ app.get('/api/admin/users', async (req, res) => {
   }
 });
 
-// Credit Inbound Wire Deposit
 app.post('/api/admin/inbound-wire', async (req, res) => {
-  const { accountId, amount, senderName, description } = req.body;
+  const { accountId, amount, senderName, description, date } = req.body;
   if (!accountId || !amount || !senderName) {
     return res.status(400).json({ error: 'Account ID, amount, and sender name are required.' });
   }
@@ -1745,7 +1744,7 @@ app.post('/api/admin/inbound-wire', async (req, res) => {
       description: description || 'Inbound SWIFT wire transfer',
       amount: num,
       currency,
-      date: new Date().toISOString(),
+      date: date ? new Date(date).toISOString() : new Date().toISOString(),
       status: 'COMPLETED',
       counterparty: senderName
     };
