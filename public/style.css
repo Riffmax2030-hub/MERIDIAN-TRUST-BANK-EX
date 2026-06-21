@@ -86,10 +86,12 @@ a:hover { text-decoration: underline; }
 .site-alert {
   background: var(--citi-navy);
   color: #fff;
-  font-size: 16px;
+  font-size: 11px;
+  text-transform: uppercase;
   text-align: center;
   padding: 6px 16px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────────── */
@@ -2461,9 +2463,10 @@ label.checkbox-invalid {
 /* Mobile Transaction History Optimization */
 @media (max-width: 640px) {
   .site-alert {
-    font-size: 14px;
-    padding: 8px 12px;
-    line-height: 1.4;
+    font-size: 9px;
+    padding: 6px 10px;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
     white-space: normal;
     word-break: normal;
   }
