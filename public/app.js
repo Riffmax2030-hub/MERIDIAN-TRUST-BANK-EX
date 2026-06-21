@@ -1571,11 +1571,12 @@ function renderDashboard() {
     `;
   }).join('') : `<div style="text-align:center;padding:32px;color:var(--text-muted);font-size: 15px;">No transactions on record.</div>`;
 
-  // Card panels (first 2) — Platinum & Diamond luxury design
-  const cardPanels = state.cards.slice(0, 2).map((c, idx) => {
+  // Card panels
+  const cardPanels = state.cards.map(c => {
     const frozen = c.status === 'FROZEN';
-    const tierClass = idx === 0 ? '' : 'diamond';
-    const tierLabel = idx === 0 ? 'Platinum' : 'Diamond';
+    const isDiamond = c.type === 'DIAMOND';
+    const tierClass = isDiamond ? 'diamond' : '';
+    const tierLabel = c.type === 'DIAMOND' ? 'Diamond' : (c.type === 'PLATINUM' ? 'Platinum' : 'Standard');
     return `
       <div class="card-item-container">
         <div class="card-visual ${frozen ? 'frozen' : 'active'} ${tierClass}">
@@ -1589,8 +1590,7 @@ function renderDashboard() {
           <div>
             <div class="card-number-display">•••• &nbsp;•••• &nbsp;•••• &nbsp;${c.cardNumber.slice(-4)}</div>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-            <div><div class="card-label">Cardholder</div><div class="card-value">${c.cardholderName}</div></div>
+          <div style="display:flex;justify-content:flex-end;align-items:flex-end;">
             <div style="text-align:right;"><div class="card-label">Expires</div><div class="card-value">${c.expiry}</div></div>
           </div>
         </div>
@@ -1987,12 +1987,15 @@ function renderWireTransfer() {
         <h3 style="font-size: 15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">5. Security Verification</h3>
         
         <p style="font-size: 15.5px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5; text-align:center;">
-          A 6-digit transaction verification code has been dispatched to your registered email address. Enter the code below to finalize authorized transmission.
+          Verification code has been sent to your email inbox.
         </p>
 
         <div class="form-group" style="text-align:center;">
           <label class="form-label" style="display:block; text-align:center; font-weight:600; margin-bottom:8px;">6-Digit Security Code</label>
           <input type="text" id="s-verification-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size: 22px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
+        </div>
+        <div style="text-align:center; margin-bottom:12px; font-size:13.5px; color:var(--text-muted);">
+          Didn't get it? <span id="otp-timer-text" style="font-weight:600;">Resend in 00:59</span>
         </div>
 
         <div style="display:flex; justify-content:space-between; margin-top:24px;">
@@ -2096,6 +2099,9 @@ function renderWireTransfer() {
       </div>
     </div>
   `);
+  if (state.wireStep === 5) {
+    setTimeout(startOTPTimer, 50);
+  }
 }
 
 window.setWireTab = function(tab) {
@@ -2509,7 +2515,7 @@ function renderLogin2FA(userId) {
       <div class="auth-card" style="max-width:420px;">
         <div class="auth-card-header" style="text-align:center;">
           <h1 class="auth-title">Security Verification</h1>
-          <p class="auth-subtitle" style="font-size: 14.5px;line-height:1.5;">A 6-digit verification code has been dispatched to your registered email address.</p>
+          <p class="auth-subtitle" style="font-size: 14.5px;line-height:1.5;">Verification code has been sent to your email inbox.</p>
         </div>
         <div class="auth-card-body">
           <form onsubmit="handleLogin2FASubmit(event, '${userId}')">
@@ -2517,12 +2523,48 @@ function renderLogin2FA(userId) {
               <label class="form-label">MFA Verification Code</label>
               <input type="text" id="login-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 20px;letter-spacing:6px;font-family:monospace;" autofocus>
             </div>
+            <div style="text-align:center; margin-bottom:12px; font-size:13.5px; color:var(--text-muted);">
+              Didn't get it? <span id="otp-timer-text" style="font-weight:600;">Resend in 00:59</span>
+            </div>
             <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Confirm Sign-In</button>
           </form>
         </div>
       </div>
     </div>
   `);
+  setTimeout(startOTPTimer, 50);
+}
+
+window.startOTPTimer = function() {
+  if (window.otpTimerInterval) clearInterval(window.otpTimerInterval);
+  let timeLeft = 59;
+  const timerEl = document.getElementById('otp-timer-text');
+  if (!timerEl) return;
+  timerEl.innerHTML = `Resend in 00:59`;
+  timerEl.style.color = "var(--text-muted)";
+  timerEl.style.cursor = "default";
+  timerEl.onclick = null;
+  
+  window.otpTimerInterval = setInterval(() => {
+    timeLeft--;
+    const el = document.getElementById('otp-timer-text');
+    if (!el) {
+      clearInterval(window.otpTimerInterval);
+      return;
+    }
+    if (timeLeft <= 0) {
+      clearInterval(window.otpTimerInterval);
+      el.innerHTML = `Resend`;
+      el.style.color = "var(--citi-blue)";
+      el.style.cursor = "pointer";
+      el.onclick = () => {
+        toast('Code Sent', 'A new verification code has been sent.', 'success');
+        startOTPTimer();
+      };
+    } else {
+      el.innerHTML = `Resend in 00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
+    }
+  }, 1000);
 }
 
 async function handleLogin2FASubmit(e, userId) {
