@@ -34,11 +34,6 @@ const routeLoaderMessages = {
   '#/portal/digital-banking/transaction-history': ['Loading Transactions', 'Retrieving your transaction history and analytics…'],
   '#/portal/digital-banking/intrabank-transfer': ['Connecting Ledger', 'Authorizing account balance cross-transfer module…'],
   '#/portal/digital-banking/profile': ['Loading Profile', 'Retrieving account settings and security preferences…'],
-  '#/portal/digital-banking/cards': ['Loading Card Management', 'Retrieving virtual and physical card details…'],
-  '#/portal/digital-banking/fx': ['Loading Foreign Exchange', 'Fetching live interbank currency exchange rates…'],
-  '#/portal/digital-banking/analytics': ['Loading Wealth Analytics', 'Generating cash flow and spending reports…'],
-  '#/portal/digital-banking/messages': ['Loading Secure Messages', 'Connecting to your private concierge…'],
-  '#/portal/digital-banking/beneficiaries': ['Loading Directory', 'Retrieving saved wire transfer beneficiaries…'],
 };
 
 let _routeTimer = null;
@@ -52,13 +47,7 @@ function route() {
     '#/portal/digital-banking/dashboard', 
     '#/portal/digital-banking/wire-transfer', 
     '#/portal/digital-banking/transaction-history',
-    '#/portal/digital-banking/intrabank-transfer',
-    '#/portal/digital-banking/profile',
-    '#/portal/digital-banking/cards',
-    '#/portal/digital-banking/fx',
-    '#/portal/digital-banking/analytics',
-    '#/portal/digital-banking/messages',
-    '#/portal/digital-banking/beneficiaries'
+    '#/portal/digital-banking/intrabank-transfer'
   ];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/portal/client-auth/login'); return; }
@@ -96,11 +85,6 @@ function route() {
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       case '#/portal/digital-banking/intrabank-transfer': loadIntrabankTransfer(); break;
       case '#/portal/digital-banking/profile': loadProfile(); break;
-      case '#/portal/digital-banking/cards': loadCards(); break;
-      case '#/portal/digital-banking/fx': loadFX(); break;
-      case '#/portal/digital-banking/analytics': loadAnalytics(); break;
-      case '#/portal/digital-banking/messages': loadMessages(); break;
-      case '#/portal/digital-banking/beneficiaries': loadBeneficiaries(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -301,21 +285,31 @@ function renderLanding() {
     <div class="w3-landing">
 
       <!-- ═══ HERO — Fullscreen immersive ═══ -->
-      <section class="landing-hero-modern hero-fade-in" id="w3-top">
-        <div class="landing-hero-content">
-          <div class="w3-hero-badge" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);">
+      <section class="w3-hero" id="w3-top">
+        <div class="w3-hero-bg"></div>
+        <div class="w3-hero-overlay"></div>
+        <div class="w3-hero-mesh"></div>
+        <div class="w3-hero-particles">
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+          <div class="w3-particle"></div><div class="w3-particle"></div>
+        </div>
+
+        <div class="w3-hero-content">
+          <div class="w3-hero-badge">
             <span class="w3-hero-badge-dot"></span>
-            Premium Offshore Banking
+            Full-Reserve Offshore Banking
           </div>
-          <h1 class="hero-fade-in" style="animation-delay: 0.2s;">
+          <h1 class="w3-hero-title">
             International Banking<br>Built for <span class="w3-highlight">Global Commerce</span>
           </h1>
-          <p class="hero-fade-in" style="animation-delay: 0.4s;">
+          <p class="w3-hero-subtitle">
             Open offshore private placement treasury accounts in USD. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
           </p>
-          <div class="w3-hero-cta hero-fade-in" style="animation-delay: 0.6s;">
-            <button class="btn btn-primary" onclick="nav('#/portal/client-onboarding/apply')" style="background: rgba(255,255,255,0.9); color: var(--citi-navy); font-size: 1.1rem;">Open an Account</button>
-            <button class="btn btn-ghost" onclick="nav('#/portal/client-auth/login')" style="border-color: rgba(255,255,255,0.4); color: white; font-size: 1.1rem;">Client Portal Login</button>
+          <div class="w3-hero-cta">
+            <button class="w3-btn-primary" onclick="nav('#/portal/client-onboarding/apply')">Open an Account</button>
+            <button class="w3-btn-ghost" onclick="nav('#/portal/client-auth/login')">Client Portal Login</button>
           </div>
         </div>
 
@@ -1727,7 +1721,7 @@ function renderDashboard() {
           </div>
           <div class="quick-action-title">Statements</div>
         </div>
-        <div class="quick-action-card" onclick="toast('Coming Soon', 'Concierge services will be available shortly.', 'info')">
+        <div class="quick-action-card" onclick="toast('Support', 'Connecting to concierge...', 'info')">
           <div class="icon-wrapper">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           </div>
@@ -1820,8 +1814,10 @@ function renderWireTransfer() {
   // Prepare wire details card for the incoming tab
   const detailsHtml = `
     <div class="glass-form">
-      <h3 style="font-family:'Outfit',sans-serif; font-size: 20px; font-weight:700; color:var(--citi-navy); margin-bottom: 24px; text-transform:uppercase; letter-spacing:1px; border-bottom: 2px solid rgba(0,44,119,0.1); padding-bottom:12px;">Incoming SWIFT Wire Routing Instructions</h3>
-      <div style="padding-top:10px;">
+      <div class="panel-header">
+        <span class="panel-title">Incoming SWIFT Wire Routing Instructions</span>
+      </div>
+      <div class="panel-body" style="padding:24px;">
         <p style="font-size: 16px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
           Use these official routing details to fund your accounts or receive high-value institutional wire transfers from third parties globally. All incoming wires are automatically processed and credited to your ledger in real time.
         </p>
@@ -2123,8 +2119,8 @@ function renderWireTransfer() {
 
   const formCardHtml = `
     <div class="glass-form">
-      <h3 style="font-family:'Outfit',sans-serif; font-size: 24px; font-weight:700; color:var(--citi-navy); margin-bottom: 24px; text-transform:uppercase; letter-spacing:1px; border-bottom: 2px solid rgba(0,44,119,0.1); padding-bottom:12px;">Wire Transfer Form</h3>
-      <div style="padding-top:10px;">
+      <div class="panel-header"><span class="panel-title">Wire Transfer Form</span></div>
+      <div class="panel-body" style="padding:24px;">
         ${progressHtml}
         ${currentStepFormHtml}
       </div>
@@ -4009,30 +4005,3 @@ function v(id) { const el = document.getElementById(id); return el ? el.value : 
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', init);
-
-
-// ── New Features ─────────────────────────────────────────────────────────────
-function loadCards() { renderCards(); }
-function renderCards() {
-  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Virtual Card Management</h2><p>Coming Soon...</p></div>`);
-}
-
-function loadFX() { renderFX(); }
-function renderFX() {
-  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Foreign Exchange</h2><p>Coming Soon...</p></div>`);
-}
-
-function loadAnalytics() { renderAnalytics(); }
-function renderAnalytics() {
-  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Wealth Analytics</h2><p>Coming Soon...</p></div>`);
-}
-
-function loadMessages() { renderMessages(); }
-function renderMessages() {
-  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Secure Messaging</h2><p>Coming Soon...</p></div>`);
-}
-
-function loadBeneficiaries() { renderBeneficiaries(); }
-function renderBeneficiaries() {
-  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Beneficiary Directory</h2><p>Coming Soon...</p></div>`);
-}
