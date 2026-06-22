@@ -84,6 +84,7 @@ function route() {
       case '#/portal/digital-banking/wire-transfer':      loadSend(); break;
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       case '#/portal/digital-banking/intrabank-transfer': loadIntrabankTransfer(); break;
+      case '#/portal/digital-banking/currency-exchange': loadExchange(); break;
       case '#/portal/digital-banking/profile': loadProfile(); break;
       default: renderLanding();
     }
@@ -1687,10 +1688,22 @@ function renderDashboard() {
       </div>
 
       <!-- Quick Actions -->
-      <div class="quick-actions" style="margin-top:20px;">
-        <button class="quick-action-btn quick-action-span-2" onclick="nav('#/portal/digital-banking/wire-transfer')">
+      <div class="quick-actions" style="margin-top:20px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/wire-transfer')">
           <div class="quick-action-icon">${icons.send}</div>
-          <div><div style="font-weight:600;">Initiate Outbound SWIFT Wire Transfer</div><div style="font-size: 16px;color:var(--text-muted);font-weight:400;">Transfer USD to global bank accounts instantly</div></div>
+          <div><div style="font-weight:600;">SWIFT Wire Transfer</div><div style="font-size: 13px;color:var(--text-muted);font-weight:400;">Global outbound wire</div></div>
+        </button>
+        <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/intrabank-transfer')">
+          <div class="quick-action-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></div>
+          <div><div style="font-weight:600;">Internal Transfer</div><div style="font-size: 13px;color:var(--text-muted);font-weight:400;">Between your accounts</div></div>
+        </button>
+        <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/transaction-history')">
+          <div class="quick-action-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+          <div><div style="font-weight:600;">Account Statement</div><div style="font-size: 13px;color:var(--text-muted);font-weight:400;">View transaction ledger</div></div>
+        </button>
+        <button class="quick-action-btn" onclick="nav('#/portal/digital-banking/currency-exchange')">
+          <div class="quick-action-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M18 8l4 4-4 4"/><path d="M6 16l-4-4 4-4"/></svg></div>
+          <div><div style="font-weight:600;">Currency Converter</div><div style="font-size: 13px;color:var(--text-muted);font-weight:400;">Interbank FX exchange</div></div>
         </button>
       </div>
 
@@ -1881,7 +1894,7 @@ function renderWireTransfer() {
 
         <div class="form-group">
           <label class="form-label">Transfer Amount</label>
-          <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="" required value="${state.wireData.amount || ''}">
+          <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required value="${state.wireData.amount || ''}" style="width: 100%; padding: 16px; font-size: 24px; font-weight: 700;">
         </div>
 
         <div style="display:flex; justify-content:flex-end; margin-top:20px;">

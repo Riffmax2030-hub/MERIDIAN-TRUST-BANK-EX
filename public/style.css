@@ -2491,7 +2491,7 @@ label.checkbox-invalid {
 }
 
 @media (min-width: 641px) {
-  .mobile-bottom-nav {
+  .mobile-bottom-nav, body.logged-in .mobile-bottom-nav {
     display: none !important;
   }
 }
