@@ -3902,7 +3902,6 @@ window.uploadProfilePic = function(event) {
 function renderProfile() {
   const u = state.user;
   const kycText = (u.kycStatus || '').toLowerCase() === 'approved' ? 'Verified' : u.kycStatus;
-  const kycColor = (u.kycStatus || '').toLowerCase() === 'approved' ? 'var(--green)' : 'var(--amber)';
   
   const profilePicDataUrl = localStorage.getItem(`profile_pic_${u.id}`);
   const avatarContent = profilePicDataUrl 
@@ -3910,66 +3909,83 @@ function renderProfile() {
     : u.name.charAt(0).toUpperCase();
 
   const html = `
-    <div style="max-width:800px; margin:0 auto;">
-      <h2 style="font-size: 26px; font-weight:800; color:var(--citi-navy); margin-bottom: 24px;">Profile & Settings</h2>
+    <div style="max-width:900px; margin:0 auto; padding-bottom: 60px;">
+      <h2 style="font-size: clamp(24px, 5vw, 32px); font-weight:800; color:var(--text-primary); margin-bottom: 32px; display:flex; align-items:center; gap:12px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Private Banking Profile
+      </h2>
       
-      <!-- Account Identity -->
-      <div class="card" style="margin-bottom:24px;">
-        <div style="display:flex; align-items:center; gap:20px; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
-          <div style="position:relative; width:80px; height:80px; border-radius:50%; background:var(--citi-navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size: 32px; font-weight:700; cursor:pointer;" title="Click to upload profile picture" onclick="document.getElementById('profile-pic-upload').click()">
+      <!-- Account Identity 3D Card -->
+      <div style="background:rgba(255,255,255,0.6); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.8); border-radius:24px; padding: clamp(20px, 4vw, 32px); margin-bottom:32px; box-shadow:0 16px 40px rgba(31, 38, 135, 0.08); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: perspective(1000px);" onmouseover="this.style.transform='perspective(1000px) translateY(-4px) rotateX(2deg)'; this.style.boxShadow='0 20px 50px rgba(31, 38, 135, 0.12)'" onmouseout="this.style.transform='perspective(1000px) translateY(0) rotateX(0)'; this.style.boxShadow='0 16px 40px rgba(31, 38, 135, 0.08)'">
+        
+        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:24px; border-bottom:1px solid rgba(0,0,0,0.06); padding-bottom:24px; margin-bottom:24px;">
+          <div style="position:relative; width: clamp(70px, 15vw, 90px); height: clamp(70px, 15vw, 90px); border-radius:50%; background:linear-gradient(135deg, var(--citi-navy), #0a3d91); color:#fff; display:flex; align-items:center; justify-content:center; font-size: clamp(28px, 6vw, 36px); font-weight:700; cursor:pointer; box-shadow: 0 8px 24px rgba(0,44,119,0.3);" title="Click to upload profile picture" onclick="document.getElementById('profile-pic-upload').click()">
             ${avatarContent}
-            <div style="position:absolute; bottom:0; right:0; background:var(--bg-white); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); border:1px solid var(--border);">
+            <div style="position:absolute; bottom:0; right:0; background:var(--bg-white); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); border:1px solid var(--border);">
               <svg viewBox="0 0 24 24" width="14" height="14" stroke="var(--citi-navy)" stroke-width="2.5" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </div>
             <input type="file" id="profile-pic-upload" style="display:none" accept="image/*" onchange="uploadProfilePic(event)">
           </div>
-          <div>
-            <div style="font-size: 22px; font-weight:800; color:var(--text-primary);">${u.name}</div>
-            <div style="font-size: 15px; color:var(--text-muted); font-family:var(--font-mono); margin-top:4px;">Client ID: ${u.id}</div>
+          <div style="flex:1; min-width: 200px;">
+            <div style="font-size: clamp(22px, 5vw, 28px); font-weight:800; color:var(--text-primary); letter-spacing:-0.5px;">${u.name}</div>
+            <div style="font-size: 15px; color:var(--text-muted); font-family:var(--font-mono); margin-top:6px; display:inline-block; background:rgba(0,0,0,0.04); padding:4px 10px; border-radius:8px;">Client ID: <span style="font-weight:700; color:var(--citi-navy);">${u.id}</span></div>
+          </div>
+          <div style="text-align:right;">
+             <div style="font-size: 13px; text-transform:uppercase; font-weight:800; color:var(--text-muted); margin-bottom:6px; letter-spacing:1px;">Account Status</div>
+             <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0, 230, 118, 0.1); color:#00b359; padding:6px 14px; border-radius:20px; font-weight:800; font-size:14px;">
+               <div style="width:8px; height:8px; border-radius:50%; background:#00e676; box-shadow:0 0 8px #00e676;"></div> ACTIVE
+             </div>
           </div>
         </div>
         
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:24px;">
           <div>
-            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Email Address</div>
-            <div style="font-size: 16px; font-weight:600;">${u.email}</div>
+            <div style="font-size: 12px; text-transform:uppercase; font-weight:800; color:var(--text-muted); margin-bottom:6px; letter-spacing:1px;">Registered Email</div>
+            <div style="font-size: 17px; font-weight:600; color:var(--text-primary); word-break: break-all;">${u.email}</div>
           </div>
           <div>
-            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Account Type</div>
-            <div style="font-size: 16px; font-weight:600;">${u.accountType === 'business' ? 'Corporate Account' : 'Personal Account'}</div>
+            <div style="font-size: 12px; text-transform:uppercase; font-weight:800; color:var(--text-muted); margin-bottom:6px; letter-spacing:1px;">Account Type</div>
+            <div style="font-size: 17px; font-weight:600; color:var(--text-primary);">${u.accountType === 'business' ? 'Corporate Entity' : 'Private Wealth'}</div>
           </div>
           <div>
-            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">KYC Status</div>
-            <div style="font-size: 16px; font-weight:700; color:${kycColor}; display:flex; align-items:center; gap:6px;">
+            <div style="font-size: 12px; text-transform:uppercase; font-weight:800; color:var(--text-muted); margin-bottom:6px; letter-spacing:1px;">KYC Status</div>
+            <div style="font-size: 17px; font-weight:800; color:#00b359; display:flex; align-items:center; gap:6px;">
               ${icons.check} ${kycText}
             </div>
           </div>
           <div>
-            <div style="font-size: 13px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Registered Address</div>
-            <div style="font-size: 16px; font-weight:600;">Secure Vault Location</div>
+            <div style="font-size: 12px; text-transform:uppercase; font-weight:800; color:var(--text-muted); margin-bottom:6px; letter-spacing:1px;">Registered Address</div>
+            <div style="font-size: 17px; font-weight:600; color:var(--text-primary);">Secure Vault Location</div>
           </div>
         </div>
       </div>
 
-      <!-- Security & Limits -->
-      <div class="card">
-        <h3 style="font-size: 18px; font-weight:700; color:var(--citi-navy); margin-bottom: 20px;">Security & Limits</h3>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--border);">
+      <!-- Security & Limits 3D Card -->
+      <div style="background:rgba(255,255,255,0.6); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.8); border-radius:24px; padding: clamp(20px, 4vw, 32px); box-shadow:0 16px 40px rgba(31, 38, 135, 0.08); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: perspective(1000px);" onmouseover="this.style.transform='perspective(1000px) translateY(-4px) rotateX(2deg)'; this.style.boxShadow='0 20px 50px rgba(31, 38, 135, 0.12)'" onmouseout="this.style.transform='perspective(1000px) translateY(0) rotateX(0)'; this.style.boxShadow='0 16px 40px rgba(31, 38, 135, 0.08)'">
+        <h3 style="font-size: 20px; font-weight:800; color:var(--citi-navy); margin-bottom: 24px; display:flex; align-items:center; gap:10px;">
+           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+           Security & Authorizations
+        </h3>
+        
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap: 16px; padding:20px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
           <div>
-            <div style="font-size: 16px; font-weight:700;">Two-Factor Authentication (2FA)</div>
-            <div style="font-size: 14px; color:var(--text-muted); margin-top:4px;">Secured via encrypted dynamic OTP.</div>
+            <div style="font-size: 17px; font-weight:800; color:var(--text-primary);">Two-Factor Authentication (2FA)</div>
+            <div style="font-size: 14px; color:var(--text-muted); margin-top:6px;">Secured via encrypted dynamic OTP token.</div>
           </div>
-          <span style="background:var(--green-bg); color:var(--green); padding:4px 10px; border-radius:12px; font-size: 12px; font-weight:700;">ENABLED</span>
+          <span style="background:rgba(0, 230, 118, 0.1); color:#00b359; padding:8px 16px; border-radius:12px; font-size: 13px; font-weight:800; letter-spacing:1px;">ENFORCED</span>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--border);">
+        
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap: 16px; padding:20px 0;">
           <div>
-            <div style="font-size: 16px; font-weight:700;">Daily Transfer Limit</div>
-            <div style="font-size: 14px; color:var(--text-muted); margin-top:4px;">Maximum outbound SWIFT & ACH limit.</div>
+            <div style="font-size: 17px; font-weight:800; color:var(--text-primary);">Daily Transaction Limit</div>
+            <div style="font-size: 14px; color:var(--text-muted); margin-top:6px;">Maximum outbound SWIFT & ACH transfer limit.</div>
           </div>
-          <div style="font-size: 16px; font-weight:700; font-family:var(--font-mono);">$10,000,000.00</div>
+          <div style="font-size: clamp(18px, 4vw, 22px); font-weight:800; font-family:var(--font-mono); color:var(--citi-navy); background:rgba(0,44,119,0.05); padding:8px 16px; border-radius:12px;">$10,000,000.00</div>
         </div>
-        <div style="padding-top:16px;">
-          <button class="btn btn-primary" onclick="toast('Security Support', 'Please contact your dedicated account manager to change security limits.', 'info')">Request Limit Increase</button>
+        
+        <div style="padding-top:24px; margin-top:8px; border-top:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:12px; color:var(--text-muted); font-size:14px;">
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+           <i>Modifications to security and limits require authorization from your dedicated Private Wealth Manager.</i>
         </div>
       </div>
 
