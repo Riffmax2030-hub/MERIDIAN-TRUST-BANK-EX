@@ -1727,7 +1727,7 @@ function renderDashboard() {
           </div>
           <div class="quick-action-title">Statements</div>
         </div>
-        <div class="quick-action-card" onclick="toast('Support', 'Connecting to concierge...', 'info')">
+        <div class="quick-action-card" onclick="toast('Coming Soon', 'Concierge services will be available shortly.', 'info')">
           <div class="icon-wrapper">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           </div>
@@ -1820,10 +1820,8 @@ function renderWireTransfer() {
   // Prepare wire details card for the incoming tab
   const detailsHtml = `
     <div class="glass-form">
-      <div class="panel-header">
-        <span class="panel-title">Incoming SWIFT Wire Routing Instructions</span>
-      </div>
-      <div class="panel-body" style="padding:24px;">
+      <h3 style="font-family:'Outfit',sans-serif; font-size: 20px; font-weight:700; color:var(--citi-navy); margin-bottom: 24px; text-transform:uppercase; letter-spacing:1px; border-bottom: 2px solid rgba(0,44,119,0.1); padding-bottom:12px;">Incoming SWIFT Wire Routing Instructions</h3>
+      <div style="padding-top:10px;">
         <p style="font-size: 16px; color:var(--text-secondary); margin-bottom:20px; line-height:1.5;">
           Use these official routing details to fund your accounts or receive high-value institutional wire transfers from third parties globally. All incoming wires are automatically processed and credited to your ledger in real time.
         </p>
@@ -2125,8 +2123,8 @@ function renderWireTransfer() {
 
   const formCardHtml = `
     <div class="glass-form">
-      <div class="panel-header"><span class="panel-title">Wire Transfer Form</span></div>
-      <div class="panel-body" style="padding:24px;">
+      <h3 style="font-family:'Outfit',sans-serif; font-size: 24px; font-weight:700; color:var(--citi-navy); margin-bottom: 24px; text-transform:uppercase; letter-spacing:1px; border-bottom: 2px solid rgba(0,44,119,0.1); padding-bottom:12px;">Wire Transfer Form</h3>
+      <div style="padding-top:10px;">
         ${progressHtml}
         ${currentStepFormHtml}
       </div>
