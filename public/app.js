@@ -34,6 +34,11 @@ const routeLoaderMessages = {
   '#/portal/digital-banking/transaction-history': ['Loading Transactions', 'Retrieving your transaction history and analytics…'],
   '#/portal/digital-banking/intrabank-transfer': ['Connecting Ledger', 'Authorizing account balance cross-transfer module…'],
   '#/portal/digital-banking/profile': ['Loading Profile', 'Retrieving account settings and security preferences…'],
+  '#/portal/digital-banking/cards': ['Loading Card Management', 'Retrieving virtual and physical card details…'],
+  '#/portal/digital-banking/fx': ['Loading Foreign Exchange', 'Fetching live interbank currency exchange rates…'],
+  '#/portal/digital-banking/analytics': ['Loading Wealth Analytics', 'Generating cash flow and spending reports…'],
+  '#/portal/digital-banking/messages': ['Loading Secure Messages', 'Connecting to your private concierge…'],
+  '#/portal/digital-banking/beneficiaries': ['Loading Directory', 'Retrieving saved wire transfer beneficiaries…'],
 };
 
 let _routeTimer = null;
@@ -47,7 +52,13 @@ function route() {
     '#/portal/digital-banking/dashboard', 
     '#/portal/digital-banking/wire-transfer', 
     '#/portal/digital-banking/transaction-history',
-    '#/portal/digital-banking/intrabank-transfer'
+    '#/portal/digital-banking/intrabank-transfer',
+    '#/portal/digital-banking/profile',
+    '#/portal/digital-banking/cards',
+    '#/portal/digital-banking/fx',
+    '#/portal/digital-banking/analytics',
+    '#/portal/digital-banking/messages',
+    '#/portal/digital-banking/beneficiaries'
   ];
 
   if (privateRoutes.includes(h) && !state.user) { nav('#/portal/client-auth/login'); return; }
@@ -85,6 +96,11 @@ function route() {
       case '#/portal/digital-banking/transaction-history': loadTransactionHistory(); break;
       case '#/portal/digital-banking/intrabank-transfer': loadIntrabankTransfer(); break;
       case '#/portal/digital-banking/profile': loadProfile(); break;
+      case '#/portal/digital-banking/cards': loadCards(); break;
+      case '#/portal/digital-banking/fx': loadFX(); break;
+      case '#/portal/digital-banking/analytics': loadAnalytics(); break;
+      case '#/portal/digital-banking/messages': loadMessages(); break;
+      case '#/portal/digital-banking/beneficiaries': loadBeneficiaries(); break;
       default: renderLanding();
     }
   }, 3000);
@@ -285,31 +301,21 @@ function renderLanding() {
     <div class="w3-landing">
 
       <!-- ═══ HERO — Fullscreen immersive ═══ -->
-      <section class="w3-hero" id="w3-top">
-        <div class="w3-hero-bg"></div>
-        <div class="w3-hero-overlay"></div>
-        <div class="w3-hero-mesh"></div>
-        <div class="w3-hero-particles">
-          <div class="w3-particle"></div><div class="w3-particle"></div>
-          <div class="w3-particle"></div><div class="w3-particle"></div>
-          <div class="w3-particle"></div><div class="w3-particle"></div>
-          <div class="w3-particle"></div><div class="w3-particle"></div>
-        </div>
-
-        <div class="w3-hero-content">
-          <div class="w3-hero-badge">
+      <section class="landing-hero-modern hero-fade-in" id="w3-top">
+        <div class="landing-hero-content">
+          <div class="w3-hero-badge" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);">
             <span class="w3-hero-badge-dot"></span>
-            Full-Reserve Offshore Banking
+            Premium Offshore Banking
           </div>
-          <h1 class="w3-hero-title">
+          <h1 class="hero-fade-in" style="animation-delay: 0.2s;">
             International Banking<br>Built for <span class="w3-highlight">Global Commerce</span>
           </h1>
-          <p class="w3-hero-subtitle">
+          <p class="hero-fade-in" style="animation-delay: 0.4s;">
             Open offshore private placement treasury accounts in USD. Settle international wires with precision. Manage corporate treasuries and private wealth from a single secure platform.
           </p>
-          <div class="w3-hero-cta">
-            <button class="w3-btn-primary" onclick="nav('#/portal/client-onboarding/apply')">Open an Account</button>
-            <button class="w3-btn-ghost" onclick="nav('#/portal/client-auth/login')">Client Portal Login</button>
+          <div class="w3-hero-cta hero-fade-in" style="animation-delay: 0.6s;">
+            <button class="btn btn-primary" onclick="nav('#/portal/client-onboarding/apply')" style="background: rgba(255,255,255,0.9); color: var(--citi-navy); font-size: 1.1rem;">Open an Account</button>
+            <button class="btn btn-ghost" onclick="nav('#/portal/client-auth/login')" style="border-color: rgba(255,255,255,0.4); color: white; font-size: 1.1rem;">Client Portal Login</button>
           </div>
         </div>
 
@@ -613,7 +619,7 @@ window.showCardAuthModal = (id) => {
     <div style="margin-bottom:16px; font-size:15px; color:var(--text-secondary); line-height:1.5;">
       For your security, please enter your portal login password to reveal sensitive card information (CVV and Full Number).
     </div>
-    <input type="password" id="card-auth-pwd" class="form-input" placeholder="Enter Password" style="width:100%; font-size:16px; padding:12px;">
+    <input type="password" id="card-auth-pwd" class="modern-input" placeholder="Enter Password" style="width:100%; font-size:16px; padding:12px;">
   `;
   
   showCustomModal('Security Verification', b, () => {
@@ -733,18 +739,18 @@ function renderLogin() {
   if (state.loginView === 'password') {
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card">
+        <div class="glass-form">
           ${getLoginHeaderHtml('Client Portal Login', 'Enter your assigned Client ID and passcode to access your accounts.')}
           <div class="auth-card-body">
             <form id="login-form" novalidate onsubmit="handleLogin(event)">
-              <div class="form-group">
-                <label class="form-label">Client Account ID <span style="color:#dc2626;">*</span></label>
-                <input id="f-uid" type="text" class="form-input" placeholder="Client ID" autocomplete="username" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Client Account ID <span style="color:#dc2626;">*</span></label>
+                <input id="f-uid" type="text" class="modern-input" placeholder="Client ID" autocomplete="username" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Secure Passcode <span style="color:#dc2626;">*</span></label>
+              <div class="modern-input-group">
+                <label class="modern-label">Secure Passcode <span style="color:#dc2626;">*</span></label>
                 <div style="position:relative;">
-                  <input id="f-pwd" type="password" class="form-input" placeholder="Passcode" autocomplete="current-password" required style="padding-right:44px;">
+                  <input id="f-pwd" type="password" class="modern-input" placeholder="Passcode" autocomplete="current-password" required style="padding-right:44px;">
                   <button type="button" onclick="togglePasswordEye('f-pwd', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-muted);" aria-label="Toggle password visibility">
                     <svg id="eye-icon-f-pwd" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
@@ -766,17 +772,17 @@ function renderLogin() {
   } else if (state.loginView === 'forgot') {
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card">
+        <div class="glass-form">
           ${getLoginHeaderHtml('Reset Secure Passcode', 'Provide your account credentials to request a passcode override link.')}
           <div class="auth-card-body">
             <form id="forgot-form" novalidate onsubmit="handleForgotSubmit(event)">
-              <div class="form-group">
-                <label class="form-label">Client Account ID <span style="color:#dc2626;">*</span></label>
-                <input id="fg-uid" type="text" class="form-input" placeholder="Client ID" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Client Account ID <span style="color:#dc2626;">*</span></label>
+                <input id="fg-uid" type="text" class="modern-input" placeholder="Client ID" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
-                <input id="fg-email" type="email" class="form-input" placeholder="Email Address" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
+                <input id="fg-email" type="email" class="modern-input" placeholder="Email Address" required>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Request Reset Link</button>
             </form>
@@ -793,13 +799,13 @@ function renderLogin() {
   } else if (state.loginView === 'link') {
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card">
+        <div class="glass-form">
           ${getLoginHeaderHtml('Sign In with Secure Link', 'Enter your registered email. We will send a one-click session authorization link.')}
           <div class="auth-card-body">
             <form id="link-login-form" novalidate onsubmit="handleLinkLoginSubmit(event)">
-              <div class="form-group">
-                <label class="form-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
-                <input id="lk-email" type="email" class="form-input" placeholder="Email Address" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Registered Email Address <span style="color:#dc2626;">*</span></label>
+                <input id="lk-email" type="email" class="modern-input" placeholder="Email Address" required>
               </div>
               <button type="submit" class="btn btn-primary btn-full" style="margin-top:6px;">Send Sign-In Link</button>
             </form>
@@ -1070,7 +1076,7 @@ function renderRegister() {
 
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card" style="max-width:580px;">
+        <div class="glass-form" style="max-width:580px;">
           ${getLoginHeaderHtml('Create Accounts', 'Select Account Classification & Programs')}
           <div class="auth-card-body">
             ${getProgressBarHtml(1)}
@@ -1169,7 +1175,7 @@ function renderRegister() {
     const checkAddon = (key) => d.addOns[key] ? 'checked' : '';
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card" style="max-width:580px;">
+        <div class="glass-form" style="max-width:580px;">
           ${getLoginHeaderHtml('Create Accounts', 'Select Add-ons & Overdraft Transfer')}
           <div class="auth-card-body">
             ${getProgressBarHtml(2)}
@@ -1209,8 +1215,8 @@ function renderRegister() {
             </div>
 
             <div id="overdraft-source-section" style="display:${d.addOns.overdraft ? 'block' : 'none'}; background:#f8fafc; border:1px solid var(--border); padding:16px; border-radius:6px; margin-bottom:20px;">
-              <label class="form-label">What type of account do you want to open for overdraft transfer service?</label>
-              <select id="addon-overdraft-acc" class="form-select" onchange="setOverdraftAccount(this.value)">
+              <label class="modern-label">What type of account do you want to open for overdraft transfer service?</label>
+              <select id="addon-overdraft-acc" class="modern-input" onchange="setOverdraftAccount(this.value)">
                 <option value="savings" ${d.addOns.overdraftAccount === 'savings' ? 'selected' : ''}>Savings</option>
                 <option value="market" ${d.addOns.overdraftAccount === 'market' ? 'selected' : ''}>Money Market</option>
               </select>
@@ -1248,7 +1254,7 @@ function renderRegister() {
 
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card" style="max-width:580px;">
+        <div class="glass-form" style="max-width:580px;">
           ${getLoginHeaderHtml('Create Accounts', 'Review Account Selections')}
           <div class="auth-card-body">
             ${getProgressBarHtml(3)}
@@ -1282,7 +1288,7 @@ function renderRegister() {
     const d = state.regData;
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card" style="max-width:580px;">
+        <div class="glass-form" style="max-width:580px;">
           ${getLoginHeaderHtml('Create Accounts', 'Your Information')}
           <div class="auth-card-body">
             ${getProgressBarHtml(4)}
@@ -1298,36 +1304,36 @@ function renderRegister() {
               </label>
 
               ${d.accountClassification === 'business' ? `
-                <div class="form-group">
-                  <label class="form-label">Company / Business Name <span style="color:#dc2626;">*</span></label>
-                  <input id="r-company-name" type="text" class="form-input" placeholder="e.g. Acme Corporation LLC" value="${d.firstName || ''}" required>
+                <div class="modern-input-group">
+                  <label class="modern-label">Company / Business Name <span style="color:#dc2626;">*</span></label>
+                  <input id="r-company-name" type="text" class="modern-input" placeholder="e.g. Acme Corporation LLC" value="${d.firstName || ''}" required>
                 </div>
               ` : `
                 <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">First Name <span style="color:#dc2626;">*</span></label>
-                    <input id="r-fname" type="text" class="form-input" placeholder="First Name" value="${d.firstName || ''}" required>
+                  <div class="modern-input-group">
+                    <label class="modern-label">First Name <span style="color:#dc2626;">*</span></label>
+                    <input id="r-fname" type="text" class="modern-input" placeholder="First Name" value="${d.firstName || ''}" required>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Last Name <span style="color:#dc2626;">*</span></label>
-                    <input id="r-lname" type="text" class="form-input" placeholder="Last Name" value="${d.lastName || ''}" required>
+                  <div class="modern-input-group">
+                    <label class="modern-label">Last Name <span style="color:#dc2626;">*</span></label>
+                    <input id="r-lname" type="text" class="modern-input" placeholder="Last Name" value="${d.lastName || ''}" required>
                   </div>
                 </div>
               `}
 
-              <div class="form-group">
-                <label class="form-label">Date of Birth (MM/DD/YYYY) <span style="color:#dc2626;">*</span></label>
-                <input id="r-dob" type="text" class="form-input" placeholder="MM/DD/YYYY" value="${d.dob || ''}" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Date of Birth (MM/DD/YYYY) <span style="color:#dc2626;">*</span></label>
+                <input id="r-dob" type="text" class="modern-input" placeholder="MM/DD/YYYY" value="${d.dob || ''}" required>
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Email Address <span style="color:#dc2626;">*</span></label>
-                <input id="r-email" type="email" class="form-input" placeholder="Email Address" value="${d.email || ''}" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Email Address <span style="color:#dc2626;">*</span></label>
+                <input id="r-email" type="email" class="modern-input" placeholder="Email Address" value="${d.email || ''}" required>
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Phone Number <span style="color:#dc2626;">*</span></label>
-                <input id="r-phone" type="tel" class="form-input" placeholder="Phone Number" value="${d.phone || ''}" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Phone Number <span style="color:#dc2626;">*</span></label>
+                <input id="r-phone" type="tel" class="modern-input" placeholder="Phone Number" value="${d.phone || ''}" required>
               </div>
 
               <div style="display:flex; gap:12px; margin-top:20px;">
@@ -1343,7 +1349,7 @@ function renderRegister() {
     const d = state.regData;
     setRoot(`
       <div class="auth-shell">
-        <div class="auth-card" style="max-width:580px;">
+        <div class="glass-form" style="max-width:580px;">
           ${getLoginHeaderHtml('Create Accounts', 'Address & Identity Verification')}
           <div class="auth-card-body">
             ${getProgressBarHtml(5)}
@@ -1353,34 +1359,34 @@ function renderRegister() {
                 Enter your tax identification and U.S. residential street address details below.
               </p>
 
-              <div class="form-group">
-                <label class="form-label">Social Security Number (SSN) / ITIN <span style="color:#dc2626;">*</span></label>
-                <input id="r-ssn" type="password" class="form-input" placeholder="Tax ID / SSN" style="letter-spacing:2px; font-family:monospace;" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Social Security Number (SSN) / ITIN <span style="color:#dc2626;">*</span></label>
+                <input id="r-ssn" type="password" class="modern-input" placeholder="Tax ID / SSN" style="letter-spacing:2px; font-family:monospace;" required>
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Residential Address (no P.O. Boxes) <span style="color:#dc2626;">*</span></label>
-                <input id="r-address" type="text" class="form-input" placeholder="Residential Street Address" value="${d.address || ''}" required>
+              <div class="modern-input-group">
+                <label class="modern-label">Residential Address (no P.O. Boxes) <span style="color:#dc2626;">*</span></label>
+                <input id="r-address" type="text" class="modern-input" placeholder="Residential Street Address" value="${d.address || ''}" required>
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Apartment, Suite, Unit, etc. (Optional)</label>
-                <input id="r-unit" type="text" class="form-input" placeholder="e.g. Apt 4B" value="${d.addressUnit || ''}">
+              <div class="modern-input-group">
+                <label class="modern-label">Apartment, Suite, Unit, etc. (Optional)</label>
+                <input id="r-unit" type="text" class="modern-input" placeholder="e.g. Apt 4B" value="${d.addressUnit || ''}">
               </div>
 
-              <div class="form-group">
-                <label class="form-label">City <span style="color:#dc2626;">*</span></label>
-                <input id="r-city" type="text" class="form-input" placeholder="City" value="${d.city || ''}" required>
+              <div class="modern-input-group">
+                <label class="modern-label">City <span style="color:#dc2626;">*</span></label>
+                <input id="r-city" type="text" class="modern-input" placeholder="City" value="${d.city || ''}" required>
               </div>
 
               <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">State <span style="color:#dc2626;">*</span></label>
-                  <input id="r-state" type="text" class="form-input" placeholder="State" value="${d.state || ''}" required>
+                <div class="modern-input-group">
+                  <label class="modern-label">State <span style="color:#dc2626;">*</span></label>
+                  <input id="r-state" type="text" class="modern-input" placeholder="State" value="${d.state || ''}" required>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">ZIP Code <span style="color:#dc2626;">*</span></label>
-                  <input id="r-zip" type="text" class="form-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
+                <div class="modern-input-group">
+                  <label class="modern-label">ZIP Code <span style="color:#dc2626;">*</span></label>
+                  <input id="r-zip" type="text" class="modern-input" placeholder="ZIP Code" value="${d.zip || ''}" required>
                 </div>
               </div>
 
@@ -1400,7 +1406,7 @@ function renderRegister() {
 function renderRegistrationSuccess(email) {
   setRoot(`
     <div class="auth-shell">
-      <div class="auth-card" style="max-width:550px;">
+      <div class="glass-form" style="max-width:550px;">
         <div class="auth-card-header" style="text-align:center;">
             <svg class="bank-logo-icon" viewBox="0 0 32 32" width="56" height="56" fill="none" style="margin: 0 auto;">
               <defs>
@@ -1732,7 +1738,7 @@ function renderDashboard() {
       <div class="dash-grid" style="margin-top: 32px;">
         <!-- Transactions -->
         <div>
-          <div class="panel" style="box-shadow:var(--shadow-md); border-radius:16px; border:1px solid var(--border);">
+          <div class="glass-form" style="box-shadow:var(--shadow-md); border-radius:16px; border:1px solid var(--border);">
             <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:16px;">
               <span class="panel-title" style="font-size: 18px; font-family:'Outfit', sans-serif;">Transaction Ledger</span>
               <button class="btn btn-ghost btn-xs" onclick="nav('#/portal/digital-banking/transaction-history')" style="padding: 6px 12px; font-size: 13px; font-weight:600; border-radius:20px; background:var(--bg-muted);">
@@ -1760,7 +1766,7 @@ function renderDashboard() {
 
         <!-- Cards & Actions -->
         <div>
-          <div class="panel" style="margin-bottom:20px; background:transparent; box-shadow:none; padding:0;">
+          <div class="glass-form" style="margin-bottom:20px; background:transparent; box-shadow:none; padding:0;">
             <div class="panel-header" style="margin-bottom:16px;">
               <span class="panel-title" style="font-size: 18px; font-family:'Outfit', sans-serif; color:var(--text-primary);">Payment Cards</span>
             </div>
@@ -1813,7 +1819,7 @@ function renderWireTransfer() {
 
   // Prepare wire details card for the incoming tab
   const detailsHtml = `
-    <div class="panel">
+    <div class="glass-form">
       <div class="panel-header">
         <span class="panel-title">Incoming SWIFT Wire Routing Instructions</span>
       </div>
@@ -1872,7 +1878,7 @@ function renderWireTransfer() {
       <form id="wire-step-1" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size: 19px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">1. Originating Account & Amount</h3>
         
-        <div class="form-group" style="margin-bottom:28px;">
+        <div class="modern-input-group" style="margin-bottom:28px;">
           <!-- Sophisticated Account Selector injected here as well -->
           ${(() => {
             const selectedAcc = state.accounts.find(a => a.id === state.selectedAccountId) || state.accounts[0] || {};
@@ -1914,9 +1920,9 @@ function renderWireTransfer() {
           })()}
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Transfer Amount</label>
-          <input id="s-amt" type="number" step="0.01" min="1" class="form-input" placeholder="" required value="${state.wireData.amount || ''}">
+        <div class="modern-input-group">
+          <label class="modern-label">Transfer Amount</label>
+          <input id="s-amt" type="number" step="0.01" min="1" class="modern-input" placeholder="" required value="${state.wireData.amount || ''}">
         </div>
 
         <div style="display:flex; justify-content:flex-end; margin-top:20px;">
@@ -1929,28 +1935,28 @@ function renderWireTransfer() {
       <form id="wire-step-2" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size: 15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">2. Beneficiary (Recipient) Details</h3>
         
-        <div class="form-group">
-          <label class="form-label">Beneficiary Full Name</label>
-          <input id="s-recipient-name" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientName || ''}">
+        <div class="modern-input-group">
+          <label class="modern-label">Beneficiary Full Name</label>
+          <input id="s-recipient-name" type="text" class="modern-input" placeholder="" required value="${state.wireData.recipientName || ''}">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Street Address</label>
-          <input id="s-recipient-addr" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientAddress || ''}">
+        <div class="modern-input-group">
+          <label class="modern-label">Street Address</label>
+          <input id="s-recipient-addr" type="text" class="modern-input" placeholder="" required value="${state.wireData.recipientAddress || ''}">
         </div>
         
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">State / Province</label>
-            <input id="s-recipient-state" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientState || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">State / Province</label>
+            <input id="s-recipient-state" type="text" class="modern-input" placeholder="" required value="${state.wireData.recipientState || ''}">
           </div>
-          <div class="form-group">
-            <label class="form-label">Zip / Postal Code</label>
-            <input id="s-recipient-zip" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientZip || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">Zip / Postal Code</label>
+            <input id="s-recipient-zip" type="text" class="modern-input" placeholder="" required value="${state.wireData.recipientZip || ''}">
           </div>
-          <div class="form-group">
-            <label class="form-label">Country</label>
-            <input id="s-recipient-country" type="text" class="form-input" placeholder="" required value="${state.wireData.recipientCountry || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">Country</label>
+            <input id="s-recipient-country" type="text" class="modern-input" placeholder="" required value="${state.wireData.recipientCountry || ''}">
           </div>
         </div>
 
@@ -1965,30 +1971,30 @@ function renderWireTransfer() {
       <form id="wire-step-3" novalidate onsubmit="event.preventDefault(); nextWireStep();">
         <h3 style="font-size: 15px; color:var(--citi-blue); margin-bottom:16px; font-weight:600; border-bottom:1px solid var(--border); padding-bottom:8px;">3. Receiving Bank & Memo</h3>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">SWIFT / BIC Code</label>
-            <input id="s-swift-code" type="text" class="form-input" placeholder="" maxlength="11" required style="text-transform:uppercase; font-family:monospace;" value="${state.wireData.swiftCode || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">SWIFT / BIC Code</label>
+            <input id="s-swift-code" type="text" class="modern-input" placeholder="" maxlength="11" required style="text-transform:uppercase; font-family:monospace;" value="${state.wireData.swiftCode || ''}">
           </div>
-          <div class="form-group">
-            <label class="form-label">ABA Routing / Sort Code / IBAN</label>
-            <input id="s-routing-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.routingNumber || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">ABA Routing / Sort Code / IBAN</label>
+            <input id="s-routing-num" type="text" class="modern-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.routingNumber || ''}">
           </div>
         </div>
         
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Recipient Account Number</label>
-            <input id="s-acc-num" type="text" class="form-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.accountNumber || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">Recipient Account Number</label>
+            <input id="s-acc-num" type="text" class="modern-input" placeholder="" required style="font-family:monospace;" value="${state.wireData.accountNumber || ''}">
           </div>
-          <div class="form-group">
-            <label class="form-label">Recipient Bank Name</label>
-            <input id="s-bank-name" type="text" class="form-input" placeholder="" required value="${state.wireData.bankName || ''}">
+          <div class="modern-input-group">
+            <label class="modern-label">Recipient Bank Name</label>
+            <input id="s-bank-name" type="text" class="modern-input" placeholder="" required value="${state.wireData.bankName || ''}">
           </div>
         </div>
 
-        <div class="form-group" style="margin-top:12px;">
-          <label class="form-label">Narrative / Description (For bank statement)</label>
-          <input id="s-description" type="text" class="form-input" placeholder="" required value="${state.wireData.description || ''}">
+        <div class="modern-input-group" style="margin-top:12px;">
+          <label class="modern-label">Narrative / Description (For bank statement)</label>
+          <input id="s-description" type="text" class="modern-input" placeholder="" required value="${state.wireData.description || ''}">
         </div>
 
         <div style="display:flex; justify-content:space-between; margin-top:20px;">
@@ -2042,9 +2048,9 @@ function renderWireTransfer() {
           Verification code has been sent to your email inbox.
         </p>
 
-        <div class="form-group" style="text-align:center;">
-          <label class="form-label" style="display:block; text-align:center; font-weight:600; margin-bottom:8px;">6-Digit Security Code</label>
-          <input type="text" id="s-verification-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size: 22px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
+        <div class="modern-input-group" style="text-align:center;">
+          <label class="modern-label" style="display:block; text-align:center; font-weight:600; margin-bottom:8px;">6-Digit Security Code</label>
+          <input type="text" id="s-verification-code" class="modern-input" required maxlength="6" placeholder="000000" style="text-align:center; font-size: 22px; letter-spacing:6px; font-family:monospace; max-width:220px; margin:0 auto;" autofocus>
         </div>
         <div style="text-align:center; margin-bottom:12px; font-size:13.5px; color:var(--text-muted);">
           Didn't get it? <span id="otp-timer-text" style="font-weight:600;">Resend in 00:59</span>
@@ -2118,7 +2124,7 @@ function renderWireTransfer() {
   }
 
   const formCardHtml = `
-    <div class="panel">
+    <div class="glass-form">
       <div class="panel-header"><span class="panel-title">Wire Transfer Form</span></div>
       <div class="panel-body" style="padding:24px;">
         ${progressHtml}
@@ -2414,13 +2420,13 @@ function renderIntrabankTransfer() {
       </div>
 
       <div style="max-width: 600px; margin: 0 auto;">
-        <div class="panel">
+        <div class="glass-form">
           <div class="panel-header"><span class="panel-title">Transfer Parameters</span></div>
           <div class="panel-body" style="padding:24px;">
             <form id="intrabank-form" onsubmit="handleIntrabankTransfer(event)">
               
-              <div class="form-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
-                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer From (Source Account)</label>
+              <div class="modern-input-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
+                <label class="modern-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer From (Source Account)</label>
                 <div onclick="toggleIntrabankFrom()" style="background:#fff; border:2px solid var(--citi-navy); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 12px rgba(0,44,119,0.08); transition:all 0.2s;">
                   <div style="display:flex; align-items:center; gap:14px;">
                     <div style="width:48px; height:48px; border-radius:10px; background:rgba(0,44,119,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-navy);">
@@ -2440,8 +2446,8 @@ function renderIntrabankTransfer() {
                 </div>
               </div>
 
-              <div class="form-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
-                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer To (Destination Account)</label>
+              <div class="modern-input-group" style="margin-bottom:24px; position:relative; font-family:'Inter',sans-serif;">
+                <label class="modern-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:12px; display:block;">Transfer To (Destination Account)</label>
                 <div onclick="toggleIntrabankTo()" style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all 0.2s;">
                   <div style="display:flex; align-items:center; gap:14px;">
                     <div style="width:48px; height:48px; border-radius:10px; background:rgba(0,102,204,0.06); display:flex; align-items:center; justify-content:center; color:var(--citi-blue);">
@@ -2461,9 +2467,9 @@ function renderIntrabankTransfer() {
                 </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 30px;">
-                <label class="form-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer Amount (USD)</label>
-                <input id="t-amount" type="number" step="0.01" min="0.01" class="form-input" placeholder="0.00" required style="width:100%; font-size:24px; padding:16px; font-weight:700;">
+              <div class="modern-input-group" style="margin-bottom: 30px;">
+                <label class="modern-label" style="font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">Transfer Amount (USD)</label>
+                <input id="t-amount" type="number" step="0.01" min="0.01" class="modern-input" placeholder="0.00" required style="width:100%; font-size:24px; padding:16px; font-weight:700;">
               </div>
 
               <button type="submit" class="btn btn-primary btn-full" style="padding:16px; font-weight:700; font-size: 18px; width:100%; letter-spacing:0.5px;">
@@ -2565,16 +2571,16 @@ async function handleLogin(e) {
 function renderLogin2FA(userId) {
   setRoot(`
     <div class="auth-shell">
-      <div class="auth-card" style="max-width:420px;">
+      <div class="glass-form" style="max-width:420px;">
         <div class="auth-card-header" style="text-align:center;">
           <h1 class="auth-title">Security Verification</h1>
           <p class="auth-subtitle" style="font-size: 14.5px;line-height:1.5;">Verification code has been sent to your email inbox.</p>
         </div>
         <div class="auth-card-body">
           <form onsubmit="handleLogin2FASubmit(event, '${userId}')">
-            <div class="form-group">
-              <label class="form-label">MFA Verification Code</label>
-              <input type="text" id="login-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 20px;letter-spacing:6px;font-family:monospace;" autofocus>
+            <div class="modern-input-group">
+              <label class="modern-label">MFA Verification Code</label>
+              <input type="text" id="login-2fa-code" class="modern-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 20px;letter-spacing:6px;font-family:monospace;" autofocus>
             </div>
             <div style="text-align:center; margin-bottom:12px; font-size:13.5px; color:var(--text-muted);">
               Didn't get it? <span id="otp-timer-text" style="font-weight:600;">Resend in 00:59</span>
@@ -2706,17 +2712,17 @@ function showPasswordChangeModal() {
         As a security protocol, first-time users must replace their system-assigned passcode before accessing the private banking dashboard.
       </p>
       <form id="pwd-change-form" onsubmit="handlePasswordChangeSubmit(event)">
-        <div class="form-group">
-          <label class="form-label">Temporary Passcode</label>
-          <input type="password" id="p-old" class="form-input" required placeholder="Enter temporary passcode">
+        <div class="modern-input-group">
+          <label class="modern-label">Temporary Passcode</label>
+          <input type="password" id="p-old" class="modern-input" required placeholder="Enter temporary passcode">
         </div>
-        <div class="form-group">
-          <label class="form-label">New Secure Passcode</label>
-          <input type="password" id="p-new" class="form-input" required placeholder="Min 8 chars, A-Z, 0-9, and symbols">
+        <div class="modern-input-group">
+          <label class="modern-label">New Secure Passcode</label>
+          <input type="password" id="p-new" class="modern-input" required placeholder="Min 8 chars, A-Z, 0-9, and symbols">
         </div>
-        <div class="form-group">
-          <label class="form-label">Confirm New Passcode</label>
-          <input type="password" id="p-confirm" class="form-input" required placeholder="Retype new passcode">
+        <div class="modern-input-group">
+          <label class="modern-label">Confirm New Passcode</label>
+          <input type="password" id="p-confirm" class="modern-input" required placeholder="Retype new passcode">
         </div>
         <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Modify Secure Passcode</button>
       </form>
@@ -2813,9 +2819,9 @@ function openWire2FAModal(onConfirm) {
         Enter the 6-digit security verification code sent to your registered email to authorize this outbound transaction.
       </p>
       <form id="wire-2fa-form">
-        <div class="form-group">
-          <label class="form-label">6-Digit Code</label>
-          <input type="text" id="wire-2fa-code" class="form-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 20px;letter-spacing:6px;font-family:monospace;" autofocus>
+        <div class="modern-input-group">
+          <label class="modern-label">6-Digit Code</label>
+          <input type="text" id="wire-2fa-code" class="modern-input" required maxlength="6" placeholder="000000" style="text-align:center;font-size: 20px;letter-spacing:6px;font-family:monospace;" autofocus>
         </div>
         <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Authorize SWIFT Transfer</button>
       </form>
@@ -3149,21 +3155,21 @@ async function loadExchange() {
         </div>
       </div>
 
-      <div class="panel">
+      <div class="glass-form">
         <div class="panel-header"><span class="panel-title">Currency Exchange</span></div>
         <div class="panel-body">
           <form id="exchange-form" onsubmit="handleExchange(event)">
-            <div class="form-group">
-              <label class="form-label">From Account</label>
-              <select id="ex-from" class="form-select">${fromOpts}</select>
+            <div class="modern-input-group">
+              <label class="modern-label">From Account</label>
+              <select id="ex-from" class="modern-input">${fromOpts}</select>
             </div>
-            <div class="form-group">
-              <label class="form-label">To Account</label>
-              <select id="ex-to" class="form-select">${toOpts}</select>
+            <div class="modern-input-group">
+              <label class="modern-label">To Account</label>
+              <select id="ex-to" class="modern-input">${toOpts}</select>
             </div>
-            <div class="form-group">
-              <label class="form-label">Amount to Convert</label>
-              <input id="ex-amt" type="number" step="0.01" min="1" class="form-input" placeholder="0.00" required>
+            <div class="modern-input-group">
+              <label class="modern-label">Amount to Convert</label>
+              <input id="ex-amt" type="number" step="0.01" min="1" class="modern-input" placeholder="0.00" required>
             </div>
             <button type="submit" class="btn btn-primary btn-full" style="margin-top:12px;">Execute FX Conversion</button>
           </form>
@@ -3207,7 +3213,7 @@ async function handleExchange(e) {
 function renderProducts() {
   setRoot(`
     <div class="app-container">
-      <div class="panel" style="margin-bottom:32px;">
+      <div class="glass-form" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
           <h2 class="panel-title" style="color:#fff;font-size: 16px;letter-spacing:0.05em;">Meridian Offshore Accounts & Programs</h2>
         </div>
@@ -3243,7 +3249,7 @@ function renderProducts() {
 function renderServices() {
   setRoot(`
     <div class="app-container">
-      <div class="panel" style="margin-bottom:32px;">
+      <div class="glass-form" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
           <h2 class="panel-title" style="color:#fff;font-size: 16px;letter-spacing:0.05em;">Core Banking Services</h2>
         </div>
@@ -3274,7 +3280,7 @@ function renderServices() {
 function renderLegal() {
   setRoot(`
     <div class="app-container">
-      <div class="panel" style="margin-bottom:32px;">
+      <div class="glass-form" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
           <h2 class="panel-title" style="color:#fff;font-size: 16px;letter-spacing:0.05em;">Legal, Compliance & Disclaimers</h2>
         </div>
@@ -3302,7 +3308,7 @@ function renderLegal() {
 function renderAbout() {
   setRoot(`
     <div class="app-container">
-      <div class="panel" style="margin-bottom:32px;">
+      <div class="glass-form" style="margin-bottom:32px;">
         <div class="panel-header" style="background:#002C77;color:#fff;">
           <h2 class="panel-title" style="color:#fff;font-size: 16px;letter-spacing:0.05em;">About Meridian Trust Bank</h2>
         </div>
@@ -3401,11 +3407,11 @@ function renderTransactionHistory() {
 
       <!-- Search Panel -->
       <div style="margin-bottom:24px;">
-        <input id="hist-search" type="text" class="form-input" style="width:100%; padding:16px; font-size:15px; border-radius:12px; border:1.5px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.05);" placeholder="Search reference id, name, date or memo..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
+        <input id="hist-search" type="text" class="modern-input" style="width:100%; padding:16px; font-size:15px; border-radius:12px; border:1.5px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.05);" placeholder="Search reference id, name, date or memo..." value="${state.historyFilter.search}" oninput="updateHistoryFilter()">
       </div>
 
       <!-- Ledger Panel -->
-      <div class="panel">
+      <div class="glass-form">
         <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
           <span class="panel-title" style="font-size: 16px;">Transaction History</span>
           <span id="hist-count" style="font-size: 13px; font-weight:600; color:var(--text-secondary);">Showing 0 records</span>
@@ -4005,3 +4011,30 @@ function v(id) { const el = document.getElementById(id); return el ? el.value : 
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', init);
+
+
+// ── New Features ─────────────────────────────────────────────────────────────
+function loadCards() { renderCards(); }
+function renderCards() {
+  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Virtual Card Management</h2><p>Coming Soon...</p></div>`);
+}
+
+function loadFX() { renderFX(); }
+function renderFX() {
+  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Foreign Exchange</h2><p>Coming Soon...</p></div>`);
+}
+
+function loadAnalytics() { renderAnalytics(); }
+function renderAnalytics() {
+  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Wealth Analytics</h2><p>Coming Soon...</p></div>`);
+}
+
+function loadMessages() { renderMessages(); }
+function renderMessages() {
+  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Secure Messaging</h2><p>Coming Soon...</p></div>`);
+}
+
+function loadBeneficiaries() { renderBeneficiaries(); }
+function renderBeneficiaries() {
+  setRoot(`<div style="padding:40px; color:var(--text-primary); text-align:center;"><h2>Beneficiary Directory</h2><p>Coming Soon...</p></div>`);
+}
