@@ -241,7 +241,7 @@ a:hover { text-decoration: underline; }
   background: 
     radial-gradient(circle at 15% 50%, rgba(0, 44, 119, 0.08), transparent 25%),
     radial-gradient(circle at 85% 30%, rgba(165, 117, 15, 0.08), transparent 25%),
-    url('bank_hero_bg.png') center/cover fixed;
+    url('dark_hero_bg.png') center/cover fixed;
   z-index: -1;
   pointer-events: none;
   opacity: 0.15;
@@ -534,7 +534,7 @@ a:hover { text-decoration: underline; }
 
 /* ── Hero / Landing ──────────────────────────────────────────────────────────── */
 .hero {
-  background: linear-gradient(rgba(0, 44, 119, 0.85), rgba(0, 20, 50, 0.92)), url('bank_hero_bg.png') no-repeat center center;
+  background: linear-gradient(rgba(0, 44, 119, 0.85), rgba(0, 20, 50, 0.92)), url('dark_hero_bg.png') no-repeat center center;
   background-size: cover;
   color: #fff;
   padding: 64px 0 0;
@@ -1105,11 +1105,12 @@ a:hover { text-decoration: underline; }
 
 .card-number-display {
   font-family: 'Roboto Condensed', monospace;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: rgba(26,26,46,0.7);
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   margin: 4px 0;
+  white-space: nowrap;
 }
 
 .card-label { font-size: 13px; color: rgba(26,26,46,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -1474,7 +1475,7 @@ html { scroll-behavior: smooth; }
 .w3-hero-bg {
   position: absolute;
   inset: 0;
-  background: url('hero_bg.png') no-repeat center center;
+  background: url('dark_hero_bg.png') no-repeat center center;
   background-size: cover;
   opacity: 0.45; /* Visible background banking hall */
   z-index: 0;
@@ -2562,9 +2563,10 @@ label.checkbox-invalid {
     border-radius: 4px !important;
   }
   .card-number-display {
-    font-size: 15px !important;
-    letter-spacing: 2px !important;
+    font-size: 13px !important;
+    letter-spacing: 1px !important;
     margin: 8px 0 !important;
+    white-space: nowrap !important;
   }
   .card-tier-label {
     font-size: 14px !important;
